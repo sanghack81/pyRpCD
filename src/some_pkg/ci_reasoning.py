@@ -1,7 +1,7 @@
 import collections
 
-from some_pkg.relational_domain import SkItem, RSchema
-from some_pkg.relational_model import RVar, RPath, RCM
+from some_pkg.domain import SkItem, RSchema
+from some_pkg.model import RVar, RPath, RCM
 import networkx as nx
 import typing
 

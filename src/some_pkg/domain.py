@@ -140,6 +140,10 @@ class RSchema:
     def item_class_of(self, attr):
         return self.attr2item_class[attr]
 
+    @property
+    def item_classes(self):
+        return self.entities | self.relationships
+
     def __contains__(self, item):
         return item in self.entities or \
                item in self.relationships or \
@@ -176,7 +180,7 @@ class SkItem:
         self.__values = values.copy() if values is not None else dict()
 
     def __eq__(self, other):
-        if self == other:
+        if self is other:
             return True
         else:
             # lazy-check for different instance of the same name

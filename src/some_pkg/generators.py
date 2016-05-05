@@ -1,9 +1,10 @@
 import itertools
-from numpy.random import choice, randint, random_sample, shuffle, randn
-import networkx as nx
 
-from some_pkg.relational_domain import RSchema, RSkeleton, E_Class, A_Class, R_Class, SkItem, Cardinality, I_Class
-from some_pkg.relational_model import RPath, RCM, RVar, RDep, ParametrizedRCM, terminal_set
+import networkx as nx
+from numpy.random import choice, randint, random_sample, shuffle, randn
+
+from some_pkg.domain import RSchema, RSkeleton, E_Class, A_Class, R_Class, SkItem, Cardinality, I_Class
+from some_pkg.model import RPath, RCM, RVar, RDep, ParamRCM, terminal_set
 
 
 #
@@ -119,20 +120,20 @@ def generate_rpath(schema: RSchema, base: I_Class = None, length=None):
     assert base in schema
 
     rpath_inner = [base, ]
-    at = base
-    previous = None
+    curr_item = base
+    prev_item = None
     while len(rpath_inner) < length:
-        nexts = set(schema.relateds(at))
-        if previous is not None:
-            if isinstance(at, R_Class) or not previous.is_many(at):
-                nexts.remove(previous)
-        if not nexts:
+        next_items = set(schema.relateds(curr_item))
+        if prev_item is not None:
+            if isinstance(curr_item, R_Class) or not prev_item.is_many(curr_item):
+                next_items.remove(prev_item)
+        if not next_items:
             break
-        next = choice(list(nexts))
-        rpath_inner.append(next)
+        next_item = choice(list(next_items))
+        rpath_inner.append(next_item)
 
-        previous = at
-        at = next
+        prev_item = curr_item
+        curr_item = next_item
 
     return RPath(rpath_inner)
 
@@ -226,14 +227,14 @@ def linear_gaussians_rcm(rcm: RCM):
         parameters = {cause: randn() for cause in rcm.pa(e)}
         functions[e] = linear_gaussian(parameters, average_agg(), normal_sampler(0, 0.1))
 
-    return ParametrizedRCM(rcm.schema, rcm.directed_dependencies, functions)
+    return ParamRCM(rcm.schema, rcm.directed_dependencies, functions)
 
 
 def _item_attributes(items, attr: A_Class):
     return {(item, attr) for item in items}
 
 
-def generate_values_for_skeleton(rcm: ParametrizedRCM, skeleton: RSkeleton):
+def generate_values_for_skeleton(rcm: ParamRCM, skeleton: RSkeleton):
     """
     Generate values for the given skeleton based on functions specified in the parametrized RCM.
     :param rcm: a parameterized RCM, where its functions are used to generate values on skeleton.

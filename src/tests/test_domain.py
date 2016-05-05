@@ -2,11 +2,11 @@ import unittest
 
 from networkx import is_directed_acyclic_graph
 
+from some_pkg.domain import SchemaElement, E_Class, A_Class, Cardinality, R_Class, RSchema, RSkeleton, SkItem
 from some_pkg.generators import generate_schema, generate_skeleton, between_sampler, generate_rcm, linear_gaussians_rcm, \
     generate_values_for_skeleton, average_agg, max_agg, linear_gaussian, normal_sampler
-from some_pkg.relational_domain import SchemaElement, E_Class, A_Class, Cardinality, R_Class, RSchema, RSkeleton, SkItem
-from some_pkg.relational_model import RPath, LLRSP, eqint, RVar, RDep, RCM, GroundGraph, PRCM, UndirectedRDep, flatten
-from some_pkg.relational_model import terminal_set
+from some_pkg.model import RPath, llrsp, eqint, RVar, RDep, RCM, GroundGraph, PRCM, UndirectedRDep, flatten
+from some_pkg.model import terminal_set
 
 
 # TODO clean up later
@@ -169,9 +169,9 @@ class TestSchema(unittest.TestCase):
                         RPath([D, P, F, B, F, P]),
                         RPath([D, P, F, B, F, P])])) == 3
         assert all(i == j for i, j in zip(RPath([D, P, F, B, F, P, D, E]), [D, P, F, B, F, P, D, E]))
-        assert LLRSP(RPath([P, F, B]), RPath([P, F, B])) == 3
-        assert LLRSP(RPath([E, D, P, F, B]), RPath([E, D, P, D, E])) == 1
-        assert LLRSP(RPath([P, F, B, F, P]), RPath([P, F, B, F, P])) == 3
+        assert llrsp(RPath([P, F, B]), RPath([P, F, B])) == 3
+        assert llrsp(RPath([E, D, P, F, B]), RPath([E, D, P, D, E])) == 1
+        assert llrsp(RPath([P, F, B, F, P]), RPath([P, F, B, F, P])) == 3
         assert eqint(RPath([P, F, B, F, P]), RPath([P, F, B, F, P]))
         assert eqint(RPath([E, D, P, D, E]), RPath([E, D, P, D, E, D, P, D, E]))
         assert eqint(RPath([E, D, P, D, E]), RPath([E, D, P, D, E, D, P, D, E]))
@@ -396,6 +396,8 @@ class TestGenerators(unittest.TestCase):
             one_cause = next(iter(causes))
             causes_of_the_base = list(filter(lambda c: c.base == one_cause.base, causes))
             data_frame = flatten(skeleton, causes_of_the_base)
+
+
 
     def test_aggregators(self):
         agg = average_agg(1.0)

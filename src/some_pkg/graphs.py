@@ -13,8 +13,12 @@ class PDAG:
     def vertices(self):
         return set(self._Pa.keys()) | set(self._Ch.keys())
 
+    def __iter__(self):
+        return iter(self.vertices())
+
+    # TODO performance
     def __contains__(self, item):
-        return item in self.E
+        return item in self.E or item in self.vertices()
 
     # Ancestors
     def an(self, x, at=None):

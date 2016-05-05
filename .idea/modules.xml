@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/practical_rcm_learner.iml" filepath="$PROJECT_DIR$/.idea/practical_rcm_learner.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../pyGK/.idea/pyGK.iml" filepath="$PROJECT_DIR$/../pyGK/.idea/pyGK.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../pyKCIPT/.idea/pyKCIPT.iml" filepath="$PROJECT_DIR$/../pyKCIPT/.idea/pyKCIPT.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../pyRCDs/.idea/practical_rcm_learner.iml" filepath="$PROJECT_DIR$/../pyRCDs/.idea/practical_rcm_learner.iml" />
     </modules>
   </component>
 </project>

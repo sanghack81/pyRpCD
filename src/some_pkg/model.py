@@ -1,12 +1,16 @@
 from collections import defaultdict
-from itertools import cycle, groupby
+from itertools import cycle, product, combinations
 
-import networkx as nx
 import numpy as np
 from pandas import DataFrame
 
 from some_pkg.graphs import PDAG
-from some_pkg.relational_domain import E_Class, R_Class, I_Class, RSchema, A_Class, RSkeleton, SkItem
+from some_pkg.domain import E_Class, R_Class, I_Class, RSchema, A_Class, RSkeleton, SkItem
+
+
+def _groupby(xs, keyfunc):
+    from itertools import groupby
+    return {k: list(g) for k, g in groupby(sorted(xs, key=keyfunc), key=keyfunc)}.items()
 
 
 def is_valid_relational_path(path) -> bool:
@@ -40,11 +44,11 @@ def is_valid_relational_path(path) -> bool:
 
 
 class RPath:
-    def __init__(self, item_classes):
+    def __init__(self, item_classes, backdoor=False):
         assert item_classes is not None
         if isinstance(item_classes, I_Class):
             item_classes = [item_classes, ]
-        assert is_valid_relational_path(item_classes)
+        assert backdoor or is_valid_relational_path(item_classes)
         self.__item_classes = tuple(item_classes)
         self.__h = hash(self.__item_classes)
 
@@ -74,6 +78,10 @@ class RPath:
         return RPath(tuple(reversed(self.__item_classes)))
 
     @property
+    def hop_len(self):
+        return len(self) - 1
+
+    @property
     def terminal(self):
         return self.__item_classes[-1]
 
@@ -84,28 +92,39 @@ class RPath:
     def __len__(self):
         return len(self.__item_classes)
 
+    # TODO test
+    def appended_or_none(self, item_class: I_Class):
+        if len(self) > 1:
+            if is_valid_relational_path(self.__item_classes[-2:] + (item_class,)):
+                return RPath(self.__item_classes + (item_class,), True)
+        else:
+            if isinstance(item_class, R_Class):
+                if self.terminal in item_class.entities:
+                    return RPath(self.__item_classes + (item_class,), True)
+            elif isinstance(self.terminal, R_Class):
+                if item_class in self.terminal.entities:
+                    return RPath(self.__item_classes + (item_class,), True)
+        return None
+
     def joinable(self, rpath):
         if self.terminal != rpath.base:
             return False
-
         if len(self) > 1 and len(rpath) > 1:
             return is_valid_relational_path([self.__item_classes[-2], self.__item_classes[-1], rpath.__item_classes[1]])
         return True
 
     def join(self, rpath):
         assert self.terminal == rpath.base
-
         if len(self) > 1 and len(rpath) > 1:
             assert is_valid_relational_path([self.__item_classes[-2], self.__item_classes[-1], rpath.__item_classes[1]])
-
-        return RPath(self.__item_classes + rpath.__item_classes[1:])
+        return RPath(self.__item_classes + rpath.__item_classes[1:], True)
 
     def __str__(self):
         return '[' + (', '.join(str(i) for i in self.__item_classes)) + ']'
 
 
 # Longest Length of Required Shared Path
-def LLRSP(p1: RPath, p2: RPath) -> int:
+def llrsp(p1: RPath, p2: RPath) -> int:
     prev = None
     for i, (x, y) in enumerate(zip(p1, p2)):
         if x != y or (i > 0 and isinstance(x, R_Class) and x.is_many(prev)):
@@ -119,7 +138,7 @@ def LLRSP(p1: RPath, p2: RPath) -> int:
 def eqint(p1: RPath, p2: RPath):
     if (p1.base, p1.terminal) != (p2.base, p2.terminal):
         return False
-    return p1 == p2 or LLRSP(p1, p2) + LLRSP(reversed(p1), reversed(p2)) <= min(len(p1), len(p2))
+    return p1 == p2 or llrsp(p1, p2) + llrsp(reversed(p1), reversed(p2)) <= min(len(p1), len(p2))
 
 
 class RVar:
@@ -159,6 +178,10 @@ class RVar:
 
     def __str__(self):
         return str(self.rpath) + '.' + str(self.attr)
+
+
+def canonical_rvars(schema: RSchema):
+    return set(RVar(RPath(item_class), attr) for item_class in schema.item_classes for attr in item_class.attrs)
 
 
 class RDep:
@@ -207,29 +230,30 @@ class RDep:
         return str(self.cause) + " -> " + str(self.effect)
 
 
-# class SymTriple:
-#     def __init__(self, left, middle, right):
-#         assert left != right
-#         self.left, self.middle, self.right = left, middle, right
-#
-#     def __hash__(self):
-#         return (hash(self.left) + hash(self.right)) ^ hash(self.middle)
-#
-#     def __eq__(self, other):
-#         return isinstance(other, SymTriple) and \
-#                (self.left, self.right, self.middle) == (other.left, other.right, other.middle) or \
-#                (self.right, self.left, self.middle) == (other.left, other.right, other.middle)
-#
-#     def sides(self):
-#         return set(self.left, self.right)
-#
-#     def __str__(self):
-#         return '<' + (', '.join((self.left, self.middle, self.right))) + '>'
+class SymTriple:
+    def __init__(self, left, middle, right):
+        self.left, self.middle, self.right = left, middle, right
 
+    def __hash__(self):
+        return (hash(self.left) + hash(self.right)) ^ hash(self.middle)
 
-# class AttrTriple(SymTriple):
-#     def __init__(self, l, m, r):
-#         super().__init__(l, m, r)
+    def __eq__(self, other):
+        return isinstance(other, SymTriple) and \
+               (self.left, self.right, self.middle) == (other.left, other.right, other.middle) or \
+               (self.right, self.left, self.middle) == (other.left, other.right, other.middle)
+
+    def __iter__(self):
+        return iter((self.left, self.middle, self.right))
+
+    def sides(self):
+        return set(self.left, self.right)
+
+    @property
+    def dual(self):
+        return SymTriple(self.right, self.middle, self.left)
+
+    def __str__(self):
+        return '<' + (', '.join((self.left, self.middle, self.right))) + '>'
 
 
 class UndirectedRDep:
@@ -246,7 +270,8 @@ class UndirectedRDep:
     def __iter__(self):
         return iter(self.rdeps)
 
-    def hop_length(self):
+    @property
+    def hop_len(self) -> int:
         return next(iter(self.rdeps)).hop_len
 
     def __str__(self):
@@ -326,7 +351,8 @@ class PRCM:
     def remove(self, d):
         if isinstance(d, RDep) and d in self.directed_dependencies:
             self.parents[d.effect].remove(d.cause)
-            self.children[d.dual.cause].discard(d.dual.effect)
+            dual_cause, dual_effect = d.dual
+            self.children[dual_cause].discard(dual_effect)
             self.directed_dependencies.remove(d)
 
         elif isinstance(d, UndirectedRDep) and d in self.undirected_dependencies:
@@ -362,7 +388,7 @@ class RCM(PRCM):
 # function takes values and cause item attributes
 # values[RVar]
 # cause_item_attr[RVar] = tuples of an item and an attribute
-class ParametrizedRCM(RCM):
+class ParamRCM(RCM):
     def __init__(self, schema: RSchema, dependencies, functions: dict):
         super().__init__(schema, dependencies)
         self.functions = functions
@@ -429,19 +455,35 @@ def flatten(skeleton: RSkeleton, rvars) -> DataFrame:
 
 class GroundGraph:
     def __init__(self, rcm: RCM, skeleton: RSkeleton):
-        self.g = nx.DiGraph()
+        self.g = PDAG()
 
-        def key_func(d):
-            return d.effect.rpath.terminal
+        def k_fun(d):
+            return d.effect.rpath.base
 
-        for terminal, rdeps in groupby(sorted(rcm.directed_dependencies, key=key_func), key=key_func):
-            for base_item in skeleton.items(terminal):
-                for rdep in rdeps:  # same perspective
-                    for dest_item in terminal_set(skeleton, rdep.cause.rpath, base_item):
-                        self.g.add_edge((dest_item, rdep.cause.attr), (base_item, rdep.effect.attr))
+        # TODO refactoring
+        # n.b. this is only valid with path semantics
+        # With bridge burning semantics, a partially-directed ground graph is not well-defined.
+        as_rdeps = {dep1 for dep1, _ in rcm.undirected_dependencies}
+        for base_item_class, rdeps in _groupby(as_rdeps, k_fun):
+            for base_item, rdep in product(skeleton.items(base_item_class), rdeps):
+                for dest_item in terminal_set(skeleton, rdep.cause.rpath, base_item):
+                    self.g.add_undirected_edge((dest_item, rdep.cause.attr), (base_item, rdep.effect.attr))
+
+        for base_item_class, rdeps in _groupby(rcm.directed_dependencies, k_fun):
+            for base_item, rdep in product(skeleton.items(base_item_class), rdeps):
+                for dest_item in terminal_set(skeleton, rdep.cause.rpath, base_item):
+                    self.g.add_edge((dest_item, rdep.cause.attr), (base_item, rdep.effect.attr))
 
     def __str__(self):
         return str(self.g)
 
     def as_networkx_dag(self):
-        return self.g.copy()
+        return self.g.as_networkx_dag().copy()
+
+    def unshielded_triples(self):
+        uts = set()
+        for middle in self.g:
+            for left, right in combinations(self.g.adj(middle), 2):
+                if not self.g.is_adj(left, right):
+                    uts.add(SymTriple(left, middle, right))
+        return uts
