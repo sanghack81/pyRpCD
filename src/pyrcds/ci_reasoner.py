@@ -1,7 +1,7 @@
 import collections
 
-from some_pkg.domain import SkItem, RSchema
-from some_pkg.model import RVar, RPath, RCM
+from pyrcds.domain import SkItem, RSchema
+from pyrcds.model import RVar, RPath, RCM
 import networkx as nx
 import typing
 

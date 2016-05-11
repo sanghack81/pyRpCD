@@ -1,19 +1,24 @@
 # Practical Learning Algorithm for RCM
 import collections
 import logging
+import typing
 from itertools import product, count, combinations
 from warnings import warn
 
-from some_pkg.domain import RSchema, RSkeleton
-from some_pkg.model import PRCM, RVar, RPath, RDep, UndirectedRDep, canonical_rvars
+from pyrcds.ci_test import CITester
+from pyrcds.domain import RSchema, RSkeleton
+from pyrcds.model import PRCM, RVar, RPath, RDep, UndirectedRDep, canonical_rvars
 
 
-def _groupby(xs, keyfunc):
+def group_by(xs, keyfunc):
+    """Modified groupby from itertools with group objects as lists"""
     from itertools import groupby
-    return {k: list(g) for k, g in groupby(sorted(xs, key=keyfunc), key=keyfunc)}.items()
+    gb = groupby(sorted(xs, key=keyfunc), key=keyfunc)
+    return ((k, list(g)) for k, g in gb)  # generator
 
 
 def enumerate_rpaths(schema: RSchema, h_max: int):
+    """Enumerate all relational paths up to given hop"""
     # canonical relational paths
     rpaths = collections.deque(RPath(item_class) for item_class in schema.entities | schema.relationships)
     while rpaths:
@@ -26,6 +31,7 @@ def enumerate_rpaths(schema: RSchema, h_max: int):
 
 
 def enumerate_rdeps(schema: RSchema, h_max: int):
+    """Enumerate all relational dependencies up to given hop"""
     assert 0 <= h_max
 
     for rpath in enumerate_rpaths(schema, h_max):
@@ -37,7 +43,7 @@ def enumerate_rdeps(schema: RSchema, h_max: int):
 
 
 class PracticalLearner:
-    def __init__(self, schema: RSchema, h_max: int, skeleton: RSkeleton, ci_tester):
+    def __init__(self, schema: RSchema, h_max: int, skeleton: RSkeleton, ci_tester: CITester):
         assert 0 <= h_max
         if 7 <= h_max:
             warn('high h_max {}'.format(h_max))
@@ -47,15 +53,21 @@ class PracticalLearner:
         self.skeleton = skeleton
         self.ci_tester = ci_tester
 
-        # learning structure
-        self.prcm = PRCM(self.schema)
-        pass
+        self.sepset = collections.defaultdict(lambda: None)
 
-    # do something with ci_test
-    def adjacency_ci_test(self, cause, effect, conds, size):
+        # intermediate structure
+        self.prcm = PRCM(self.schema)
+        self.logger = logging.getLogger(self.__class__.__module__ + '.' + self.__class__.__name__)
+
+    def adjacency_ci_test(self, cause: RVar, effect: RVar, conds: typing.Set[RVar], size: int):
+        assert 0 <= size and effect.is_canonical
+
         for cond in combinations(conds, size):
-            is_ci, ci_result = self.ci_tester.test(cause, effect, cond)
-            if is_ci:
+            self.logger.debug('ci testing: {} _||_ {} | {}'.format(cause, effect, cond))
+            ci_result = self.ci_tester.ci_test(cause, effect, cond)
+            if ci_result.ci:
+                self.logger.info('{} _||_ {} | {}'.format(cause, effect, cond))
+                self.sepset[(cause, effect)] = cond
                 return True
         return False
 
@@ -63,7 +75,7 @@ class PracticalLearner:
         pass
 
     def phase_I(self) -> set:
-        logging.info('phase I: started.')
+        self.logger.info('phase I: started.')
         prcm, schema, ci_tester = self.prcm, self.schema, self.ci_tester
 
         # Initialize an undirected RCM
@@ -71,20 +83,24 @@ class PracticalLearner:
         prcm.add(udeps_to_be_tested)
 
         for d in count():
+            self.logger.info('phase I: checking depth: {}'.format(d))
             to_remove = set()
             for udep in udeps_to_be_tested:
-                for cause, effect in udep:
+                for dep in udep:
+                    self.logger.info('phase I: checking: {}'.format(dep))
+                    cause, effect = dep
                     if self.adjacency_ci_test(cause, effect, prcm.ne(effect), d):
                         to_remove.add(udep)
                         break
 
+            # post clean up
             prcm.remove(to_remove)
             udeps_to_be_tested -= to_remove
             udeps_to_be_tested -= set(filter(lambda rvar: len(prcm.ne(rvar)) <= d, canonical_rvars(schema)))
             if not udeps_to_be_tested:
                 break
 
-        logging.info('phase I: finished.')
+        self.logger.info('phase I: finished.')
         return set(prcm.undirected_dependencies)
 
     def phase_II(self):
@@ -98,7 +114,7 @@ class PracticalLearner:
         #     (_, x), (_, y), (_, z) = symtriple_of_item_attribute
         #     return SymTriple(x, y, z)
         #
-        # for (x, y, z), item_attr_triples in _groupby(item_attr_uts, attrfy):
+        # for (x, y, z), item_attr_triples in group_by(item_attr_uts, attrfy):
         #     reordered = list()
         #     for t in item_attr_triples:
         #         (_, a), (_, b), (_, c) = t

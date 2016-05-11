@@ -1,3 +1,5 @@
+import itertools
+import typing
 import warnings
 from collections import defaultdict
 from enum import Enum
@@ -162,7 +164,8 @@ class RSchema:
     def removed(self, to_remove):
         pass
 
-    def as_networkx_ug(self):
+    def as_networkx_ug(self, with_attribute_classes=False):
+        # TODO with_attribute_classes True
         g = nx.Graph()
         g.add_nodes_from(self.entities)
         g.add_nodes_from(self.relationships)
@@ -180,12 +183,7 @@ class SkItem:
         self.__values = values.copy() if values is not None else dict()
 
     def __eq__(self, other):
-        if self is other:
-            return True
-        else:
-            # lazy-check for different instance of the same name
-            assert self.name != other.name
-            return False
+        return isinstance(other, SkItem) and self.name == other.name
 
     def __hash__(self):
         return hash(self.name)
@@ -204,9 +202,11 @@ class SkItem:
 
 
 class RSkeleton:
-    def __init__(self, strict=False):
-        self.__G = nx.Graph()
-        self.__nodes_by_type = defaultdict(set)
+    # TODO add schema
+    def __init__(self, schema: RSchema, strict=False):
+        self.schema = schema
+        self._G = nx.Graph()
+        self._nodes_by_type = defaultdict(set)
         self.__strict = strict
 
     def __setitem__(self, key, value):
@@ -224,15 +224,15 @@ class RSkeleton:
 
     def add_entity(self, item: SkItem):
         assert isinstance(item.item_class, E_Class)
-        assert item not in self.__G
-        self.__nodes_by_type[item.item_class].add(item)
-        self.__G.add_node(item)
+        assert item not in self._G
+        self._nodes_by_type[item.item_class].add(item)
+        self._G.add_node(item)
 
     def add_relationship(self, rel: SkItem, entities):
         assert isinstance(rel.item_class, R_Class)
         assert all(isinstance(e.item_class, E_Class) for e in entities)
-        assert rel not in self.__G
-        assert all(e in self.__G for e in entities)
+        assert rel not in self._G
+        assert all(e in self._G for e in entities)
         for e in entities:
             if not rel.item_class.is_many(e.item_class):
                 assert len(self.neighbors(e, rel.item_class)) == 0
@@ -240,23 +240,81 @@ class RSkeleton:
         if self.__strict:
             set(rel.item_class.entities) == {e.item_class for e in entities}
 
-        self.__nodes_by_type[rel.item_class].add(rel)
-        self.__G.add_node(rel)
-        self.__G.add_edges_from((rel, e) for e in entities)
+        self._nodes_by_type[rel.item_class].add(rel)
+        self._G.add_node(rel)
+        self._G.add_edges_from((rel, e) for e in entities)
 
-    def items(self, filter_type: I_Class = None):
+    def items(self, filter_type: I_Class = None) -> typing.FrozenSet[SkItem]:
         if filter_type is not None:
-            return frozenset(self.__nodes_by_type[filter_type])
-        return frozenset(self.__G)
+            return frozenset(self._nodes_by_type[filter_type])
+        return frozenset(self._G)
 
     def neighbors(self, x, filter_type: I_Class = None):
         if filter_type is None:
-            return frozenset(self.__G[x])
+            return frozenset(self._G[x])
         else:
-            return frozenset(filter(lambda y: y.item_class == filter_type, self.__G[x]))
+            return frozenset(filter(lambda y: y.item_class == filter_type, self._G[x]))
 
     def __str__(self):
-        return str(self.__G)
+        return str(self._G)
 
     def as_networkx_ug(self):
-        return self.__G.copy()
+        return self._G.copy()
+
+    def __hash__(self):
+        return id(self)
+
+    def __eq__(self, other):
+        return self is other
+
+# TODO Test equivalent to non immutable...
+class ImmutableRSkeleton(RSkeleton):
+    def __init__(self, skeleton: RSkeleton):
+        self.schema = skeleton.schema
+        self._nodes = frozenset(skeleton._G.nodes_iter())
+        self._nodes_of = defaultdict(frozenset)
+        self._nodes_of.update({k: frozenset(vs) for k, vs in skeleton._nodes_by_type.items()})
+        self._ne = defaultdict(frozenset)
+        for v in self._nodes:
+            neighbors = skeleton.neighbors(v)
+            self._ne[(v, None)] = frozenset(neighbors)
+            for k, g in itertools.groupby(sorted(neighbors, key=lambda x: x.item_class),
+                                          key=lambda x: x.item_class):
+                self._ne[(v, k)] = frozenset(g)
+        self._G = nx.freeze(skeleton.as_networkx_ug())
+
+    def __setitem__(self, key, value):
+        raise AssertionError('not allowed to modify')
+
+    def __getitem__(self, key):
+        item, attr = key
+        return item[attr]
+
+    def add_entities(self, *args):
+        raise AssertionError('not allowed to modify')
+
+    def add_entity(self, item: SkItem):
+        raise AssertionError('not allowed to modify')
+
+    def add_relationship(self, rel: SkItem, entities):
+        raise AssertionError('not allowed to modify')
+
+    def items(self, filter_type: I_Class = None):
+        if filter_type is not None:
+            return self._nodes_of[filter_type]
+        return self._nodes
+
+    def neighbors(self, x, filter_type: I_Class = None):
+        return self._ne[(x, filter_type)]
+
+    def __str__(self):
+        return str(self._G)
+
+    def as_networkx_ug(self):
+        return self._G.copy()
+
+    def __hash__(self):
+        return id(self)
+
+    def __eq__(self, other):
+        return self is other

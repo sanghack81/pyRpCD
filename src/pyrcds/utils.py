@@ -3,8 +3,8 @@ import itertools
 import networkx as nx
 from numpy.random import choice, randint, random_sample, shuffle, randn
 
-from some_pkg.domain import RSchema, RSkeleton, E_Class, A_Class, R_Class, SkItem, Cardinality, I_Class
-from some_pkg.model import RPath, RCM, RVar, RDep, ParamRCM, terminal_set
+from pyrcds.domain import RSchema, RSkeleton, E_Class, A_Class, R_Class, SkItem, Cardinality, I_Class
+from pyrcds.model import RPath, RCM, RVar, RDep, ParamRCM, terminal_set
 
 
 #
@@ -88,7 +88,7 @@ def generate_skeleton(schema: RSchema, n_entities: dict = None, n_relationships:
     if n_relationships is None:
         n_relationships = {R: randint(300, 500) for R in schema.relationships}
 
-    skeleton = RSkeleton(strict=True)
+    skeleton = RSkeleton(schema, strict=True)
     counter = itertools.count(1)
 
     # adjust number of entities if more relationships are 'requesting'
@@ -224,7 +224,7 @@ def linear_gaussians_rcm(rcm: RCM):
     effects = {RVar(RPath(rcm.schema.item_class_of(attr)), attr) for attr in rcm.schema.attrs}
 
     for e in effects:
-        parameters = {cause: randn() for cause in rcm.pa(e)}
+        parameters = {cause: 1.0 + 0.1 * abs(randn()) for cause in rcm.pa(e)}
         functions[e] = linear_gaussian(parameters, average_agg(), normal_sampler(0, 0.1))
 
     return ParamRCM(rcm.schema, rcm.directed_dependencies, functions)

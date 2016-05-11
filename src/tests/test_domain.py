@@ -2,11 +2,11 @@ import unittest
 
 from networkx import is_directed_acyclic_graph
 
-from some_pkg.domain import SchemaElement, E_Class, A_Class, Cardinality, R_Class, RSchema, RSkeleton, SkItem
-from some_pkg.generators import generate_schema, generate_skeleton, between_sampler, generate_rcm, linear_gaussians_rcm, \
+from pyrcds.domain import SchemaElement, E_Class, A_Class, Cardinality, R_Class, RSchema, RSkeleton, SkItem
+from pyrcds.model import RPath, llrsp, eqint, RVar, RDep, RCM, GroundGraph, PRCM, UndirectedRDep, flatten
+from pyrcds.model import terminal_set
+from pyrcds.utils import generate_schema, generate_skeleton, between_sampler, generate_rcm, linear_gaussians_rcm, \
     generate_values_for_skeleton, average_agg, max_agg, linear_gaussian, normal_sampler
-from some_pkg.model import RPath, llrsp, eqint, RVar, RDep, RCM, GroundGraph, PRCM, UndirectedRDep, flatten
-from some_pkg.model import terminal_set
 
 
 # TODO clean up later
@@ -199,7 +199,7 @@ class TestSkeleton(unittest.TestCase):
         entity_types = {'Paul': E, 'Roger': E, 'Quinn': E, 'Sally': E, 'Thomas': E,
                         'Case': P, 'Adapter': P, 'Laptop': P, 'Tablet': P, 'Smartphone': P,
                         'Accessories': B, 'Devices': B}
-        skeleton = RSkeleton(True)
+        skeleton = RSkeleton(company_schema, True)
         p, r, q, s, t, c, a, l, ta, sm, ac, d = ents = tuple([SkItem(e, entity_types[e]) for e in entities])
         skeleton.add_entities(*ents)
         for emp, prods in ((p, {c, }), (q, {c, a, l}), (s, {l, ta}), (t, {sm, ta}), (r, {l, })):
@@ -241,7 +241,7 @@ class TestSkeleton(unittest.TestCase):
         entity_types = {'Paul': E, 'Roger': E, 'Quinn': E, 'Sally': E, 'Thomas': E,
                         'Case': P, 'Adapter': P, 'Laptop': P, 'Tablet': P, 'Smartphone': P,
                         'Accessories': B, 'Devices': B}
-        skeleton = RSkeleton(True)
+        skeleton = RSkeleton(company_schema, True)
         p, r, q, s, t, c, a, l, ta, sm, ac, d = ents = tuple([SkItem(e, entity_types[e]) for e in entities])
         skeleton.add_entities(*ents)
         for emp, prods in ((p, {c, }), (q, {c, a, l}), (s, {l, ta}), (t, {sm, ta}), (r, {l, })):
@@ -396,8 +396,9 @@ class TestGenerators(unittest.TestCase):
             one_cause = next(iter(causes))
             causes_of_the_base = list(filter(lambda c: c.base == one_cause.base, causes))
             data_frame = flatten(skeleton, causes_of_the_base)
-
-
+            data_frame = flatten(skeleton, causes_of_the_base, True, True)
+            data_frame = flatten(skeleton, causes_of_the_base, False, True)
+            data_frame = flatten(skeleton, causes_of_the_base, True, False)
 
     def test_aggregators(self):
         agg = average_agg(1.0)

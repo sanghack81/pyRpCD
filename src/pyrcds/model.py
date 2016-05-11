@@ -1,11 +1,11 @@
+import typing
 from collections import defaultdict
 from itertools import cycle, product, combinations
 
 import numpy as np
-from pandas import DataFrame
 
-from some_pkg.graphs import PDAG
-from some_pkg.domain import E_Class, R_Class, I_Class, RSchema, A_Class, RSkeleton, SkItem
+from pyrcds.domain import E_Class, R_Class, I_Class, RSchema, A_Class, RSkeleton, SkItem
+from pyrcds.graphs import PDAG
 
 
 def _groupby(xs, keyfunc):
@@ -122,6 +122,9 @@ class RPath:
     def __str__(self):
         return '[' + (', '.join(str(i) for i in self.__item_classes)) + ']'
 
+    def __repr__(self):
+        return str(self)
+
 
 # Longest Length of Required Shared Path
 def llrsp(p1: RPath, p2: RPath) -> int:
@@ -179,9 +182,15 @@ class RVar:
     def __str__(self):
         return str(self.rpath) + '.' + str(self.attr)
 
+    def __repr__(self):
+        return str(self)
 
-def canonical_rvars(schema: RSchema):
-    return set(RVar(RPath(item_class), attr) for item_class in schema.item_classes for attr in item_class.attrs)
+
+def canonical_rvars(schema: RSchema) -> typing.Set[RVar]:
+    """Returns all canonical relational variables given schema"""
+    return set(RVar(RPath(item_class), attr)
+               for item_class in schema.item_classes
+               for attr in item_class.attrs)
 
 
 class RDep:
@@ -425,32 +434,36 @@ def terminal_set(skeleton: RSkeleton, rpath: RPath, base_item: SkItem):
         for item_path in item_paths:
             next_items = skeleton.neighbors(item_path[-1], item_class) - set(item_path)
             next_paths += [item_path + [item, ] for item in next_items]
+
+        if not next_paths:
+            return set()
+
         item_paths = next_paths
         next_paths = []
 
+    assert all(len(path) == len(rpath) for path in item_paths)
     return {path[-1] for path in item_paths}
 
 
-def flatten(skeleton: RSkeleton, rvars) -> DataFrame:
-    """
-    Create a data frame with rows representing base items and columns representing values of relational variables.
-    Multiset will be represented as a list of tuples of an item and its value.
-    :param skeleton: relational skeleton where values are stored.
-    :param rvars: relational variables, which will be correspondent to columns.
-    :return: a data frame with rows representing base items and columns representing values of relational variables.
-    """
+def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False):
     rvars = list(rvars)
     assert len({rvar.base for rvar in rvars}) == 1
     base_class = rvars[0].base
     base_items = list(skeleton.items(base_class))
 
-    data = np.empty([len(base_items), len(rvars)], dtype=object)
-    for i, base_item in enumerate(base_items):
-        for j, rvar in enumerate(rvars):
-            terminal = terminal_set(skeleton, rvar.rpath, base_item)
-            data[i, j] = [(item, item[rvar.attr]) for item in terminal]
+    data = np.empty([len(base_items), (1 if with_base_items else 0) + len(rvars)], dtype=object)
+    if with_base_items:
+        data[:, 0] = base_items
 
-    return DataFrame(data, base_items, rvars, dtype=object, )
+    for i, base_item in enumerate(base_items):
+        for j, rvar in enumerate(rvars, start=1 if with_base_items else 0):
+            terminal = terminal_set(skeleton, rvar.rpath, base_item)
+            if value_only:
+                data[i, j] = tuple((item[rvar.attr] for item in terminal))
+            else:
+                data[i, j] = tuple(((item, item[rvar.attr]) for item in terminal))
+
+    return data
 
 
 class GroundGraph:
