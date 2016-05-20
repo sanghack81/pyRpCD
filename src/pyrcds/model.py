@@ -1,19 +1,20 @@
+import functools
 import typing
+import warnings
 from collections import defaultdict
 from itertools import cycle, product, combinations
 
+import itertools
+import networkx as nx
 import numpy as np
+from numpy.random.mtrand import choice, shuffle, randint, randn
 
 from pyrcds.domain import E_Class, R_Class, I_Class, RSchema, A_Class, RSkeleton, SkItem
 from pyrcds.graphs import PDAG
+from pyrcds.utils import average_agg, normal_sampler, group_by, linear_gaussian
 
 
-def _groupby(xs, keyfunc):
-    from itertools import groupby
-    return {k: list(g) for k, g in groupby(sorted(xs, key=keyfunc), key=keyfunc)}.items()
-
-
-def is_valid_relational_path(path) -> bool:
+def is_valid_rpath(path) -> bool:
     E, R = E_Class, R_Class
     assert path is not None and len(path) >= 1
     assert isinstance(path[0], E) or isinstance(path[0], R)
@@ -47,8 +48,8 @@ class RPath:
     def __init__(self, item_classes, backdoor=False):
         assert item_classes is not None
         if isinstance(item_classes, I_Class):
-            item_classes = [item_classes, ]
-        assert backdoor or is_valid_relational_path(item_classes)
+            item_classes = (item_classes,)
+        assert backdoor or is_valid_rpath(item_classes)
         self.__item_classes = tuple(item_classes)
         self.__h = hash(self.__item_classes)
 
@@ -63,8 +64,32 @@ class RPath:
                self.__h == other.__h and \
                self.__item_classes == other.__item_classes
 
+    def __bool__(self):
+        return True
+
+    # As in the paper
     def __getitem__(self, item):
-        return self.__item_classes[item]
+        if isinstance(item, int):
+            return self.__item_classes[item]
+        elif isinstance(item, slice):
+            # TODO slice to tuple, lru cache, a few ...
+            start = 0 if item.start is None else item.start
+            stop = len(self) if item.stop is None else item.stop + 1
+            assert 0 <= start < stop <= len(self)
+
+            if item.step == -1:
+                return RPath(tuple(reversed(self.__item_classes[start:stop])), True)
+            else:
+                return RPath(self.__item_classes[start:stop], True)
+
+        else:
+            raise AssertionError('unknown {}'.format(item))
+
+    # path concatenation
+    def __pow__(self, other):
+        if self.joinable(other):
+            return self.join(other, True)
+        return None
 
     @property
     def is_canonical(self):
@@ -75,7 +100,7 @@ class RPath:
         return RPath(self.__item_classes[start:end])
 
     def __reversed__(self):
-        return RPath(tuple(reversed(self.__item_classes)))
+        return RPath(tuple(reversed(self.__item_classes)), True)
 
     @property
     def hop_len(self):
@@ -95,7 +120,7 @@ class RPath:
     # TODO test
     def appended_or_none(self, item_class: I_Class):
         if len(self) > 1:
-            if is_valid_relational_path(self.__item_classes[-2:] + (item_class,)):
+            if is_valid_rpath(self.__item_classes[-2:] + (item_class,)):
                 return RPath(self.__item_classes + (item_class,), True)
         else:
             if isinstance(item_class, R_Class):
@@ -110,13 +135,12 @@ class RPath:
         if self.terminal != rpath.base:
             return False
         if len(self) > 1 and len(rpath) > 1:
-            return is_valid_relational_path([self.__item_classes[-2], self.__item_classes[-1], rpath.__item_classes[1]])
+            return is_valid_rpath([self.__item_classes[-2], self.__item_classes[-1], rpath.__item_classes[1]])
         return True
 
-    def join(self, rpath):
-        assert self.terminal == rpath.base
-        if len(self) > 1 and len(rpath) > 1:
-            assert is_valid_relational_path([self.__item_classes[-2], self.__item_classes[-1], rpath.__item_classes[1]])
+    def join(self, rpath, backdoor=False):
+        if not backdoor:
+            assert self.joinable(rpath)
         return RPath(self.__item_classes + rpath.__item_classes[1:], True)
 
     def __str__(self):
@@ -126,7 +150,79 @@ class RPath:
         return str(self)
 
 
+# TODO
+class RPathView(RPath):
+    def __init__(self, rpath, from_inc, to_inc):
+        warnings.warn('not yet')
+        self.inner_rpath = rpath
+        self.from_inc = from_inc
+        self.to_inc = to_inc
+
+    def __hash__(self):
+        pass
+
+    def __iter__(self):
+        return
+        pass
+
+    def __eq__(self, other):
+        pass
+
+    def __bool__(self):
+        pass
+
+    # As in the paper
+    def __getitem__(self, item):
+        pass
+
+    # path concatenation
+    def __pow__(self, other):
+        pass
+
+    @property
+    def is_canonical(self):
+        pass
+
+    def subpath(self, start, end):
+        pass
+
+    def __reversed__(self):
+        pass
+
+    @property
+    def hop_len(self):
+        pass
+
+    @property
+    def terminal(self):
+        pass
+
+    @property
+    def base(self):
+        pass
+
+    def __len__(self):
+        pass
+
+    # TODO test
+    def appended_or_none(self, item_class: I_Class):
+        pass
+
+    def joinable(self, rpath):
+        pass
+
+    def join(self, rpath, backdoor=False):
+        pass
+
+    def __str__(self):
+        pass
+
+    def __repr__(self):
+        pass
+
+
 # Longest Length of Required Shared Path
+@functools.lru_cache(3)
 def llrsp(p1: RPath, p2: RPath) -> int:
     prev = None
     for i, (x, y) in enumerate(zip(p1, p2)):
@@ -144,8 +240,9 @@ def eqint(p1: RPath, p2: RPath):
     return p1 == p2 or llrsp(p1, p2) + llrsp(reversed(p1), reversed(p2)) <= min(len(p1), len(p2))
 
 
+# Immutable
 class RVar:
-    def __init__(self, rpath: RPath, attr: A_Class):
+    def __init__(self, rpath, attr: typing.Union[str, A_Class]):
         if not isinstance(rpath, RPath):
             rpath = RPath(rpath)
         if isinstance(attr, str):
@@ -166,6 +263,9 @@ class RVar:
     @property
     def is_canonical(self):
         return self.rpath.is_canonical
+
+    def __iter__(self):
+        return iter((self.rpath, self.attr))
 
     def __len__(self):
         return len(self.rpath)
@@ -262,7 +362,7 @@ class SymTriple:
         return SymTriple(self.right, self.middle, self.left)
 
     def __str__(self):
-        return '<' + (', '.join((self.left, self.middle, self.right))) + '>'
+        return '<' + (', '.join(str(t) for t in (self.left, self.middle, self.right))) + '>'
 
 
 class UndirectedRDep:
@@ -324,6 +424,7 @@ class PRCM:
 
     @property
     def class_dependency_graph(self):
+        #TODO Not a view, create new one every time?
         cdg = PDAG()
         cdg.add_edges((cause.attr, effect.attr) for effect, causes in self.parents.items() for cause in causes)
         cdg.add_undirected_edges((k.attr, v.attr) for k, vs in self.neighbors.items() for v in vs)
@@ -430,7 +531,10 @@ class ParamRCM(RCM):
 def terminal_set(skeleton: RSkeleton, rpath: RPath, base_item: SkItem):
     item_paths = [[base_item]]
     next_paths = []
-    for item_class in rpath[1:]:
+
+    iterator = iter(rpath)
+    next(iterator)
+    for item_class in iterator:
         for item_path in item_paths:
             next_items = skeleton.neighbors(item_path[-1], item_class) - set(item_path)
             next_paths += [item_path + [item, ] for item in next_items]
@@ -459,9 +563,9 @@ def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False)
         for j, rvar in enumerate(rvars, start=1 if with_base_items else 0):
             terminal = terminal_set(skeleton, rvar.rpath, base_item)
             if value_only:
-                data[i, j] = tuple((item[rvar.attr] for item in terminal))
+                data[i, j] = tuple(item[rvar.attr] for item in terminal)
             else:
-                data[i, j] = tuple(((item, item[rvar.attr]) for item in terminal))
+                data[i, j] = tuple((item, item[rvar.attr]) for item in terminal)
 
     return data
 
@@ -477,12 +581,12 @@ class GroundGraph:
         # n.b. this is only valid with path semantics
         # With bridge burning semantics, a partially-directed ground graph is not well-defined.
         as_rdeps = {dep1 for dep1, _ in rcm.undirected_dependencies}
-        for base_item_class, rdeps in _groupby(as_rdeps, k_fun):
+        for base_item_class, rdeps in group_by(as_rdeps, k_fun):
             for base_item, rdep in product(skeleton.items(base_item_class), rdeps):
                 for dest_item in terminal_set(skeleton, rdep.cause.rpath, base_item):
                     self.g.add_undirected_edge((dest_item, rdep.cause.attr), (base_item, rdep.effect.attr))
 
-        for base_item_class, rdeps in _groupby(rcm.directed_dependencies, k_fun):
+        for base_item_class, rdeps in group_by(rcm.directed_dependencies, k_fun):
             for base_item, rdep in product(skeleton.items(base_item_class), rdeps):
                 for dest_item in terminal_set(skeleton, rdep.cause.rpath, base_item):
                     self.g.add_edge((dest_item, rdep.cause.attr), (base_item, rdep.effect.attr))
@@ -500,3 +604,106 @@ class GroundGraph:
                 if not self.g.is_adj(left, right):
                     uts.add(SymTriple(left, middle, right))
         return uts
+
+
+def generate_rpath(schema: RSchema, base: I_Class = None, length=None):
+    assert length is None or 1 <= length
+    if base is None:
+        base = choice(list(schema.entities | schema.relationships))
+    assert base in schema
+
+    rpath_inner = [base, ]
+    curr_item = base
+    prev_item = None
+    while len(rpath_inner) < length:
+        next_items = set(schema.relateds(curr_item))
+        if prev_item is not None:
+            if isinstance(curr_item, R_Class) or not prev_item.is_many(curr_item):
+                next_items.remove(prev_item)
+        if not next_items:
+            break
+        next_item = choice(list(next_items))
+        rpath_inner.append(next_item)
+
+        prev_item = curr_item
+        curr_item = next_item
+
+    return RPath(rpath_inner, True)
+
+
+def generate_rcm(schema: RSchema, num_dependencies, max_degree, max_hop):
+    FAILED_LIMIT = len(schema.entities) + len(schema.relationships)
+    # ordered attributes
+    attr_order = list(schema.attrs)
+    shuffle(attr_order)
+
+    def causable(cause_attr_candidate):
+        return attr_order.index(cause_attr_candidate) < attr_order.index(effect_attr)
+
+    # schema may not be a single component
+    rcm = RCM(schema)
+
+    for effect_attr in attr_order:
+        base_class = schema.item_class_of(effect_attr)
+        effect = RVar(RPath(base_class), effect_attr)
+
+        degree = randint(1, max_degree + 1)  # 1<= <= max_degree
+
+        failed_count = 0
+        while len(rcm.pa(effect)) < degree and failed_count < FAILED_LIMIT:
+            rpath = generate_rpath(schema, base_class, randint(1, max_hop + 1 + 1))
+            cause_attr_candidates = list(filter(causable, rpath.terminal.attrs - {effect_attr, }))
+            if not cause_attr_candidates:
+                failed_count += 1
+                continue
+
+            cause_attr = choice(cause_attr_candidates)
+            cause = RVar(rpath, cause_attr)
+            candidate = RDep(cause, effect)
+            if candidate not in rcm.directed_dependencies:
+                rcm.add(candidate)
+                failed_count = 0
+            else:
+                failed_count += 1
+
+    if len(rcm.directed_dependencies) > num_dependencies:
+        return RCM(schema, choice(list(rcm.directed_dependencies), num_dependencies).tolist())
+    return rcm
+
+
+def _item_attributes(items, attr: A_Class):
+    return {(item, attr) for item in items}
+
+
+def generate_values_for_skeleton(rcm: ParamRCM, skeleton: RSkeleton):
+    """
+    Generate values for the given skeleton based on functions specified in the parametrized RCM.
+    :param rcm: a parameterized RCM, where its functions are used to generate values on skeleton.
+    :param skeleton: a skeleton where values will be assigned to its item-attributes
+    """
+    cdg = rcm.class_dependency_graph
+    nx_cdg = cdg.as_networkx_dag()
+    ordered_attributes = nx.topological_sort(nx_cdg)
+
+    for attr in ordered_attributes:
+        base_item_class = rcm.schema.item_class_of(attr)
+        effect = RVar(RPath(base_item_class), attr)
+        causes = rcm.pa(effect)
+
+        for base_item in skeleton.items(base_item_class):
+            cause_item_attrs = {cause: _item_attributes(terminal_set(skeleton, cause.rpath, base_item), cause.attr)
+                                for cause in causes}
+
+            v = rcm.functions[effect](skeleton, cause_item_attrs)
+            skeleton[(base_item, attr)] = v
+
+
+def linear_gaussians_rcm(rcm: RCM):
+    functions = dict()
+    effects = {RVar(RPath(rcm.schema.item_class_of(attr)), attr) for attr in rcm.schema.attrs}
+
+    for e in effects:
+        parameters = {cause: 1.0 + 0.1 * abs(randn()) for cause in rcm.pa(e)}
+        functions[e] = linear_gaussian(parameters, average_agg(), normal_sampler(0, 0.1))
+
+    return ParamRCM(rcm.schema, rcm.directed_dependencies, functions)

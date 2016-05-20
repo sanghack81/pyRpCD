@@ -7,6 +7,9 @@ from functools import total_ordering
 from itertools import chain
 
 import networkx as nx
+from numpy.random.mtrand import random_sample, choice, randint
+
+from pyrcds.utils import between_sampler
 
 
 class Cardinality(Enum):
@@ -34,9 +37,10 @@ class SchemaElement:
         assert isinstance(name, str)
         assert bool(name)
         self.name = name
+        self.__h = hash(self.name)
 
     def __hash__(self):
-        return hash(self.name)
+        return self.__h
 
     def __eq__(self, other):
         return isinstance(other, SchemaElement) and self.name == other.name
@@ -71,7 +75,8 @@ class E_Class(I_Class):
         return E_Class(self.name, self.attrs - attrs)
 
     def __repr__(self):
-        return self.name + "(" + repr(self.attrs) + ")"
+        attr_part = ', '.join(str(a) for a in sorted(self.attrs)) if self.attrs else ''
+        return self.name + "(" + attr_part + ")"
 
 
 class R_Class(I_Class):
@@ -101,8 +106,11 @@ class R_Class(I_Class):
         return R_Class(self.name, removed_attrs, removed_cards)
 
     def __repr__(self):
-        return self.name + "(" + repr(self.attrs) + ", " + repr(
-            {e.name: ('many' if self.is_many(e) else 'one') for e in self.__cards}) + ")"
+        attr_part = ', '.join(str(a) for a in sorted(self.attrs)) if self.attrs else '()'
+        card_part = '{' + (
+            ', '.join(
+                [str(e) + ': ' + ('many' if self.is_many(e) else 'one') for e in sorted(self.__cards.keys())])) + '}'
+        return self.name + "(" + attr_part + ", " + card_part + ")"
 
 
 class A_Class(SchemaElement):
@@ -152,10 +160,12 @@ class RSchema:
                item in self.attrs
 
     def __str__(self):
-        return "RSchema(" + ', '.join(e.name for e in (self.entities | self.relationships)) + ")"
+
+        return "RSchema(" + ', '.join(e.name for e in sorted(self.entities | self.relationships)) + ")"
 
     def __repr__(self):
-        return "RSchema(" + repr(self.entities) + ", " + repr(self.relationships) + ")"
+        return "RSchema(Entity classes: " + repr(sorted(self.entities)) + ", Relationship classes: " + repr(
+            sorted(self.relationships)) + ")"
 
     def relateds(self, item_class: I_Class):
         assert isinstance(item_class, I_Class)
@@ -267,6 +277,7 @@ class RSkeleton:
     def __eq__(self, other):
         return self is other
 
+
 # TODO Test equivalent to non immutable...
 class ImmutableRSkeleton(RSkeleton):
     def __init__(self, skeleton: RSkeleton):
@@ -318,3 +329,79 @@ class ImmutableRSkeleton(RSkeleton):
 
     def __eq__(self, other):
         return self is other
+
+
+class cardinality_sampler:
+    def __init__(self, p_many=0.5):
+        assert 0 <= p_many <= 1.0
+        self.p_many = p_many
+
+    def sample(self):
+        if random_sample() <= self.p_many:
+            return Cardinality.many
+        else:
+            return Cardinality.one
+
+
+def generate_schema(num_ent_classes_distr=between_sampler(2, 5),
+                    num_rel_classes_distr=between_sampler(2, 5),
+                    num_ent_classes_per_rel_class_distr=between_sampler(2, 3),
+                    num_attr_classes_per_ent_class_distr=between_sampler(2, 4),
+                    num_attr_classes_per_rel_class_distr=between_sampler(0, 0),
+                    cardinality_distr=cardinality_sampler(0.5)  # Cardinality sampler
+                    ):
+    ent_classes = []
+    rel_classes = []
+    attr_count = itertools.count(1)
+
+    num_ent_classes = num_ent_classes_distr.sample()
+    if num_ent_classes < 2:
+        num_rel_classes = 0
+    else:
+        num_rel_classes = num_rel_classes_distr.sample()
+
+    for i in range(1, num_ent_classes + 1):
+        n_attr = num_attr_classes_per_ent_class_distr.sample()
+        attrs = (A_Class("A" + str(next(attr_count))) for _ in range(n_attr))
+        ent_classes.append(E_Class("E" + str(i), attrs))
+    assert len(ent_classes) == num_ent_classes
+
+    for i in range(1, num_rel_classes + 1):
+        n_e_r = num_ent_classes_per_rel_class_distr.sample()
+        n_e_r = max(min(n_e_r, num_ent_classes), 2)
+        cards = {ent_classes[i]: cardinality_distr.sample() for i in choice(num_ent_classes, n_e_r, replace=False)}
+        n_attr = num_attr_classes_per_rel_class_distr.sample()
+        attrs = (A_Class("A" + str(next(attr_count))) for _ in range(n_attr))
+        rel_classes.append(R_Class("R" + str(i), attrs, cards))
+    assert len(rel_classes) == num_rel_classes
+
+    return RSchema(ent_classes, rel_classes)
+
+
+def generate_skeleton(schema: RSchema, n_items: dict = None, maximum: dict=None) -> RSkeleton:
+    if n_items is None:
+        n_items = {ic: randint(300, 500) for ic in schema.item_classes}
+
+    skeleton = RSkeleton(schema, strict=True)
+    counter = itertools.count(1)
+
+    # adjust number of entities if more relationships are 'requesting'
+    # if E in R with cardinality one, |\sigma(R)| <= |\sigma(E)|.
+    for R in schema.relationships:
+        for E in R.entities:
+            if not R.is_many(E) and n_items[R] > n_items[E]:
+                n_items[E] = n_items[R]
+
+    entities = {E: [SkItem("e" + str(next(counter)), E) for _ in range(n_items[E])] for E in schema.entities}
+    for vs in entities.values():
+        for v in vs:
+            skeleton.add_entity(v)
+
+    for R in schema.relationships:
+        selected = {E: choice(entities[E], n_items[R], replace=R.is_many(E)).tolist()
+                    for E in R.entities}
+        for i in range(n_items[R]):
+            ents = [selected[E][i] for E in R.entities]
+            skeleton.add_relationship(SkItem("r" + str(next(counter)), R), ents)
+
+    return skeleton

@@ -1,13 +1,16 @@
 # Practical Learning Algorithm for RCM
 import collections
+import itertools
 import logging
 import typing
 from itertools import product, count, combinations
 from warnings import warn
 
+import networkx as nx
+
 from pyrcds.ci_test import CITester
 from pyrcds.domain import RSchema, RSkeleton
-from pyrcds.model import PRCM, RVar, RPath, RDep, UndirectedRDep, canonical_rvars
+from pyrcds.model import PRCM, RVar, RPath, RDep, UndirectedRDep, canonical_rvars, GroundGraph, SymTriple
 
 
 def group_by(xs, keyfunc):
@@ -42,6 +45,18 @@ def enumerate_rdeps(schema: RSchema, h_max: int):
                 yield RDep(cause, effect)
 
 
+def sound_rules(pcdg_xyz):
+    pass
+
+
+# a set of compatible elements.
+# a maximal set of compatible elements.
+
+
+def checkcheck(m1, m2):
+    pass
+
+
 class PracticalLearner:
     def __init__(self, schema: RSchema, h_max: int, skeleton: RSkeleton, ci_tester: CITester):
         assert 0 <= h_max
@@ -71,8 +86,8 @@ class PracticalLearner:
                 return True
         return False
 
-    def orientation_ci_test(self):
-        pass
+    def collider_ci_test(self):
+        return False
 
     def phase_I(self) -> set:
         self.logger.info('phase I: started.')
@@ -85,6 +100,7 @@ class PracticalLearner:
         for d in count():
             self.logger.info('phase I: checking depth: {}'.format(d))
             to_remove = set()
+            # TODO parallelize
             for udep in udeps_to_be_tested:
                 for dep in udep:
                     self.logger.info('phase I: checking: {}'.format(dep))
@@ -103,31 +119,59 @@ class PracticalLearner:
         self.logger.info('phase I: finished.')
         return set(prcm.undirected_dependencies)
 
-    def phase_II(self):
-        # pcdg = self.prcm.class_dependency_graph
-        # pgg = GroundGraph(self.prcm, self.skeleton)
-        #
-        # # find all unshielded triples
-        # item_attr_uts = list(pgg.unshielded_triples())
-        #
-        # def attrfy(symtriple_of_item_attribute):
-        #     (_, x), (_, y), (_, z) = symtriple_of_item_attribute
-        #     return SymTriple(x, y, z)
-        #
-        # for (x, y, z), item_attr_triples in group_by(item_attr_uts, attrfy):
-        #     reordered = list()
-        #     for t in item_attr_triples:
-        #         (_, a), (_, b), (_, c) = t
-        #         if (x, y, z) == (a, b, c):
-        #             reordered.append(t)
-        #         elif (x, y, z) == (c, b, a):
-        #             reordered.append(t.dual)
-        #         else:
-        #             raise AssertionError('huh?')
-        #
-        #     self.orientation_ci_test(reordered)
+    def phase_II(self, background_knowledge=None):
+        pcdg = self.prcm.class_dependency_graph
+        pgg = GroundGraph(self.prcm, self.skeleton)
 
-        pass
+        if background_knowledge:
+            pcdg.orients(background_knowledge)
 
-    def phase_III(self):
-        pass
+        # find all unshielded triples
+        item_attr_uts = list(pgg.unshielded_triples())
+
+        def attrfy(symtriple_of_item_attribute):
+            (_, x), (_, y), (_, z) = symtriple_of_item_attribute
+            return SymTriple(x, y, z) if x < z else SymTriple(z, y, x)
+
+        # TODO address conflict?
+        # TODO parallelize
+        self.ori_results = {(x, y, z): self.collider_ci_test((x, y, z), item_attr_triples)
+                            for (x, y, z), item_attr_triples in group_by(item_attr_uts, attrfy)}
+
+        singletons = {}
+        for (x, y, z), result in self.ori_results.items():
+            if result.is_collider:
+                ppcdg = pcdg.copy()
+                ppcdg.orients(((x, y), (z, y)))
+                singletons[frozenset({(x, y, z)})] = (ppcdg, set(), result.score)
+            elif result.is_non_collider:
+                if x == z:
+                    ppcdg = pcdg.copy()
+                    ppcdg.orient(y, x)
+                    singletons[frozenset({(x, y, z)})] = (ppcdg, set(), result.score)
+                else:
+                    singletons[frozenset({(x, y, z)})] = (pcdg.copy(), {(x, y, z)}, result.score)
+
+        maximals = {1: singletons}
+        for size in itertools.count(2):
+            for m1, m2 in combinations(maximals[size - 1].keys(), 2):
+                if len(m1 & m2) == size - 2 and self.checkcheck(m1, m2, maximals[size-1]):
+                    maximals[size].update({})
+
+            if not maximals[size]:
+                break
+
+        maximals.values()
+
+    def checkcheck(self, m1, m2, reference):
+        ppcdg1, nc1, score1 = reference[m1]
+        ppcdg2, nc2, score2 = reference[m2]
+        orients = ppcdg1.oriented() | ppcdg2.oriented()
+        if any((y, x) in orients for x, y in orients):
+            return False
+        dag = nx.DiGraph()
+        dag.add_edges_from(orients)
+        if not nx.is_directed_acyclic_graph(dag):
+            return False
+        # sound rules
+        # PDAG extensibility
