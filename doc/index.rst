@@ -1,7 +1,7 @@
 .. pyRCDs documentation master file, created by
-   sphinx-quickstart on Sun May  8 08:40:34 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+sphinx-quickstart on Sun May  8 08:40:34 2016.
+You can adapt this file completely to your liking, but it should at least
+contain the root `toctree` directive.
 
 Welcome to pyRCDs's documentation!
 ==================================
@@ -9,7 +9,7 @@ Welcome to pyRCDs's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+:maxdepth: 2
 
 
 

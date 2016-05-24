@@ -5,7 +5,7 @@ from pyrcds.model import generate_rcm
 from pyrcds.rcds import canonical_unshielded_triples
 
 if __name__ == '__main__':
-    for i in range(1000):
+    for i in range(20):
         schema = generate_schema()
         rcm = generate_rcm(schema, np.random.randint(1, 100), np.random.randint(1, 20), np.random.randint(0, 20))
         print(i)
@@ -15,4 +15,14 @@ if __name__ == '__main__':
                 for PyVx in (d1, reversed(d1)):
                     for QzVy in (d2, reversed(d2)):
                         if PyVx.cause.attr == QzVy.effect.attr:
-                            _ = list(canonical_unshielded_triples(PyVx, QzVy, rcm, single=False))
+                            for CUT in canonical_unshielded_triples(rcm, PyVx, QzVy, single=False, with_anchors=False):
+                                pass
+                            for CUT, JJ in canonical_unshielded_triples(rcm, PyVx, QzVy, single=False,
+                                                                        with_anchors=True):
+                                print(CUT)
+                                print(JJ)
+                            for CUT in canonical_unshielded_triples(rcm, PyVx, QzVy, single=True, with_anchors=False):
+                                pass
+                            for CUT, JJ in canonical_unshielded_triples(rcm, PyVx, QzVy, single=True,
+                                                                        with_anchors=True):
+                                pass

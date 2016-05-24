@@ -121,6 +121,7 @@ class A_Class(SchemaElement):
         return 'A_Class(' + repr(self.name) + ')'
 
 
+# Immutable
 class RSchema:
     # TODO just item_classes, separate in the code.
     def __init__(self, entities, relationships):
@@ -175,12 +176,17 @@ class RSchema:
         pass
 
     def as_networkx_ug(self, with_attribute_classes=False):
-        # TODO with_attribute_classes True
         g = nx.Graph()
         g.add_nodes_from(self.entities)
         g.add_nodes_from(self.relationships)
         for r in self.relationships:
             g.add_edges_from([(e, r) for e in r.entities])
+
+        if with_attribute_classes:
+            g.add_nodes_from(self.attrs)
+            for attr in self.attrs:
+                g.add_edge(self.item_class_of(attr), attr)
+
         return g
 
 
@@ -378,9 +384,12 @@ def generate_schema(num_ent_classes_distr=between_sampler(2, 5),
     return RSchema(ent_classes, rel_classes)
 
 
-def generate_skeleton(schema: RSchema, n_items: dict = None, maximum: dict=None) -> RSkeleton:
+def generate_skeleton(schema: RSchema, n_items: dict = None, maximum: dict = None) -> RSkeleton:
+    # TODO implement maximum
     if n_items is None:
         n_items = {ic: randint(300, 500) for ic in schema.item_classes}
+    elif isinstance(n_items, int):
+        n_items = {ic: n_items for ic in schema.item_classes}
 
     skeleton = RSkeleton(schema, strict=True)
     counter = itertools.count(1)

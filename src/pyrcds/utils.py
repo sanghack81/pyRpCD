@@ -1,9 +1,17 @@
+from itertools import groupby
+
 from numpy.random import randint, randn
 
 
 def group_by(xs, keyfunc):
-    from itertools import groupby
     return ((k, list(g)) for k, g in groupby(sorted(xs, key=keyfunc), key=keyfunc))
+
+
+def safe_iter(iterable):
+    copied = list(iterable)
+    for y in copied:
+        if y in iterable:
+            yield y
 
 
 #
@@ -31,13 +39,6 @@ class normal_sampler:
         return self.sd * randn() + self.mu
 
 
-# sample() = sample(1)
-# sample(n)
-
-
-# Erdos-Renyi
-
-
 def average_agg(default=0.0):
     def func(items):
         if len(items) > 0:
@@ -56,9 +57,6 @@ def max_agg(default=0.0):
             return default
 
     return func
-
-# randomly generated parameters
-# linear additive Gaussian
 
 
 def linear_gaussian(parameters: dict, aggregator, error):

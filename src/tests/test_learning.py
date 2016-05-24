@@ -1,11 +1,7 @@
-import logging
-import sys
 import unittest
 
-from pyrcds.ci_test import SetKernelRCITester
-from pyrcds.domain import generate_skeleton
-from pyrcds.learning import enumerate_rpaths, enumerate_rdeps, PracticalLearner
-from pyrcds.model import is_valid_rpath, generate_values_for_skeleton, linear_gaussians_rcm, UndirectedRDep
+from pyrcds.model import is_valid_rpath
+from pyrcds.rcds import generate_dependencies, enumerate_rpaths, enumerate_rdeps
 from tests.testing_utils import company_rcm, company_schema
 
 
@@ -22,6 +18,8 @@ class TestLearning(unittest.TestCase):
         assert rcm.directed_dependencies <= set(enumerate_rdeps(schema, rcm.max_hop))
         assert 22 == len(set(enumerate_rdeps(schema, 4)))
         assert 162 == len(set(enumerate_rdeps(schema, 16)))
+        assert 22 == len(set(generate_dependencies(schema, 4)))
+        assert 162 == len(set(generate_dependencies(schema, 16)))
 
         # skeleton = generate_skeleton(schema)
         # # # draw_skeleton(skeleton)

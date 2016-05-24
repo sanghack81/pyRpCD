@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from numpy.random import randn
 
-from pyrcds.ci_test import normalize, multiply, SetKernelRCITester
+from pyrcds.__rci import normalize, multiply, SetKernelRCITester
 from pyrcds.domain import generate_skeleton
 from pyrcds.model import generate_values_for_skeleton, ParamRCM, RPath, RVar
 from pyrcds.utils import linear_gaussian, average_agg, normal_sampler

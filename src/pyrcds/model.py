@@ -4,7 +4,6 @@ import warnings
 from collections import defaultdict
 from itertools import cycle, product, combinations
 
-import itertools
 import networkx as nx
 import numpy as np
 from numpy.random.mtrand import choice, shuffle, randint, randn
@@ -338,6 +337,9 @@ class RDep:
     def __str__(self):
         return str(self.cause) + " -> " + str(self.effect)
 
+    def __repr__(self):
+        return str(self)
+
 
 class SymTriple:
     def __init__(self, left, middle, right):
@@ -387,6 +389,10 @@ class UndirectedRDep:
         c, e = next(iter(self))
         return str(c) + " -- " + str(e)
 
+    def attrfy(self):
+        dep = next(iter(self.rdeps))
+        return frozenset({dep.cause.attr, dep.effect.attr})
+
 
 class PRCM:
     def __init__(self, schema, dependencies=None):
@@ -423,8 +429,8 @@ class PRCM:
         return -1 + max(a, b)
 
     @property
-    def class_dependency_graph(self):
-        #TODO Not a view, create new one every time?
+    def class_dependency_graph(self) -> PDAG:
+        # TODO Not a view, create new one every time?
         cdg = PDAG()
         cdg.add_edges((cause.attr, effect.attr) for effect, causes in self.parents.items() for cause in causes)
         cdg.add_undirected_edges((k.attr, v.attr) for k, vs in self.neighbors.items() for v in vs)
@@ -484,6 +490,13 @@ class PRCM:
         self.remove(UndirectedRDep(edge))
         self.add(edge)
         return True
+
+    def orient_with(self, x, y):
+        for udep in list(self.undirected_dependencies):
+            if udep.attrfy() == frozenset({x, y}):
+                for dep in udep:
+                    if dep.attrfy() == (x, y):
+                        self.orient_as(dep)
 
 
 class RCM(PRCM):
@@ -572,6 +585,9 @@ def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False)
 
 class GroundGraph:
     def __init__(self, rcm: RCM, skeleton: RSkeleton):
+        self.schema = skeleton.schema
+        self.skeleton = skeleton
+        self.rcm = rcm
         self.g = PDAG()
 
         def k_fun(d):
@@ -631,7 +647,7 @@ def generate_rpath(schema: RSchema, base: I_Class = None, length=None):
     return RPath(rpath_inner, True)
 
 
-def generate_rcm(schema: RSchema, num_dependencies, max_degree, max_hop):
+def generate_rcm(schema: RSchema, num_dependencies=10, max_degree=5, max_hop=6):
     FAILED_LIMIT = len(schema.entities) + len(schema.relationships)
     # ordered attributes
     attr_order = list(schema.attrs)

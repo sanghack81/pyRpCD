@@ -3,12 +3,17 @@ import collections
 
 #  Partially Directed Acyclic Graph.
 class PDAG:
+    """Current implmenetation uses bidirected edge as undirected edge"""
+
     def __init__(self, edges=None):
         self.E = set()
         self._Pa = collections.defaultdict(set)
         self._Ch = collections.defaultdict(set)
         if edges is not None:
             self.add_edges(edges)
+
+    def __bool__(self):
+        return bool(self.vertices())
 
     def vertices(self):
         return set(self._Pa.keys()) | set(self._Ch.keys())

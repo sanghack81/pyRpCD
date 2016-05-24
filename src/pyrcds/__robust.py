@@ -3,46 +3,22 @@ import collections
 import itertools
 import logging
 import typing
-from itertools import product, count, combinations
+from itertools import count, combinations
 from warnings import warn
 
 import networkx as nx
 
-from pyrcds.ci_test import CITester
+from pyrcds.__rci import CITester
 from pyrcds.domain import RSchema, RSkeleton
-from pyrcds.model import PRCM, RVar, RPath, RDep, UndirectedRDep, canonical_rvars, GroundGraph, SymTriple
+from pyrcds.model import PRCM, RVar, UndirectedRDep, canonical_rvars, GroundGraph, SymTriple
+from pyrcds.rcds import generate_dependencies
 
-
-def group_by(xs, keyfunc):
-    """Modified groupby from itertools with group objects as lists"""
-    from itertools import groupby
-    gb = groupby(sorted(xs, key=keyfunc), key=keyfunc)
-    return ((k, list(g)) for k, g in gb)  # generator
-
-
-def enumerate_rpaths(schema: RSchema, h_max: int):
-    """Enumerate all relational paths up to given hop"""
-    # canonical relational paths
-    rpaths = collections.deque(RPath(item_class) for item_class in schema.entities | schema.relationships)
-    while rpaths:
-        rpath = rpaths.popleft()
-        yield rpath
-        if rpath.hop_len < h_max:
-            nexts = schema.relateds(rpath.terminal)
-            for appended_rpath in filter(lambda x: x is not None, (rpath.appended_or_none(n) for n in nexts)):
-                rpaths.append(appended_rpath)
-
-
-def enumerate_rdeps(schema: RSchema, h_max: int):
-    """Enumerate all relational dependencies up to given hop"""
-    assert 0 <= h_max
-
-    for rpath in enumerate_rpaths(schema, h_max):
-        for cause_attr, effect_attr in product(rpath.terminal.attrs, rpath.base.attrs):
-            if cause_attr != effect_attr:
-                cause = RVar(rpath, cause_attr)
-                effect = RVar(RPath(rpath.base), effect_attr)
-                yield RDep(cause, effect)
+# def group_by(xs, keyfunc):
+#     """Modified groupby from itertools with group objects as lists"""
+#     from itertools import groupby
+#     gb = groupby(sorted(xs, key=keyfunc), key=keyfunc)
+#     return ((k, list(g)) for k, g in gb)  # generator
+from pyrcds.utils import group_by
 
 
 def sound_rules(pcdg_xyz):
@@ -94,7 +70,7 @@ class PracticalLearner:
         prcm, schema, ci_tester = self.prcm, self.schema, self.ci_tester
 
         # Initialize an undirected RCM
-        udeps_to_be_tested = set(UndirectedRDep(dep) for dep in enumerate_rdeps(self.schema, self.h_max))
+        udeps_to_be_tested = set(UndirectedRDep(dep) for dep in generate_dependencies(self.schema, self.h_max))
         prcm.add(udeps_to_be_tested)
 
         for d in count():
@@ -155,7 +131,7 @@ class PracticalLearner:
         maximals = {1: singletons}
         for size in itertools.count(2):
             for m1, m2 in combinations(maximals[size - 1].keys(), 2):
-                if len(m1 & m2) == size - 2 and self.checkcheck(m1, m2, maximals[size-1]):
+                if len(m1 & m2) == size - 2 and self.checkcheck(m1, m2, maximals[size - 1]):
                     maximals[size].update({})
 
             if not maximals[size]:
@@ -173,5 +149,5 @@ class PracticalLearner:
         dag.add_edges_from(orients)
         if not nx.is_directed_acyclic_graph(dag):
             return False
-        # sound rules
-        # PDAG extensibility
+            # sound rules
+            # PDAG extensibility
