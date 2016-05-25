@@ -11,7 +11,7 @@ import networkx as nx
 from pyrcds.__rci import CITester
 from pyrcds.domain import RSchema, RSkeleton
 from pyrcds.model import PRCM, RVar, UndirectedRDep, canonical_rvars, GroundGraph, SymTriple
-from pyrcds.rcds import generate_dependencies
+from pyrcds.rcds import enumerate_rdeps
 
 # def group_by(xs, keyfunc):
 #     """Modified groupby from itertools with group objects as lists"""
@@ -70,7 +70,7 @@ class PracticalLearner:
         prcm, schema, ci_tester = self.prcm, self.schema, self.ci_tester
 
         # Initialize an undirected RCM
-        udeps_to_be_tested = set(UndirectedRDep(dep) for dep in generate_dependencies(self.schema, self.h_max))
+        udeps_to_be_tested = set(UndirectedRDep(dep) for dep in enumerate_rdeps(self.schema, self.h_max))
         prcm.add(udeps_to_be_tested)
 
         for d in count():

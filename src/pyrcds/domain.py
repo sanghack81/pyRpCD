@@ -53,7 +53,7 @@ class SchemaElement:
 
 
 class I_Class(SchemaElement):
-    def __init__(self, name, attrs):
+    def __init__(self, name, attrs=()):
         assert attrs is not None
         if isinstance(attrs, A_Class):
             attrs = {attrs, }
@@ -68,7 +68,7 @@ class I_Class(SchemaElement):
 
 
 class E_Class(I_Class):
-    def __init__(self, name, attrs):
+    def __init__(self, name, attrs=()):
         super().__init__(name, attrs)
 
     def removed(self, attrs: set):

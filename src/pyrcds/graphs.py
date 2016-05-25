@@ -2,6 +2,9 @@ import collections
 
 
 #  Partially Directed Acyclic Graph.
+import warnings
+
+
 class PDAG:
     """Current implmenetation uses bidirected edge as undirected edge"""
 
@@ -92,6 +95,15 @@ class PDAG:
 
         return new_copy
 
+    def add_path(self, iterable):
+        for x, y in zip(iterable, iterable[1:]):
+            self.add_edge(x, y)
+
+    def add_undirected_path(self, iterable):
+        for x, y in zip(iterable, iterable[1:]):
+            self.add_undirected_edge(x, y)
+
+
     # Adjacent
     def is_adj(self, x, y):
         return (x, y) in self.E or (y, x) in self.E
@@ -110,6 +122,7 @@ class PDAG:
         self.E.add((x, y))
         self._Pa[y].add(x)
         self._Ch[x].add(y)
+
 
     def add_undirected_edge(self, x, y):
         # will override any existing directed edge

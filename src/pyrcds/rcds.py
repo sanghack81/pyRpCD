@@ -1,46 +1,25 @@
-import collections
+import logging
 import typing
 import warnings
-from itertools import takewhile, count, combinations, chain, product
+from collections import deque, defaultdict
+from itertools import takewhile, count, combinations, chain
 
 import networkx as nx
-from pip.utils import logging
 
-from pyrcds.__rci import CITester
 from pyrcds.domain import RSkeleton, RSchema, SkItem, R_Class, E_Class
 from pyrcds.graphs import PDAG
 from pyrcds.model import RDep, PRCM, llrsp, RVar, eqint, RPath, RCM, UndirectedRDep, canonical_rvars, SymTriple
 from pyrcds.utils import group_by, safe_iter
 
 
-def enumerate_rpaths(schema: RSchema, hop: int):
-    """Enumerate all relational paths up to given hop"""
-    # canonical relational paths
-    rpaths = collections.deque(RPath(ic) for ic in schema.item_classes)
-    while rpaths:
-        rpath = rpaths.popleft()
-        yield rpath
-        if rpath.hop_len < hop:
-            rpaths.extend(
-                filter(lambda x: x is not None, (rpath.appended_or_none(n) for n in schema.relateds(rpath.terminal))))
-
-
-def enumerate_rdeps(schema: RSchema, h_max: int):
-    """Enumerate all relational dependencies up to given hop"""
-    assert 0 <= h_max
-
-    for rpath in enumerate_rpaths(schema, h_max):
-        for cause_attr, effect_attr in product(rpath.terminal.attrs, rpath.base.attrs):
-            if cause_attr != effect_attr:
-                cause = RVar(rpath, cause_attr)
-                effect = RVar(RPath(rpath.base), effect_attr)
-                yield RDep(cause, effect)
-
-
-def generate_rpaths(schema, base_item_class, hop):
+def enumerate_rpaths(schema, hop, base_item_class=None):
     assert 0 <= hop
-    Ps = collections.deque()
-    Ps.append(RPath(base_item_class))
+    Ps = deque()
+    if base_item_class is not None:
+        Ps.append(RPath(base_item_class))
+    else:
+        Ps.extend((RPath(ic) for ic in schema.item_classes))
+
     while Ps:
         P = Ps.pop()
         yield P
@@ -48,10 +27,9 @@ def generate_rpaths(schema, base_item_class, hop):
             Ps.extend(filter(lambda x: x is not None, (P.appended_or_none(i) for i in schema.relateds(P.terminal))))
 
 
-def generate_rvars(schema: RSchema, hop):
-    warnings.warn("untested")
+def enumerate_rvars(schema: RSchema, hop):
     for base_item_class in schema.item_classes:
-        for P in generate_rpaths(schema, base_item_class, hop):
+        for P in enumerate_rpaths(schema, hop, base_item_class):
             for attr in P.terminal.attrs:
                 yield RVar(P, attr)
 
@@ -62,13 +40,12 @@ class interner(dict):
         return key
 
 
-# TODO merge with enumerate_rdeps
-def generate_dependencies(schema: RSchema, hop):
+def enumerate_rdeps(schema: RSchema, hop):
     c = interner()
     for base_item_class in schema.item_classes:
         if not base_item_class.attrs:
             continue
-        for P in generate_rpaths(schema, base_item_class, hop):
+        for P in enumerate_rpaths(schema, hop, base_item_class):
             for cause_attr in P.terminal.attrs:
                 for effect_attr in base_item_class.attrs:
                     if effect_attr != cause_attr:
@@ -76,7 +53,6 @@ def generate_dependencies(schema: RSchema, hop):
 
 
 def extend(P: RPath, Q: RPath):
-    warnings.warn("untested")
     assert P.terminal == Q.base
     m, n = len(P), len(Q)
     for pivot in takewhile(lambda piv: P[m - 1 - piv] == Q[piv], range(min(m, n))):
@@ -86,38 +62,32 @@ def extend(P: RPath, Q: RPath):
 
 # See Lee and Honavar 2015
 def intersectible(P: RPath, Q: RPath):
-    warnings.warn("untested")
-    assert P != Q
+    if P == Q:
+        raise AssertionError('{} == {}'.format(P, Q))
     return P.base == Q.base and P.terminal == Q.terminal and llrsp(P, Q) + llrsp(reversed(P), reversed(Q)) <= min(
         len(P), len(Q))
 
 
 # See Lee and Honavar 2015
 def co_intersectible(Q: RPath, R: RPath, P: RPath, P_prime: RPath):
-    warnings.warn("untested")
-    assert Q.terminal == R.base and \
-           Q.base == P.base == P_prime.base and \
-           R.terminal == P.terminal == P_prime.terminal and \
-           intersectible(P, P_prime)
-    # len(P) == len(Q) + len(R) -1 - 2*(ll-1)
-    assert (len(Q) + len(R) - 1 - len(P)) % 2 == 0
-    ll = 1 + (len(Q) + len(R) - 1 - len(P)) // 2
-    assert 1 <= ll
-    assert Q[:len(Q) - 1 - (ll - 1)].join(R[ll - 1:]) == P
+    check = Q.terminal == R.base and \
+            Q.base == P.base == P_prime.base and \
+            R.terminal == P.terminal == P_prime.terminal and \
+            intersectible(P, P_prime)
 
-    Qm = Q[:len(Q) - ll]
-    Rp = R[ll - 1:]
-    assert Qm[-1] == Rp[0]
-    l1 = llrsp(Q, P_prime)
-    l2 = llrsp(reversed(R), reversed(P_prime))
+    if not check:
+        raise AssertionError('not a valid arguments: {}'.format([Q, R, P, P_prime]))
+
+    ll = 1 + (len(Q) + len(R) - 1 - len(P)) // 2
+    Qm, Rp = Q[:len(Q) - ll], R[ll - 1:]
+    l1, l2 = llrsp(Q, P_prime), llrsp(reversed(R), reversed(P_prime))
     return (l1 < len(Qm) or l2 < len(Rp)) and l1 + l2 <= len(P_prime)
 
 
 class UnvisitedQueue:
     def __init__(self, iterable=()):
-        warnings.warn("untested")
         self.visited = set(iterable)
-        self.queue = collections.deque(self.visited)
+        self.queue = deque(self.visited)
 
     def put(self, x):
         if x not in self.visited:
@@ -128,6 +98,9 @@ class UnvisitedQueue:
         for x in xs:
             self.put(x)
 
+    def __len__(self):
+        return len(self.queue)
+
     def pop(self):
         return self.queue.popleft()
 
@@ -135,8 +108,7 @@ class UnvisitedQueue:
         return bool(self.queue)
 
 
-def d_separated(dag: nx.DiGraph, x, y, zs):
-    warnings.warn("untested")
+def d_separated(dag: nx.DiGraph, x, y, zs=frozenset()):
     assert x != y
     assert x not in zs and y not in zs
 
@@ -154,49 +126,67 @@ def d_separated(dag: nx.DiGraph, x, y, zs):
                 qq.puts((ch, '>') for ch in dag.successors_iter(node))
                 qq.puts((pa, '<') for pa in dag.predecessors_iter(node))
 
-        if (y, '>') in qq.visited or (y, '<') in qq.visited:
+        if {(y, '>'), (y, '<')} & qq.visited:
             return False
 
     return True
 
 
-class AbstractGroundGraph(CITester):
+class AbstractGroundGraph:
     def __init__(self, rcm: RCM, h: int, n_jobs=1):
-        warnings.warn("AGG is not a reliable RCI tester.")
-        warnings.warn("AGG will take extremely large memory space.")
+        self.logger = logging.getLogger(self.__class__.__module__ + '.' + self.__class__.__name__)
         c1 = interner()  # memory-saver, takes time...
         c2 = interner()  # memory-saver, takes time...
         #
-        self.RVs = set(c1[rv] for rv in generate_rvars(rcm.schema, h))
+        self.RVs = set(c1[rv] for rv in enumerate_rvars(rcm.schema, h))
         #
         self.RVEs = set()
         self.IVs = set()
         self.IVEs = set()
         # IVs
-        self.combined = collections.defaultdict(set)
+        self.combined = defaultdict(set)
         for _, rvs in group_by(self.RVs, lambda rv: (rv.rpath.base, rv.attr)):
             for rv1, rv2 in combinations(rvs, 2):
                 if intersectible(rv1.rpath, rv2.rpath):
                     self.IVs.add(c2[frozenset((rv1, rv2))])
                     self.combined[rv1.rpath].add(rv2.rpath)
                     self.combined[rv2.rpath].add(rv1.rpath)
-        # RVEs
+
+                    if not (len(self.IVs) % 1000):
+                        self.logger.info('creating {} of IVs.'.format(len(self.IVs)))
+        # RVEs and IVEs
         for Y, Qys in group_by(self.RVs, lambda rv: rv.attr):
             for RxVy in filter(lambda d: d.effect.attr == Y, rcm.directed_dependencies):
                 for Qy in Qys:
-                    Q, R, X = Qy.rpath, RxVy.cause.rpath, RxVy.cause.attr
+                    Q, (R, X) = Qy.rpath, RxVy.cause
                     for P in filter(lambda p: p.hop_len <= h, extend(Q, R)):
                         Px = c1[RVar(P, X)]
                         self.RVEs.add((Px, Qy))  # P.X --> Q.Y
 
+                        if not (len(self.RVEs) % 1000):
+                            self.logger.info('creating {} of RVEs.'.format(len(self.RVEs)))
+
                         # Q, R, P, P_prime
                         for P_prime in self.combined[P]:
                             if co_intersectible(Q, R, P, P_prime):
-                                self.IVEs.add(c2[frozenset((Px, c1[RVar(P_prime, X)]))], Qy)
+                                iv = c2[frozenset((Px, c1[RVar(P_prime, X)]))]
+                                self.IVEs.add((iv, Qy))
+
+                                if not (len(self.IVEs) % 1000):
+                                    self.logger.info('creating {} of IVEs.'.format(len(self.IVEs)))
                         # P, reversed(R), Q, Q_prime
                         for Q_prime in self.combined[Q]:
                             if co_intersectible(P, reversed(R), Q, Q_prime):
-                                self.IVEs.add((Px, c2[frozenset((Qy, c1[RVar(Q_prime, Y)]))]))
+                                iv = c2[frozenset((Qy, c1[RVar(Q_prime, Y)]))]
+                                self.IVEs.add((Px, iv))
+
+                                if not (len(self.IVEs) % 1000):
+                                    self.logger.info('creating {} of IVEs.'.format(len(self.IVEs)))
+
+        self.RVs = frozenset(self.RVs)
+        self.RVEs = frozenset(self.RVEs)
+        self.IVs = frozenset(self.IVs)
+        self.IVEs = frozenset(self.IVEs)
         c1, c2 = None, None
         self.agg = nx.DiGraph()
         self.agg.add_nodes_from(self.RVs)
@@ -239,7 +229,7 @@ class AbstractRCD:
         self.h_max = h_max
         self.ci_tester = ci_tester
 
-        self.sepset = collections.defaultdict(lambda: None)
+        self.sepset = defaultdict(lambda: None)
         self.prcm = PRCM(schema)
 
     def ci_test(self, cause: RVar, effect: RVar, conds: typing.Set[RVar], size: int):
@@ -260,7 +250,7 @@ class AbstractRCD:
         prcm, schema, ci_tester = self.prcm, self.schema, self.ci_tester
 
         # Initialize an undirected RCM
-        udeps_to_be_tested = set(UndirectedRDep(dep) for dep in generate_dependencies(self.schema, self.h_max))
+        udeps_to_be_tested = set(UndirectedRDep(dep) for dep in enumerate_rdeps(self.schema, self.h_max))
         prcm.add(udeps_to_be_tested)
 
         for d in count():
@@ -301,18 +291,17 @@ class AbstractRCD:
         raise NotImplementedError()
 
 
-def sound_rules(g: PDAG, non_colliders, purge=True):
+def sound_rules(g: PDAG, non_colliders=(), purge=True):
     """Orient edges in the given PDAG where non-colliders information may not be completed."""
-    warnings.warn("untested")
     while True:
         mark = len(g.oriented())
-        for non_collider in list(non_colliders):
+        for non_collider in tuple(non_colliders):
             x, y, z = non_collider
             # R1 X-->Y--Z (shielded, and unshielded)
-            if y in g.ch(x) and z in g.ne(y):
+            if g.is_oriented_as(x, y) and g.is_unoriented(y, z):
                 g.orient(y, z)
             # R1' Z-->Y--X (shielded, and unshielded)
-            if y in g.ch(z) and x in g.ne(y):
+            if g.is_oriented_as(z, y) and g.is_unoriented(y, x):
                 g.orient(y, x)
 
             # R3 (do not check x--z)
@@ -326,12 +315,20 @@ def sound_rules(g: PDAG, non_colliders, purge=True):
             if g.pa(z) & g.adj(y) & g.ch(x):
                 g.orient(y, z)
 
+            if {x, z} <= g.ne(y):
+                if z in g.ch(x):
+                    g.orient(y, z)
+                if x in g.ch(z):
+                    g.orient(y, x)
+
         # R2
         for y in g:
             # x -> y ->z and x -- z
             for x in g.pa(y):
                 for z in g.ch(y) & g.ne(x):
                     g.orient(x, z)
+
+        # TODO non-colliders making an undirected cycle
 
         if purge:
             for non_collider in list(non_colliders):
@@ -345,7 +342,6 @@ def sound_rules(g: PDAG, non_colliders, purge=True):
 
 def completes(g: PDAG, non_colliders):
     """Maximally orients edges in the given PDAG with (shielded or unshielded) non-collider constraints"""
-    warnings.warn("untested")
     U = set(chain(*[[(x, y), (y, x)] for x, y in g.unoriented()]))
 
     # filter out directions, which violates non-collider constraints.
@@ -368,7 +364,6 @@ def completes(g: PDAG, non_colliders):
 
 def ext(g: PDAG, NC):
     """Extensibility where non-colliders can be either shielded or unshielded"""
-    warnings.warn("untested")
     h = g.copy()
     while h:
         for y in h:
@@ -387,8 +382,8 @@ class RpCD(AbstractRCD):
 
     def enumerate_CUTs(self):
         """Enumerate CUTs whose attribute classes are distinct"""
-        by_cause_attr = collections.defaultdict(set)
-        by_effect_attr = collections.defaultdict(set)
+        by_cause_attr = defaultdict(set)
+        by_effect_attr = defaultdict(set)
         for d in self.prcm.directed_dependencies:
             by_cause_attr[d.cause.attr].add(d)
             by_effect_attr[d.effect.attr].add(d)

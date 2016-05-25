@@ -5,44 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7aec57a6-e50b-4c5e-9f75-8857b28cd9ad" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/tests/uai_2016.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/web/animate.css" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/web/d3gg.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/web/d3schema.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/web/d3skeleton.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/web/gg.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/web/graph1.js" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/web/miserables.json.bak" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/web/plan.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/web/skeleton.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/web/style.css" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/pyrcds/drawing.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests/test_timeout.py" afterPath="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests/test_kcipt.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/pyrcds/ci_reasoner.py" afterPath="$PROJECT_DIR$/src/pyrcds/__ci_reasoner.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/pyrcds/ci_test.py" afterPath="$PROJECT_DIR$/src/pyrcds/__rci.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/pyrcds/learning.py" afterPath="$PROJECT_DIR$/src/pyrcds/__robust.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/tests/test_drawing.py" afterPath="$PROJECT_DIR$/src/scratch/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../pyGK/src/pygk/graphlets.py" afterPath="$PROJECT_DIR$/../pyGK/src/pygk/graphlets.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../pyGK/src/pygk/labeled.py" afterPath="$PROJECT_DIR$/../pyGK/src/pygk/labeled.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../pyGK/src/pygk/tests/test.py" afterPath="$PROJECT_DIR$/../pyGK/src/pygk/tests/test.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../pyGK/src/pygk/unlabeled.py" afterPath="$PROJECT_DIR$/../pyGK/src/pygk/unlabeled.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/conf.py" afterPath="$PROJECT_DIR$/doc/conf.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/index.rst" afterPath="$PROJECT_DIR$/doc/index.rst" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/make.bat" afterPath="$PROJECT_DIR$/doc/make.bat" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/pyrcds/__robust.py" afterPath="$PROJECT_DIR$/src/pyrcds/__robust.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/pyrcds/domain.py" afterPath="$PROJECT_DIR$/src/pyrcds/domain.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/pyrcds/graphs.py" afterPath="$PROJECT_DIR$/src/pyrcds/graphs.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/pyrcds/model.py" afterPath="$PROJECT_DIR$/src/pyrcds/model.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/pyrcds/rcds.py" afterPath="$PROJECT_DIR$/src/pyrcds/rcds.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/pyrcds/utils.py" afterPath="$PROJECT_DIR$/src/pyrcds/utils.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tests/test_ci.py" afterPath="$PROJECT_DIR$/src/tests/test_ci.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tests/test_domain.py" afterPath="$PROJECT_DIR$/src/tests/test_domain.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tests/test_learning.py" afterPath="$PROJECT_DIR$/src/tests/test_learning.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tests/test_model.py" afterPath="$PROJECT_DIR$/src/tests/test_model.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tests/test_rcds.py" afterPath="$PROJECT_DIR$/src/tests/test_rcds.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tests/test_utils.py" afterPath="$PROJECT_DIR$/src/tests/test_utils.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tests/testing_utils.py" afterPath="$PROJECT_DIR$/src/tests/testing_utils.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/web/index.html" afterPath="$PROJECT_DIR$/web/index.html" />
     </list>
     <ignored path="practical_rcm_learner.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -56,64 +26,79 @@
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittests_in_test_learning.coverage" NAME="Unittests in test_learning Coverage Results" MODIFIED="1462123588090" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestStringMethods_test_SchemaElement.coverage" NAME="Unittest TestStringMethods.test_SchemaElement Coverage Results" MODIFIED="1460940287192" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestGenerators_test_sampler.coverage" NAME="Unittest TestGenerators.test_sampler Coverage Results" MODIFIED="1461874535374" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_P345.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_P345 Coverage Results" MODIFIED="1462472965020" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_pyKCIPT.coverage" NAME="Nosetests in pyKCIPT Coverage Results" MODIFIED="1462591225083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT" />
     <SUITE FILE_PATH="coverage/pyRCDs$uai_2016.coverage" NAME="uai_2016 Coverage Results" MODIFIED="1463973767848" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Unittests_in_test_learning.coverage" NAME="Unittests in test_learning Coverage Results" MODIFIED="1463719107937" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
     <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestGenerators_test_linear_gaussian.coverage" NAME="Unittest TestGenerators.test_linear_gaussian Coverage Results" MODIFIED="1462035216293" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_test_timeout.coverage" NAME="Nosetests in test_timeout Coverage Results" MODIFIED="1463876935462" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSchema_test_EDPDE.coverage" NAME="Unittest TestSchema.test_EDPDE Coverage Results" MODIFIED="1461162715418" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$test_perm.coverage" NAME="test_perm Coverage Results" MODIFIED="1463357604453" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestKCIPT_test_diff_arguments_kipt.coverage" NAME="Nosetest TestKCIPT.test_diff_arguments_kipt Coverage Results" MODIFIED="1463716077943" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittests_in_practical_rcm_learner.coverage" NAME="Unittests in practical_rcm_learner Coverage Results" MODIFIED="1462139692955" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/pyRCDs$testtest.coverage" NAME="testtest Coverage Results" MODIFIED="1463710988621" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Unittests_in_test_domain.coverage" NAME="Unittests in test_domain Coverage Results" MODIFIED="1463718924395" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestGenerators_test_data_gen.coverage" NAME="Unittest TestGenerators.test_data_gen Coverage Results" MODIFIED="1462843804146" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSkeleton_test_skeleton.coverage" NAME="Unittest TestSkeleton.test_skeleton Coverage Results" MODIFIED="1461096493673" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSchema_test_item_classes.coverage" NAME="Unittest TestSchema.test_item_classes Coverage Results" MODIFIED="1461084087769" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Unittests_in_test_utils.coverage" NAME="Unittests in test_utils Coverage Results" MODIFIED="1463718943367" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestCI_test_ci_company_domain.coverage" NAME="Unittest TestCI.test_ci_company_domain Coverage Results" MODIFIED="1463718517274" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_test_perm.coverage" NAME="Nosetests in test_perm Coverage Results" MODIFIED="1463351672662" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$test.coverage" NAME="test Coverage Results" MODIFIED="1463329247754" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSchema_test_rpath_0.coverage" NAME="Unittest TestSchema.test_rpath_0 Coverage Results" MODIFIED="1461109225190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestModel_test_generate_rpaths.coverage" NAME="Unittest TestModel.test_generate_rpaths Coverage Results" MODIFIED="1463589729404" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_l3g.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_l3g Coverage Results" MODIFIED="1462479467347" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_pyGK.coverage" NAME="Nosetests in pyGK Coverage Results" MODIFIED="1462591229718" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestLearning_test_enumerate_rpaths.coverage" NAME="Unittest TestLearning.test_enumerate_rpaths Coverage Results" MODIFIED="1462123301831" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_test.coverage" NAME="Nosetests in test Coverage Results" MODIFIED="1463931073565" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSchemaElement_test_SchemaElement_fail_assign_name.coverage" NAME="Unittest TestSchemaElement.test_SchemaElement_fail_assign_name Coverage Results" MODIFIED="1461036482885" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_count_all_graphlets.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_count_all_graphlets Coverage Results" MODIFIED="1463717444042" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_WL.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_WL Coverage Results" MODIFIED="1462560319947" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSkeleton_test_rcm.coverage" NAME="Unittest TestSkeleton.test_rcm Coverage Results" MODIFIED="1462139906073" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Unittests_in_test_model.coverage" NAME="Unittests in test_model Coverage Results" MODIFIED="1463718902600" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_unlabeled_spkernel.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_unlabeled_spkernel Coverage Results" MODIFIED="1462465295774" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_count_connected_graphlets.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_count_connected_graphlets Coverage Results" MODIFIED="1462591741981" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_TestKCIPT.coverage" NAME="Nosetests in TestKCIPT Coverage Results" MODIFIED="1463716138142" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittests_in_practical_rcm_learner__1_.coverage" NAME="Unittests in practical_rcm_learner (1) Coverage Results" MODIFIED="1462140217272" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRcds_test_random_cuts.coverage" NAME="Unittest TestRcds.test_random_cuts Coverage Results" MODIFIED="1463497417188" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$test_rcds.coverage" NAME="test_rcds Coverage Results" MODIFIED="1463956383441" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_spkernel.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_spkernel Coverage Results" MODIFIED="1462465261980" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_gest_kernel.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_gest_kernel Coverage Results" MODIFIED="1464016334106" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$tettest.coverage" NAME="tettest Coverage Results" MODIFIED="1461008585541" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestGenerators_test_data_gen.coverage" NAME="Unittest TestGenerators.test_data_gen Coverage Results" MODIFIED="1462046238671" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_countall3graphlets.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_count_all_3_graphlets Coverage Results" MODIFIED="1462472379763" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestPerm_test_quality.coverage" NAME="Nosetest TestPerm.test_quality Coverage Results" MODIFIED="1463351702160" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestGenerators_test_rcm_gen.coverage" NAME="Unittest TestGenerators.test_rcm_gen Coverage Results" MODIFIED="1461963146894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$domain.coverage" NAME="domain Coverage Results" MODIFIED="1461036479500" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/some_pkg" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Unittests_in_test_rcds.coverage" NAME="Unittests in test_rcds Coverage Results" MODIFIED="1463498037695" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$testsetse.coverage" NAME="testsetse Coverage Results" MODIFIED="1461766324277" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestLearning_test_something.coverage" NAME="Unittest TestLearning.test_something Coverage Results" MODIFIED="1464031138919" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittests_in_test_domain.coverage" NAME="Unittests in test_domain Coverage Results" MODIFIED="1462046372216" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/pyRCDs$dump.coverage" NAME="dump Coverage Results" MODIFIED="1462896604883" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
     <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestKCIPT_test_compare_permutation.coverage" NAME="Nosetest TestKCIPT.test_compare_permutation Coverage Results" MODIFIED="1463758957882" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
     <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestModel_test_sub.coverage" NAME="Unittest TestModel.test_sub Coverage Results" MODIFIED="1463453035945" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSchemaElement_test_SchemaElement_fail_assign_name.coverage" NAME="Unittest TestSchemaElement.test_SchemaElement_fail_assign_name Coverage Results" MODIFIED="1461036482885" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_gest_kernel.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_gest_kernel Coverage Results" MODIFIED="1464016334106" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestStringMethods_test_SchemaElement.coverage" NAME="Unittest TestStringMethods.test_SchemaElement Coverage Results" MODIFIED="1460940287192" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRCDs_test_d_separated.coverage" NAME="Unittest TestRCDs.test_d_separated Coverage Results" MODIFIED="1464193096444" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittests_in_test_domain.coverage" NAME="Unittests in test_domain Coverage Results" MODIFIED="1462046372216" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$testtest.coverage" NAME="testtest Coverage Results" MODIFIED="1463710988621" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRpCD_test_together.coverage" NAME="Unittest TestRpCD.test_together Coverage Results" MODIFIED="1464191848115" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRCDs_test_co_intersectible.coverage" NAME="Unittest TestRCDs.test_co_intersectible Coverage Results" MODIFIED="1464201352458" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$test.coverage" NAME="test Coverage Results" MODIFIED="1463329247754" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRCDs_test_UnvisitedQueue.coverage" NAME="Unittest TestRCDs.test_UnvisitedQueue Coverage Results" MODIFIED="1464120958638" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRpCD_test_ext.coverage" NAME="Unittest TestRpCD.test_ext Coverage Results" MODIFIED="1464191842519" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
     <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_random_walk.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_random_walk Coverage Results" MODIFIED="1463931098272" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestGenerators_test_linear_max_gaussian.coverage" NAME="Unittest TestGenerators.test_linear_max_gaussian Coverage Results" MODIFIED="1462035383796" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
-    <SUITE FILE_PATH="coverage/pyRCDs$drawing.coverage" NAME="drawing Coverage Results" MODIFIED="1462905517894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/pyrcds" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittests_in_test_learning.coverage" NAME="Unittests in test_learning Coverage Results" MODIFIED="1462123588090" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestGenerators_test_aggregators.coverage" NAME="Unittest TestGenerators.test_aggregators Coverage Results" MODIFIED="1462033375234" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittests_in_test_model.coverage" NAME="Unittests in test_model Coverage Results" MODIFIED="1463718902600" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_test_timeout.coverage" NAME="Nosetests in test_timeout Coverage Results" MODIFIED="1463876935462" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRCDs_test_extend.coverage" NAME="Unittest TestRCDs.test_extend Coverage Results" MODIFIED="1464120195106" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSchema_test_rpath_0.coverage" NAME="Unittest TestSchema.test_rpath_0 Coverage Results" MODIFIED="1461109225190" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSchema_test_item_classes.coverage" NAME="Unittest TestSchema.test_item_classes Coverage Results" MODIFIED="1461084087769" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_test_perm.coverage" NAME="Nosetests in test_perm Coverage Results" MODIFIED="1463351672662" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestGenerators_test_data_gen.coverage" NAME="Unittest TestGenerators.test_data_gen Coverage Results" MODIFIED="1462843804146" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_unlabeled_spkernel.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_unlabeled_spkernel Coverage Results" MODIFIED="1462465295774" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_count_connected_graphlets.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_count_connected_graphlets Coverage Results" MODIFIED="1462591741981" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittests_in_test_domain.coverage" NAME="Unittests in test_domain Coverage Results" MODIFIED="1463718924395" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_pyGK.coverage" NAME="Nosetests in pyGK Coverage Results" MODIFIED="1462591229718" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRcds_test_random_cuts.coverage" NAME="Unittest TestRcds.test_random_cuts Coverage Results" MODIFIED="1463497417188" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_test.coverage" NAME="Nosetests in test Coverage Results" MODIFIED="1463931073565" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestPerm_test_quality.coverage" NAME="Nosetest TestPerm.test_quality Coverage Results" MODIFIED="1463351702160" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$test_rcds.coverage" NAME="test_rcds Coverage Results" MODIFIED="1463956383441" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRCDs_test_intersectible.coverage" NAME="Unittest TestRCDs.test_intersectible Coverage Results" MODIFIED="1464120783836" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestGenerators_test_linear_max_gaussian.coverage" NAME="Unittest TestGenerators.test_linear_max_gaussian Coverage Results" MODIFIED="1462035383796" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_countall3graphlets.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_count_all_3_graphlets Coverage Results" MODIFIED="1462472379763" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestLearning_test_enumerate_rpaths.coverage" NAME="Unittest TestLearning.test_enumerate_rpaths Coverage Results" MODIFIED="1462123301831" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestAGG_test_company.coverage" NAME="Unittest TestAGG.test_company Coverage Results" MODIFIED="1464192741497" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_count_all_graphlets.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_count_all_graphlets Coverage Results" MODIFIED="1463717444042" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittests_in_practical_rcm_learner.coverage" NAME="Unittests in practical_rcm_learner Coverage Results" MODIFIED="1462139692955" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestGenerators_test_sampler.coverage" NAME="Unittest TestGenerators.test_sampler Coverage Results" MODIFIED="1461874535374" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_pyKCIPT.coverage" NAME="Nosetests in pyKCIPT Coverage Results" MODIFIED="1462591225083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittests_in_test_learning.coverage" NAME="Unittests in test_learning Coverage Results" MODIFIED="1463719107937" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittests_in_test_utils.coverage" NAME="Unittests in test_utils Coverage Results" MODIFIED="1463718943367" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_WL.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_WL Coverage Results" MODIFIED="1462560319947" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestAGG_test_company_fig_4_4_maier.coverage" NAME="Unittest TestAGG.test_company_fig_4_4_maier Coverage Results" MODIFIED="1464136483956" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_l3g.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_l3g Coverage Results" MODIFIED="1462479467347" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestGenerators_test_rcm_gen.coverage" NAME="Unittest TestGenerators.test_rcm_gen Coverage Results" MODIFIED="1461963146894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRpCD_test_sound_rules.coverage" NAME="Unittest TestRpCD.test_sound_rules Coverage Results" MODIFIED="1464191853026" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRCDs_test_enumerate_rdeps.coverage" NAME="Unittest TestRCDs.test_enumerate_rdeps Coverage Results" MODIFIED="1464120408611" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetests_in_TestKCIPT.coverage" NAME="Nosetests in TestKCIPT Coverage Results" MODIFIED="1463716138142" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestLearning_test_something.coverage" NAME="Unittest TestLearning.test_something Coverage Results" MODIFIED="1464031138919" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestAGG_test_company2.coverage" NAME="Unittest TestAGG.test_company2 Coverage Results" MODIFIED="1464136211964" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSkeleton_test_skeleton.coverage" NAME="Unittest TestSkeleton.test_skeleton Coverage Results" MODIFIED="1461096493673" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$drawing.coverage" NAME="drawing Coverage Results" MODIFIED="1462905517894" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/pyrcds" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRCDs_test_enumerate_rpaths.coverage" NAME="Unittest TestRCDs.test_enumerate_rpaths Coverage Results" MODIFIED="1464112139889" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$testsetse.coverage" NAME="testsetse Coverage Results" MODIFIED="1461766324277" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRCDs_test_interner.coverage" NAME="Unittest TestRCDs.test_interner Coverage Results" MODIFIED="1464112486515" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittests_in_practical_rcm_learner__1_.coverage" NAME="Unittests in practical_rcm_learner (1) Coverage Results" MODIFIED="1462140217272" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/pyRCDs$test_perm.coverage" NAME="test_perm Coverage Results" MODIFIED="1463357604453" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestRCDs_test_enumerate_rvars.coverage" NAME="Unittest TestRCDs.test_enumerate_rvars Coverage Results" MODIFIED="1464112342075" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSkeleton_test_rcm.coverage" NAME="Unittest TestSkeleton.test_rcm Coverage Results" MODIFIED="1462139906073" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$tettest.coverage" NAME="tettest Coverage Results" MODIFIED="1461008585541" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestGenerators_test_data_gen.coverage" NAME="Unittest TestGenerators.test_data_gen Coverage Results" MODIFIED="1462046238671" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_P345.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_P345 Coverage Results" MODIFIED="1462472965020" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestKCIPT_test_diff_arguments_kipt.coverage" NAME="Nosetest TestKCIPT.test_diff_arguments_kipt Coverage Results" MODIFIED="1463716077943" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$Unittest_TestSchema_test_EDPDE.coverage" NAME="Unittest TestSchema.test_EDPDE Coverage Results" MODIFIED="1461162715418" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestModel_test_generate_rpaths.coverage" NAME="Unittest TestModel.test_generate_rpaths Coverage Results" MODIFIED="1463589729404" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittest_TestCI_test_ci_company_domain.coverage" NAME="Unittest TestCI.test_ci_company_domain Coverage Results" MODIFIED="1463718517274" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Unittests_in_test_rcds.coverage" NAME="Unittests in test_rcds Coverage Results" MODIFIED="1464193238080" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/tests" />
+    <SUITE FILE_PATH="coverage/pyRCDs$Nosetest_TestEquivalentToMatlabCode_test_spkernel.coverage" NAME="Nosetest TestEquivalentToMatlabCode.test_spkernel Coverage Results" MODIFIED="1462465261980" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
+    <SUITE FILE_PATH="coverage/practical_rcm_learner$domain.coverage" NAME="domain Coverage Results" MODIFIED="1461036479500" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/some_pkg" />
   </component>
   <component name="CoverageOptionsProvider">
     <option name="myAddOrReplace" value="1" />
@@ -134,24 +119,54 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="domain.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/pyrcds/domain.py">
+      <file leaf-file-name="rcds.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/pyrcds/rcds.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="156" column="0" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
+            <state relative-caret-position="1818">
+              <caret line="112" column="12" selection-start-line="112" selection-start-column="12" selection-end-line="112" selection-end-column="12" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="rcds.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/pyrcds/rcds.py">
+      <file leaf-file-name="kcipt.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../pyKCIPT/src/pykcipt/kcipt.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="468">
-              <caret line="27" column="45" selection-start-line="27" selection-start-column="45" selection-end-line="27" selection-end-column="45" />
+            <state relative-caret-position="905">
+              <caret line="470" column="45" selection-start-line="470" selection-start-column="45" selection-end-line="470" selection-end-column="45" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_model.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/tests/test_model.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="4140">
+              <caret line="239" column="20" selection-start-line="239" selection-start-column="20" selection-end-line="239" selection-end-column="20" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="testing_utils.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/tests/testing_utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="144">
+              <caret line="8" column="9" selection-start-line="8" selection-start-column="9" selection-end-line="8" selection-end-column="9" />
               <folding>
-                <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#0#16#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_rcds.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/tests/test_rcds.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1728">
+              <caret line="108" column="22" selection-start-line="108" selection-start-column="22" selection-end-line="108" selection-end-column="22" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -159,18 +174,18 @@
       <file leaf-file-name="graphs.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/pyrcds/graphs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="270">
-              <caret line="15" column="25" selection-start-line="15" selection-start-column="25" selection-end-line="15" selection-end-column="25" />
+            <state relative-caret-position="18">
+              <caret line="168" column="0" selection-start-line="168" selection-start-column="0" selection-end-line="168" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_rcds.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/tests/test_rcds.py">
+      <file leaf-file-name="parallel.py" pinned="false" current-in-tab="false">
+        <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/joblib/parallel.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="23" column="52" selection-start-line="23" selection-start-column="52" selection-end-line="23" selection-end-column="52" />
+            <state relative-caret-position="905">
+              <caret line="652" column="0" selection-start-line="652" selection-start-column="0" selection-end-line="652" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -181,9 +196,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Setup Script" />
         <option value="HTML File" />
         <option value="Python Script" />
+        <option value="Setup Script" />
       </list>
     </option>
   </component>
@@ -207,7 +222,6 @@
         <option value="$PROJECT_DIR$/src/pyrcds/ci_test.py" />
         <option value="$PROJECT_DIR$/src/pyrcds/learning.py" />
         <option value="$PROJECT_DIR$/src/tests/test_ci.py" />
-        <option value="$PROJECT_DIR$/src/tests/test_model.py" />
         <option value="$PROJECT_DIR$/src/tests/testtest.py" />
         <option value="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/kcipt.py" />
         <option value="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests/test_perm.py" />
@@ -235,15 +249,16 @@
         <option value="$PROJECT_DIR$/../pyGK/src/pygk/labeled.py" />
         <option value="$PROJECT_DIR$/../pyGK/src/pygk/graphlets.py" />
         <option value="$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests/test_kcipt.py" />
-        <option value="$PROJECT_DIR$/src/pyrcds/domain.py" />
         <option value="$PROJECT_DIR$/src/pyrcds/robust.py" />
-        <option value="$PROJECT_DIR$/src/tests/test_learning.py" />
         <option value="$PROJECT_DIR$/web/index.html" />
-        <option value="$PROJECT_DIR$/src/tests/test_rcds.py" />
-        <option value="$PROJECT_DIR$/src/pyrcds/utils.py" />
-        <option value="$PROJECT_DIR$/src/pyrcds/graphs.py" />
         <option value="$PROJECT_DIR$/src/pyrcds/model.py" />
+        <option value="$PROJECT_DIR$/src/tests/test_learning.py" />
+        <option value="$PROJECT_DIR$/src/pyrcds/graphs.py" />
+        <option value="$PROJECT_DIR$/src/pyrcds/utils.py" />
+        <option value="$PROJECT_DIR$/src/pyrcds/domain.py" />
+        <option value="$PROJECT_DIR$/src/tests/test_rcds.py" />
         <option value="$PROJECT_DIR$/src/pyrcds/rcds.py" />
+        <option value="$PROJECT_DIR$/src/tests/test_model.py" />
       </list>
     </option>
   </component>
@@ -254,9 +269,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
+    <option name="x" value="865" />
     <option name="y" value="23" />
-    <option name="width" value="1920" />
-    <option name="height" value="1053" />
+    <option name="width" value="1695" />
+    <option name="height" value="1413" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -284,7 +300,6 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -299,7 +314,25 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="pyKCIPT" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
               <option name="myItemId" value="pyRCDs" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pyKCIPT" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pykcipt" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -310,10 +343,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="pyRCDs" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="web" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -348,37 +377,16 @@
               <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="scratch" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pyRCDs" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pyRCDs" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="pyrcds" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.postfix.templates" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
     <property name="js-jscs-nodeInterpreter" value="/usr/local/bin/node" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
@@ -398,53 +406,11 @@
       <recent name="$PROJECT_DIR$/../pyKCIPT/src" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Unittest TestLearning.test_something">
-    <configuration default="false" name="Nosetest TestEquivalentToMatlabCode.test_random_walk" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python tests.Unittest TestRCDs.test_co_intersectible">
+    <configuration default="false" name="Unittests in test_rcds" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="pyGK" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../pyGK/src/pygk/tests/test.py" />
-      <option name="CLASS_NAME" value="TestEquivalentToMatlabCode" />
-      <option name="METHOD_NAME" value="test_random_walk" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_METHOD" />
-      <option name="PATTERN" value="" />
-      <option name="USE_PATTERN" value="false" />
-      <option name="PARAMS" value="--nocapture" />
-      <option name="USE_PARAM" value="true" />
-      <method />
-    </configuration>
-    <configuration default="false" name="uai_2016" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="pyRCDs" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/tests/uai_2016.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="test_rcds" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/tests" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -453,33 +419,18 @@
       <module name="pyRCDs" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/tests/test_rcds.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="Nosetest TestEquivalentToMatlabCode.test_gest_kernel" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../pyGK/src/pygk/tests" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="pyGK" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../pyGK/src/pygk/tests/test.py" />
-      <option name="CLASS_NAME" value="TestEquivalentToMatlabCode" />
-      <option name="METHOD_NAME" value="test_gest_kernel" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
       <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
       <option name="PATTERN" value="" />
       <option name="USE_PATTERN" value="false" />
-      <option name="PARAMS" value="--nocapture" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="--concurrency=multiprocessing" />
       <option name="USE_PARAM" value="true" />
       <method />
     </configuration>
-    <configuration default="false" name="Unittest TestLearning.test_something" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+    <configuration default="false" name="Unittest TestRpCD.test_sound_rules" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
@@ -490,9 +441,9 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="pyRCDs" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/tests/test_learning.py" />
-      <option name="CLASS_NAME" value="TestLearning" />
-      <option name="METHOD_NAME" value="test_something" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/tests/test_rcds.py" />
+      <option name="CLASS_NAME" value="TestRpCD" />
+      <option name="METHOD_NAME" value="test_sound_rules" />
       <option name="FOLDER_NAME" value="" />
       <option name="TEST_TYPE" value="TEST_METHOD" />
       <option name="PATTERN" value="" />
@@ -502,15 +453,73 @@
       <option name="USE_PARAM" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="BashConfigurationType" factoryName="Bash">
+    <configuration default="false" name="Unittest TestAGG.test_company" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="INTERPRETER_PATH" value="/bin/bash" />
-      <option name="WORKING_DIRECTORY" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="PARAMETERS" value="" />
-      <module name="" />
       <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pyRCDs" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/tests/test_rcds.py" />
+      <option name="CLASS_NAME" value="TestAGG" />
+      <option name="METHOD_NAME" value="test_company" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Unittest TestRCDs.test_d_separated" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pyRCDs" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/tests/test_rcds.py" />
+      <option name="CLASS_NAME" value="TestRCDs" />
+      <option name="METHOD_NAME" value="test_d_separated" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Unittest TestRCDs.test_co_intersectible" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pyRCDs" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/tests/test_rcds.py" />
+      <option name="CLASS_NAME" value="TestRCDs" />
+      <option name="METHOD_NAME" value="test_co_intersectible" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
       <method />
     </configuration>
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
@@ -722,19 +731,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python tests.Nosetest TestEquivalentToMatlabCode.test_random_walk" />
-      <item index="1" class="java.lang.String" itemvalue="Python.uai_2016" />
-      <item index="2" class="java.lang.String" itemvalue="Python.test_rcds" />
-      <item index="3" class="java.lang.String" itemvalue="Python tests.Nosetest TestEquivalentToMatlabCode.test_gest_kernel" />
-      <item index="4" class="java.lang.String" itemvalue="Python tests.Unittest TestLearning.test_something" />
+      <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in test_rcds" />
+      <item index="1" class="java.lang.String" itemvalue="Python tests.Unittest TestRpCD.test_sound_rules" />
+      <item index="2" class="java.lang.String" itemvalue="Python tests.Unittest TestAGG.test_company" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.Unittest TestRCDs.test_d_separated" />
+      <item index="4" class="java.lang.String" itemvalue="Python tests.Unittest TestRCDs.test_co_intersectible" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittest TestLearning.test_something" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.Nosetest TestEquivalentToMatlabCode.test_gest_kernel" />
-        <item index="2" class="java.lang.String" itemvalue="Python.uai_2016" />
-        <item index="3" class="java.lang.String" itemvalue="Python.test_rcds" />
-        <item index="4" class="java.lang.String" itemvalue="Python tests.Nosetest TestEquivalentToMatlabCode.test_random_walk" />
+        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittest TestRCDs.test_co_intersectible" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in test_rcds" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.Unittest TestRCDs.test_d_separated" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.Unittest TestAGG.test_company" />
+        <item index="4" class="java.lang.String" itemvalue="Python tests.Unittest TestRpCD.test_sound_rules" />
       </list>
     </recent_temporary>
   </component>
@@ -815,39 +824,60 @@
       <option name="project" value="LOCAL" />
       <updated>1463766839183</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="working">
+      <created>1464063129403</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1464063129403</updated>
+    </task>
+    <task id="LOCAL-00011" summary="working">
+      <created>1464063151675</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1464063151675</updated>
+    </task>
+    <task id="LOCAL-00012" summary="working">
+      <created>1464063163787</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1464063163787</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Nosetest_TestEquivalentToMatlabCode_test_gest_kernel - 2016.05.23 at 11h 13m 44s.xml">
-      <configuration name="Nosetest TestEquivalentToMatlabCode.test_gest_kernel" configurationId="tests" />
+    <history-entry file="Unittest_TestRCDs_test_co_intersectible - 2016.05.25 at 14h 31m 33s.xml">
+      <configuration name="Unittest TestRCDs.test_co_intersectible" configurationId="tests" />
     </history-entry>
-    <history-entry file="Nosetest_TestEquivalentToMatlabCode_test_gest_kernel - 2016.05.23 at 11h 18m 06s.xml">
-      <configuration name="Nosetest TestEquivalentToMatlabCode.test_gest_kernel" configurationId="tests" />
+    <history-entry file="Unittest_TestRCDs_test_co_intersectible - 2016.05.25 at 14h 32m 17s.xml">
+      <configuration name="Unittest TestRCDs.test_co_intersectible" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittest_TestLearning_test_something - 2016.05.23 at 15h 18m 30s.xml">
-      <configuration name="Unittest TestLearning.test_something" configurationId="tests" />
+    <history-entry file="Unittest_TestRCDs_test_co_intersectible - 2016.05.25 at 14h 33m 43s.xml">
+      <configuration name="Unittest TestRCDs.test_co_intersectible" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittest_TestLearning_test_something - 2016.05.23 at 15h 18m 59s.xml">
-      <configuration name="Unittest TestLearning.test_something" configurationId="tests" />
+    <history-entry file="Unittest_TestRCDs_test_co_intersectible - 2016.05.25 at 14h 34m 14s.xml">
+      <configuration name="Unittest TestRCDs.test_co_intersectible" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_learning - 2016.05.20 at 00h 36m 51s.xml">
-      <configuration name="Unittests in test_learning" configurationId="tests" />
+    <history-entry file="Unittest_TestRCDs_test_co_intersectible - 2016.05.25 at 14h 35m 34s.xml">
+      <configuration name="Unittest TestRCDs.test_co_intersectible" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_learning - 2016.05.20 at 00h 38m 29s.xml">
-      <configuration name="Unittests in test_learning" configurationId="tests" />
+    <history-entry file="Unittest_TestRCDs_test_co_intersectible - 2016.05.25 at 14h 35m 52s.xml">
+      <configuration name="Unittest TestRCDs.test_co_intersectible" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_model - 2016.05.20 at 00h 34m 09s.xml">
-      <configuration name="Unittests in test_model" configurationId="tests" />
+    <history-entry file="Unittest_TestRCDs_test_d_separated - 2016.05.25 at 12h 17m 17s.xml">
+      <configuration name="Unittest TestRCDs.test_d_separated" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_model - 2016.05.20 at 00h 34m 44s.xml">
-      <configuration name="Unittests in test_model" configurationId="tests" />
+    <history-entry file="Unittest_TestRCDs_test_d_separated - 2016.05.25 at 12h 18m 17s.xml">
+      <configuration name="Unittest TestRCDs.test_d_separated" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_model - 2016.05.20 at 00h 35m 13s.xml">
-      <configuration name="Unittests in test_model" configurationId="tests" />
+    <history-entry file="Unittests_in_test_rcds - 2016.05.25 at 12h 08m 51s.xml">
+      <configuration name="Unittests in test_rcds" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_in_test_utils - 2016.05.20 at 00h 35m 43s.xml">
-      <configuration name="Unittests in test_utils" configurationId="tests" />
+    <history-entry file="Unittests_in_test_rcds - 2016.05.25 at 12h 20m 40s.xml">
+      <configuration name="Unittests in test_rcds" configurationId="tests" />
     </history-entry>
   </component>
   <component name="TodoView">
@@ -860,18 +890,17 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1920" height="1053" extended-state="6" />
+    <frame x="865" y="23" width="1695" height="1413" extended-state="0" />
     <editor active="false" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12992546" sideWeight="0.7510489" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15124017" sideWeight="0.7510489" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32905138" sideWeight="0.4978701" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18002081" sideWeight="0.37912673" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12726304" sideWeight="0.4881757" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.45577523" sideWeight="0.47337595" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18002081" sideWeight="0.6208733" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2664648" sideWeight="0.32062915" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20024198" sideWeight="0.47908232" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.17920792" sideWeight="0.61554843" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.12903225" sideWeight="0.49627262" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38455716" sideWeight="0.6925482" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24973376" sideWeight="0.46138614" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2664648" sideWeight="0.6793708" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.0969023" sideWeight="0.46138614" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32871288" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3789809" sideWeight="0.24895105" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.43496358" sideWeight="0.79286474" order="3" side_tool="false" content_ui="tabs" />
@@ -879,8 +908,9 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3981832" sideWeight="0.49817613" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17305644" sideWeight="0.5118243" order="3" side_tool="true" content_ui="tabs" />
+      <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.071352504" sideWeight="0.52091765" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.45571536" sideWeight="0.4531374" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
@@ -942,13 +972,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/src/pyrcds/model.py</url>
-          <line>622</line>
+          <line>632</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <condition expression="rpath is None" language="Python" />
           <url>file://$PROJECT_DIR$/src/pyrcds/model.py</url>
-          <line>232</line>
+          <line>231</line>
           <option name="timeStamp" value="47" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
@@ -959,7 +989,7 @@
         <line-breakpoint enabled="true" type="python-line">
           <condition expression="not (0 &lt;= start &lt; stop &lt;= len(self))" language="Python" />
           <url>file://$PROJECT_DIR$/src/pyrcds/model.py</url>
-          <line>77</line>
+          <line>76</line>
           <option name="timeStamp" value="51" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
@@ -1003,37 +1033,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../pyGK/src/pygk/unlabeled.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-86">
-          <caret line="24" column="25" selection-start-line="24" selection-start-column="25" selection-end-line="24" selection-end-column="25" />
-          <folding>
-            <element signature="e#0#18#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../pyKCIPT/src/pykcipt/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="3" column="0" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../pyGK/src/pygk/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="778">
-          <caret line="200" column="0" selection-start-line="200" selection-start-column="0" selection-end-line="200" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pycharm/nose_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="29" column="0" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pycharm/noserunner.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
@@ -1169,9 +1168,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-72">
           <caret line="17" column="29" selection-start-line="17" selection-start-column="29" selection-end-line="17" selection-end-column="29" />
-          <folding>
-            <element signature="e#1553#2067#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1206,13 +1202,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../pyKCIPT/src/pykcipt/kcipt.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="275">
-          <caret line="402" column="38" selection-start-line="402" selection-start-column="38" selection-end-line="402" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../pyKCIPT/src/pykcipt/tests/test_kcipt.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="234">
@@ -1224,9 +1213,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#15#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1234,9 +1220,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#15#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1244,7 +1227,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2214">
           <caret line="129" column="31" selection-start-line="129" selection-start-column="31" selection-end-line="129" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1252,7 +1234,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="338">
           <caret line="632" column="4" selection-start-line="632" selection-start-column="4" selection-end-line="632" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1268,7 +1249,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="351">
           <caret line="194" column="32" selection-start-line="194" selection-start-column="32" selection-end-line="194" selection-end-column="32" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1276,51 +1256,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="246">
           <caret line="16" column="65" selection-start-line="16" selection-start-column="65" selection-end-line="16" selection-end-column="65" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/tests/test_learning.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36">
-          <caret line="2" column="47" selection-start-line="2" selection-start-column="47" selection-end-line="2" selection-end-column="47" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/tests/test_model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#15#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pyrcds/__rci.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="28" column="30" selection-start-line="28" selection-start-column="30" selection-end-line="28" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pyrcds/visualize.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="486">
-          <caret line="32" column="12" selection-start-line="32" selection-start-column="12" selection-end-line="32" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pyrcds/domain.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="156" column="0" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pyrcds/visualize.py" />
     <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/networkx/convert.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="762">
@@ -1335,53 +1274,122 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/tests/test_rcds.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="23" column="52" selection-start-line="23" selection-start-column="52" selection-end-line="23" selection-end-column="52" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/pyrcds/__robust.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="183">
           <caret line="23" column="4" selection-start-line="23" selection-start-column="4" selection-end-line="23" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pyrcds/__rci.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4122">
+          <caret line="240" column="0" selection-start-line="240" selection-start-column="0" selection-end-line="240" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tests/test_learning.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="16" column="0" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pyrcds/model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="178">
+          <caret line="48" column="35" selection-start-line="48" selection-start-column="35" selection-end-line="48" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Library/Caches/PyCharm2016.1/python_stubs/984047538/numpy/random/mtrand.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="237">
+          <caret line="2324" column="4" selection-start-line="2324" selection-start-column="4" selection-end-line="2324" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/pyrcds/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="9" column="23" selection-start-line="9" selection-start-column="23" selection-end-line="9" selection-end-column="23" />
+        <state relative-caret-position="54">
+          <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/enum.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4021">
+          <caret line="267" column="0" selection-start-line="267" selection-start-column="0" selection-end-line="267" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pyrcds/domain.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="15" column="6" selection-start-line="15" selection-start-column="6" selection-end-line="15" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/joblib/parallel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="905">
+          <caret line="652" column="0" selection-start-line="652" selection-start-column="0" selection-end-line="652" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/pyrcds/graphs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="15" column="25" selection-start-line="15" selection-start-column="25" selection-end-line="15" selection-end-column="25" />
+        <state relative-caret-position="18">
+          <caret line="168" column="0" selection-start-line="168" selection-start-column="0" selection-end-line="168" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pyrcds/model.py">
+    <entry file="file://$PROJECT_DIR$/src/tests/testing_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="343">
-          <caret line="498" column="43" selection-start-line="498" selection-start-column="43" selection-end-line="498" selection-end-column="43" />
-          <folding />
+        <state relative-caret-position="144">
+          <caret line="8" column="9" selection-start-line="8" selection-start-column="9" selection-end-line="8" selection-end-column="9" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/pyrcds/rcds.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="468">
-          <caret line="27" column="45" selection-start-line="27" selection-start-column="45" selection-end-line="27" selection-end-column="45" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="1818">
+          <caret line="112" column="12" selection-start-line="112" selection-start-column="12" selection-end-line="112" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../pyKCIPT/src/pykcipt/kcipt.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="905">
+          <caret line="470" column="45" selection-start-line="470" selection-start-column="45" selection-end-line="470" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tests/test_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4140">
+          <caret line="239" column="20" selection-start-line="239" selection-start-column="20" selection-end-line="239" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tests/test_rcds.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1728">
+          <caret line="108" column="22" selection-start-line="108" selection-start-column="22" selection-end-line="108" selection-end-column="22" />
+          <folding />
         </state>
       </provider>
     </entry>
