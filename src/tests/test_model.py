@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+from joblib import Parallel, delayed
 from networkx import is_directed_acyclic_graph
 
 from pyrcds.domain import A_Class, RSkeleton, SkItem, generate_schema, generate_skeleton
@@ -229,27 +230,32 @@ class TestModel(unittest.TestCase):
                 assert is_valid_rpath([i for i in rpath])
 
     def test_data_gen(self):
-        for i in range(10):
-            schema = generate_schema()
-            rcm = generate_rcm(schema, 20, 5, 4)
-            skeleton = generate_skeleton(schema)
-            lg_rcm = linear_gaussians_rcm(rcm)
-            generate_values_for_skeleton(lg_rcm, skeleton)
-            causes = {c for c, e in rcm.directed_dependencies}
-            one_cause = next(iter(causes))
-            causes_of_the_base = list(filter(lambda c: c.base == one_cause.base, causes))
-            data_frame0 = flatten(skeleton, causes_of_the_base, False, False)
-            data_frame1 = flatten(skeleton, causes_of_the_base, True, True)
-            data_frame2 = flatten(skeleton, causes_of_the_base, False, True)
-            data_frame3 = flatten(skeleton, causes_of_the_base, True, False)
+        n = 20
+        seeds = [np.random.randint(np.iinfo(np.int32).max) for _ in range(n)]
+        Parallel(-1)(delayed(_test_gen_inner)(seeds[i]) for i in range(n))
 
-            # base items
-            assert all((data_frame3[:, 0] == data_frame1[:, 0]).flatten())
-            assert all((data_frame1[:, 1] == data_frame2[:, 0]).flatten())
-            assert all((data_frame0[:, 0] == data_frame3[:, 1]).flatten())
 
-            assert sorted(sorted(val for item, val in ivs) for ivs in data_frame0[:, 0]) == sorted(
-                sorted(v) for v in data_frame1[:, 1])
+def _test_gen_inner(seed):
+    np.random.seed(seed)
+
+    schema = generate_schema()
+    rcm = generate_rcm(schema, 20, 5, 4)
+    skeleton = generate_skeleton(schema)
+    lg_rcm = linear_gaussians_rcm(rcm)
+    generate_values_for_skeleton(lg_rcm, skeleton)
+    causes = {c for c, e in rcm.directed_dependencies}
+    one_cause = next(iter(causes))
+    causes_of_the_base = list(filter(lambda c: c.base == one_cause.base, causes))
+    data_frame0 = flatten(skeleton, causes_of_the_base, False, False)
+    data_frame1 = flatten(skeleton, causes_of_the_base, True, True)
+    data_frame2 = flatten(skeleton, causes_of_the_base, False, True)
+    data_frame3 = flatten(skeleton, causes_of_the_base, True, False)
+    # base items
+    assert all((data_frame3[:, 0] == data_frame1[:, 0]).flatten())
+    assert all((data_frame1[:, 1] == data_frame2[:, 0]).flatten())
+    assert all((data_frame0[:, 0] == data_frame3[:, 1]).flatten())
+    assert sorted(sorted(val for item, val in ivs) for ivs in data_frame0[:, 0]) == sorted(
+        sorted(v) for v in data_frame1[:, 1])
 
 
 if __name__ == '__main__':

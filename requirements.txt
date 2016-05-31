@@ -1,4 +1,3 @@
 palettable
-matplotlib
 pandas
 networkx

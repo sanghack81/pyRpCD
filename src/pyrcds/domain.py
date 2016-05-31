@@ -384,12 +384,14 @@ def generate_schema(num_ent_classes_distr=between_sampler(2, 5),
     return RSchema(ent_classes, rel_classes)
 
 
-def generate_skeleton(schema: RSchema, n_items: dict = None, maximum: dict = None) -> RSkeleton:
+def generate_skeleton(schema: RSchema, n_items=(300, 500), maximum_degrees=None) -> RSkeleton:
     # TODO implement maximum
-    if n_items is None:
-        n_items = {ic: randint(300, 500) for ic in schema.item_classes}
-    elif isinstance(n_items, int):
+    if isinstance(n_items, int):
         n_items = {ic: n_items for ic in schema.item_classes}
+    elif isinstance(n_items, tuple):
+        n_items = {ic: randint(*n_items) for ic in schema.item_classes}
+    if isinstance(maximum_degrees, int):
+        maximum_degrees = {(r, e): maximum_degrees for r in schema.relationships for e in r.entities}
 
     skeleton = RSkeleton(schema, strict=True)
     counter = itertools.count(1)

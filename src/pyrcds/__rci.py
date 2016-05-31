@@ -159,7 +159,7 @@ def hausdorff_distance(xs, ys, d=(lambda a, b: abs(a - b))):
 
 # RIBL distance is not a metric
 
-def set_distance_matrix(data, set_metric: hausdorff_distance, metric=(lambda x, y: abs(x - y))):  # k_set = sum sum skf
+def set_distance_matrix(data, set_metric=hausdorff_distance, metric=(lambda x, y: abs(x - y))):  # k_set = sum sum skf
     n = len(data)
     D = np.zeros((n, n))
     for i in range(n):
@@ -254,9 +254,11 @@ class CITester:
 class SetKernelRCITester(CITester):
     """Set kernel (multi-instance kernel) based tester"""
 
-    def __init__(self, skeleton: RSkeleton, **kwargs):
+    def __init__(self, skeleton: RSkeleton, n_jobs=-1, maxed=None, **kwargs):
         self.skeleton = ImmutableRSkeleton(skeleton)
+        self.n_jobs = n_jobs
         self.kwargs = kwargs
+        self.maxed = maxed
 
         self.median_dist = dict()
         for attr in skeleton.schema.attrs:
@@ -268,13 +270,15 @@ class SetKernelRCITester(CITester):
         assert x not in zs and y not in zs
 
         data = flatten(self.skeleton, (x, y, *zs), with_base_items=False, value_only=True)
+        if self.maxed is not None and len(data) > self.maxed:
+            data = data[np.random.choice(len(data), self.maxed, replace=False), :]
 
         K = [None] * (2 + len(zs))
         for i, rvar in enumerate((x, y, *zs)):
             D = set_distance_matrix(data[:, i])
             K[i] = np.exp(-D / self.median_dist[rvar.attr])
 
-        return KCIPT(K[0], K[1], multiply(*K[2:]), **self.kwargs)
+        return KCIPT(K[0], K[1], multiply(*K[2:]), n_jobs=self.n_jobs, **self.kwargs)
 
     @property
     def is_p_value_available(self):

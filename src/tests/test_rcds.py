@@ -196,8 +196,9 @@ class TestRpCD(unittest.TestCase):
     def test_together(self):
         for _ in range(100):
             g = PDAG()
-            vs = np.arange(np.random.randint(20) + 1)
-            np.random.shuffle(vs)
+            # vs = np.arange(np.random.randint(20) + 1)
+            # np.random.shuffle(vs)
+            vs = np.random.permutation(np.random.randint(20) + 1)
             for x, y in combinations(vs, 2):
                 if np.random.rand() < 0.2:
                     g.add_edge(x, y)
@@ -225,8 +226,9 @@ class TestRpCD(unittest.TestCase):
     def test_completes(self):
         for _ in range(100):
             g = PDAG()
-            vs = np.arange(np.random.randint(20) + 1)
-            np.random.shuffle(vs)
+            # vs = np.arange(np.random.randint(20) + 1)
+            # np.random.shuffle(vs)
+            vs = np.random.permutation(np.random.randint(20) + 1)
             for x, y in combinations(vs, 2):
                 if np.random.rand() < 0.2:
                     g.add_edge(x, y)

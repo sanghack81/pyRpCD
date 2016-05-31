@@ -43,6 +43,7 @@ def is_valid_rpath(path) -> bool:
     return all(e1 != e2 for e1, r, e2 in ere) and all(r1 != r2 or r1.is_many(e) for r1, e, r2 in rer)
 
 
+@functools.total_ordering
 class RPath:
     def __init__(self, item_classes, backdoor=False):
         assert item_classes is not None
@@ -65,6 +66,9 @@ class RPath:
 
     def __bool__(self):
         return True
+
+    def __le__(self, other):
+        return self.__item_classes <= other.__item_classes
 
     # As in the paper
     def __getitem__(self, item):
@@ -240,6 +244,7 @@ def eqint(p1: RPath, p2: RPath):
 
 
 # Immutable
+@functools.total_ordering
 class RVar:
     def __init__(self, rpath, attr: typing.Union[str, A_Class]):
         if not isinstance(rpath, RPath):
@@ -258,6 +263,9 @@ class RVar:
     @property
     def base(self):
         return self.rpath.base
+
+    def __le__(self, other):
+        return (self.rpath, self.attr) <= (other.rpath, other.attr)
 
     @property
     def is_canonical(self):
@@ -408,6 +416,10 @@ class PRCM:
         self.neighbors = defaultdict(set)
 
         self.add(dependencies)
+
+    @property
+    def degree(self):
+        return max(len(self.adj(v)) for v in self.parents.keys() | self.neighbors.keys())
 
     def pa(self, rvar: RVar):
         return self.parents[rvar]
