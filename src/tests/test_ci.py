@@ -37,7 +37,7 @@ class TestCI(unittest.TestCase):
         effects = {RVar(RPath(rcm.schema.item_class_of(attr)), attr) for attr in rcm.schema.attrs}
 
         for _ in range(10):
-            skeleton = generate_skeleton(schema)
+            skeleton = generate_skeleton(schema,n_items=(400,500))
 
             for e in effects:
                 parameters = {cause: 1.0 for cause in rcm.pa(e)}
@@ -48,9 +48,9 @@ class TestCI(unittest.TestCase):
 
             generate_values_for_skeleton(lg_rcm, skeleton)
 
-            tester = SetKernelRCITester(skeleton, alpha=0.025, n_jobs=-2, B=30, b=800, M=10000)
+            tester = SetKernelRCITester(skeleton, alpha=0.05, n_jobs=-2, B=60, b=800, M=10000)
             print('degree: {}'.format(lg_rcm.degree))
-            for cond_size in (0, 1):
+            for cond_size in range(lg_rcm.degree):
                 print('with cond size: {}'.format(cond_size))
                 for d0 in lg_rcm.directed_dependencies:
                     for d in ((d0, reversed(d0)) if cond_size > 0 else (d0,)):

@@ -276,7 +276,7 @@ class SetKernelRCITester(CITester):
         K = [None] * (2 + len(zs))
         for i, rvar in enumerate((x, y, *zs)):
             D = set_distance_matrix(data[:, i])
-            K[i] = np.exp(-D / self.median_dist[rvar.attr])
+            K[i] = np.exp(-D / np.median(D[np.tri(len(D),k=-1,dtype=bool)]))
 
         return KCIPT(K[0], K[1], multiply(*K[2:]), n_jobs=self.n_jobs, **self.kwargs)
 
