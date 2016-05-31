@@ -1,0 +1,132 @@
+{
+  "nodes": [
+    {
+      "is_entity": false,
+      "name": "p5q1",
+      "item_class": 6
+    },
+    {
+      "is_entity": true,
+      "name": "q4",
+      "item_class": 1
+    },
+    {
+      "is_entity": false,
+      "name": "q5",
+      "item_class": 6
+    },
+    {
+      "is_entity": false,
+      "name": "p1",
+      "item_class": 6
+    },
+    {
+      "is_entity": true,
+      "name": "p0q2",
+      "item_class": 2
+    },
+    {
+      "is_entity": false,
+      "name": "q3",
+      "item_class": 4
+    },
+    {
+      "is_entity": true,
+      "name": "p6q0",
+      "item_class": 1
+    },
+    {
+      "is_entity": true,
+      "name": "q6",
+      "item_class": 0
+    },
+    {
+      "is_entity": true,
+      "name": "aux1",
+      "item_class": 0
+    },
+    {
+      "is_entity": true,
+      "name": "p2",
+      "item_class": 1
+    },
+    {
+      "is_entity": true,
+      "name": "aux0",
+      "item_class": 2
+    },
+    {
+      "is_entity": false,
+      "name": "p3",
+      "item_class": 3
+    },
+    {
+      "is_entity": true,
+      "name": "p4",
+      "item_class": 0
+    },
+    {
+      "is_entity": true,
+      "name": "aux2",
+      "item_class": 2
+    }
+  ],
+  "links": [
+    {
+      "target": 6,
+      "source": 0
+    },
+    {
+      "target": 4,
+      "source": 0
+    },
+    {
+      "target": 12,
+      "source": 0
+    },
+    {
+      "target": 2,
+      "source": 1
+    },
+    {
+      "target": 5,
+      "source": 1
+    },
+    {
+      "target": 7,
+      "source": 2
+    },
+    {
+      "target": 13,
+      "source": 2
+    },
+    {
+      "target": 9,
+      "source": 3
+    },
+    {
+      "target": 8,
+      "source": 3
+    },
+    {
+      "target": 4,
+      "source": 3
+    },
+    {
+      "target": 5,
+      "source": 4
+    },
+    {
+      "target": 11,
+      "source": 9
+    },
+    {
+      "target": 11,
+      "source": 10
+    },
+    {
+      "target": 12,
+      "source": 11
+    }
+  ]
+}

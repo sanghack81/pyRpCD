@@ -5,3 +5,4 @@ src/pykcipt/__pycache__/
 bin/blossom5_ubuntu
 output/kcipt_perm_perf2.txt
 working/
+src/pyrcds/__pycache__/
