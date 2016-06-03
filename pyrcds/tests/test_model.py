@@ -7,7 +7,7 @@ from networkx import is_directed_acyclic_graph
 from pyrcds.domain import A_Class, RSkeleton, SkItem, generate_schema, generate_skeleton
 from pyrcds.model import RPath, llrsp, eqint, RVar, terminal_set, PRCM, UndirectedRDep, RCM, GroundGraph, generate_rcm, \
     canonical_rvars, linear_gaussians_rcm, generate_values_for_skeleton, flatten, generate_rpath, is_valid_rpath
-from pyrcds.tests import EPBDF, company_schema, company_rcm, company_skeleton, company_deps
+from pyrcds.tests.testing_utils import EPBDF, company_schema, company_rcm, company_skeleton, company_deps
 from pyrcds.utils import between_sampler
 
 

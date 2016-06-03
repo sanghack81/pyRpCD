@@ -2,7 +2,7 @@ import unittest
 
 from pyrcds.model import is_valid_rpath
 from pyrcds.rcds import enumerate_rdeps, enumerate_rpaths
-from pyrcds.tests import company_rcm, company_schema
+from pyrcds.tests.testing_utils import company_rcm, company_schema
 
 
 class TestLearning(unittest.TestCase):

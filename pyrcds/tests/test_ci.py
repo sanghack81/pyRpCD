@@ -7,7 +7,7 @@ from pyrcds._rci import multiply, SetKernelRCITester
 from pyrcds.domain import generate_skeleton
 from pyrcds.model import generate_values_for_skeleton, ParamRCM, RPath, RVar
 from pyrcds.spaces import normalize_by_diag
-from pyrcds.tests import company_rcm, company_schema
+from pyrcds.tests.testing_utils import company_rcm, company_schema
 from pyrcds.utils import linear_gaussian, average_agg, normal_sampler
 
 
@@ -32,13 +32,14 @@ class TestCI(unittest.TestCase):
         assert np.allclose(multiply(x), x)
         assert multiply() is None
 
+    @unittest.skip
     def test_ci_company_domain(self):
         schema, rcm = company_schema(), company_rcm()
         functions = dict()
         effects = {RVar(RPath(rcm.schema.item_class_of(attr)), attr) for attr in rcm.schema.attrs}
 
         for _ in range(10):
-            skeleton = generate_skeleton(schema, n_items=(400, 500))
+            skeleton = generate_skeleton(schema, n_items=(300, 400))
 
             for e in effects:
                 parameters = {cause: 1.0 for cause in rcm.pa(e)}
@@ -49,7 +50,7 @@ class TestCI(unittest.TestCase):
 
             generate_values_for_skeleton(lg_rcm, skeleton)
 
-            tester = SetKernelRCITester(skeleton, alpha=0.05, n_jobs=-2, B=60, b=800, M=10000)
+            tester = SetKernelRCITester(skeleton, alpha=0.05, n_jobs=-2, B=50, b=800, M=10000)
             print('degree: {}'.format(lg_rcm.degree))
             for cond_size in range(lg_rcm.degree):
                 print('with cond size: {}'.format(cond_size))

@@ -1,6 +1,5 @@
 import functools
 import typing
-import warnings
 from collections import defaultdict
 from itertools import cycle, product, combinations
 
@@ -14,6 +13,8 @@ from pyrcds.utils import average_agg, normal_sampler, group_by, linear_gaussian
 
 
 def is_valid_rpath(path) -> bool:
+    """Checks whether the given array-like item classes is a valid relational path."""
+    assert not isinstance(path, RPath)
     E, R = E_Class, R_Class
     assert path is not None and len(path) >= 1
     assert isinstance(path[0], E) or isinstance(path[0], R)
@@ -49,7 +50,9 @@ class RPath:
         assert item_classes is not None
         if isinstance(item_classes, I_Class):
             item_classes = (item_classes,)
-        assert backdoor or is_valid_rpath(item_classes)
+        if not backdoor:
+            if not is_valid_rpath(item_classes):
+                raise AssertionError('not a valid path: {}'.format(item_classes))
         self.__item_classes = tuple(item_classes)
         self.__h = hash(self.__item_classes)
 
@@ -151,77 +154,6 @@ class RPath:
 
     def __repr__(self):
         return str(self)
-
-
-# TODO
-class RPathView(RPath):
-    def __init__(self, rpath, from_inc, to_inc):
-        warnings.warn('not yet')
-        self.inner_rpath = rpath
-        self.from_inc = from_inc
-        self.to_inc = to_inc
-
-    def __hash__(self):
-        pass
-
-    def __iter__(self):
-        return
-        pass
-
-    def __eq__(self, other):
-        pass
-
-    def __bool__(self):
-        pass
-
-    # As in the paper
-    def __getitem__(self, item):
-        pass
-
-    # path concatenation
-    def __pow__(self, other):
-        pass
-
-    @property
-    def is_canonical(self):
-        pass
-
-    def subpath(self, start, end):
-        pass
-
-    def __reversed__(self):
-        pass
-
-    @property
-    def hop_len(self):
-        pass
-
-    @property
-    def terminal(self):
-        pass
-
-    @property
-    def base(self):
-        pass
-
-    def __len__(self):
-        pass
-
-    # TODO test
-    def appended_or_none(self, item_class: I_Class):
-        pass
-
-    def joinable(self, rpath):
-        pass
-
-    def join(self, rpath, backdoor=False):
-        pass
-
-    def __str__(self):
-        pass
-
-    def __repr__(self):
-        pass
 
 
 # Longest Length of Required Shared Path

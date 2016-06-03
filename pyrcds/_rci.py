@@ -14,9 +14,10 @@ from pyrcds.spaces import set_distance_matrix, median_except_diag, triangle_fixi
 
 
 def multiply(*args):
-    assert len(args) > 0
-    temp = args[0]
-    for arg in args[1:]:
+    if len(args) == 0:
+        return None
+    temp = 1
+    for arg in args:
         temp *= arg
     return temp
 

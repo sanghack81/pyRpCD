@@ -1,11 +1,34 @@
 import unittest
 
-from pyrcds.utils import between_sampler, average_agg, max_agg, normal_sampler, linear_gaussian
+from pyrcds.utils import between_sampler, average_agg, max_agg, normal_sampler, linear_gaussian, group_by, safe_iter
 
 
 class TestGenerators(unittest.TestCase):
+    def test_group_by(self):
+        grouped = list(group_by(((1, 2), (2, 3), (3, 2), (4, 4)), lambda x: x[1]))
+        assert len(grouped) == 3
+        d = dict(grouped)
+        assert set(d.keys()) == {2, 3, 4}
+        assert d[2] == [(1, 2), (3, 2)]
+
+    def test_safe_iter(self):
+        x = [1, 2, 3, 4, 5]
+        it = safe_iter(x)
+        x.remove(3)
+        assert 1 == next(it)
+        assert 2 == next(it)
+        assert 4 == next(it)
+        x.remove(5)
+        try:
+            next(it)
+        except StopIteration:
+            return
+        assert False
+
     def test_sampler(self):
         sampler = between_sampler(10, 11)
+        x, y, z = sampler.sample(), sampler.sample(), sampler.sample()
+        assert 10 <= min(x, y, z) <= max(x, y, z) <= 11
         samples = sampler.sample(1000)
         assert len(samples) == 1000
         samples = list(sorted(samples))

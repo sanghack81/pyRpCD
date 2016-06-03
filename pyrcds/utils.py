@@ -25,7 +25,7 @@ class between_sampler:
         if size is None:
             return randint(self.m, self.M + 1)
         else:
-            return randint(self.m, self.M + 1, size=size).tolist()
+            return randint(self.m, self.M + 1, size=size)
 
 
 #

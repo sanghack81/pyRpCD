@@ -1,8 +1,10 @@
 import unittest
 
+import numpy as np
+
 from pyrcds.domain import SchemaElement, E_Class, A_Class, Cardinality, R_Class, RSchema, generate_schema, \
-    generate_skeleton
-from pyrcds.tests import company_skeleton, EPBDF
+    generate_skeleton, ImmutableRSkeleton
+from pyrcds.tests.testing_utils import company_skeleton, EPBDF
 
 
 class TestSchemaElement(unittest.TestCase):
@@ -54,6 +56,8 @@ class TestSchema(unittest.TestCase):
         assert D not in F
         assert F not in F
         company_schema = RSchema({E, P, B}, {D, F})
+        assert company_schema.item_class_of(A_Class('Salary')) == E
+        assert company_schema.item_class_of(A_Class('Revenue')) == B
         assert A_Class('Salary') in company_schema
         assert E in company_schema
         assert xx1 not in company_schema
@@ -82,14 +86,29 @@ class TestSkeleton(unittest.TestCase):
         for i in range(30):
             schema = generate_schema()
             skeleton = generate_skeleton(schema)
+            iskeleton = ImmutableRSkeleton(skeleton)
             for R in schema.relationships:
                 assert isinstance(R, R_Class)
                 for E in R.entities:
                     if not R.is_many(E):
                         ents = skeleton.items(E)
+                        assert iskeleton.items(E) == ents
                         for e in ents:
                             must_be_one = skeleton.neighbors(e, R)
+                            assert len(iskeleton.neighbors(e, R)) <= 1
                             assert len(must_be_one) <= 1
+                            if 'key' not in e:
+                                assert skeleton[(e, 'key')] is None
+                            v = np.random.randint(100)
+                            skeleton[(e, 'key')] = v
+                            assert 'key' in e
+                            assert v == skeleton[(e, 'key')]
+                            assert v == e['key']
+                            try:
+                                iskeleton[(e, 'key')] = 100
+                                assert False
+                            except AssertionError:
+                                pass
 
 
 if __name__ == '__main__':

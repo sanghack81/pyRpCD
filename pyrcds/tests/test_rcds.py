@@ -10,7 +10,7 @@ from pyrcds.model import generate_rcm, RPath, RVar, SymTriple
 from pyrcds.rcds import canonical_unshielded_triples, enumerate_rpaths, enumerate_rvars, interner, extend, \
     enumerate_rdeps, intersectible, UnvisitedQueue, AbstractGroundGraph, sound_rules, completes, d_separated, \
     co_intersectible
-from pyrcds.tests import company_rcm, company_schema, EPBDF
+from pyrcds.tests.testing_utils import company_rcm, company_schema, EPBDF
 
 
 class TestRCDs(unittest.TestCase):
@@ -272,12 +272,15 @@ def inner__(s):
 
 
 class TestCUT(unittest.TestCase):
+    @unittest.skip('not yet implemented')
     def test_anchors_to_skeleton(self):
         pass
 
+    @unittest.skip('not yet implemented')
     def test_one_cut(self):
         pass
 
+    @unittest.skip('not yet implemented')
     def test_restore_anchors(self):
         pass
 

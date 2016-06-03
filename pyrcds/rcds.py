@@ -1,6 +1,5 @@
 import logging
 import typing
-import warnings
 from collections import deque, defaultdict
 from itertools import takewhile, count, combinations, chain
 
