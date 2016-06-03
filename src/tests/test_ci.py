@@ -3,9 +3,10 @@ from itertools import combinations
 
 import numpy as np
 
-from pyrcds.__rci import normalize, multiply, SetKernelRCITester
+from pyrcds._rci import multiply, SetKernelRCITester
 from pyrcds.domain import generate_skeleton
 from pyrcds.model import generate_values_for_skeleton, ParamRCM, RPath, RVar
+from pyrcds.spaces import normalize_by_diag
 from pyrcds.utils import linear_gaussian, average_agg, normal_sampler
 from tests.testing_utils import company_rcm, company_schema
 
@@ -15,11 +16,11 @@ class TestCI(unittest.TestCase):
         for _ in range(10):
             x = abs(np.random.randn(10, 10)) + 1.0e-6
             x += x.transpose()
-            x = normalize(x)
+            x = normalize_by_diag(x)
             for v in np.diag(x):
                 assert abs(v - 1.0) <= 1.0e-6
 
-        assert normalize(None) is None
+        assert normalize_by_diag(None) is None
 
     def test_multiply(self):
         x = abs(np.random.randn(10, 10)) + 1.0e-6
@@ -37,7 +38,7 @@ class TestCI(unittest.TestCase):
         effects = {RVar(RPath(rcm.schema.item_class_of(attr)), attr) for attr in rcm.schema.attrs}
 
         for _ in range(10):
-            skeleton = generate_skeleton(schema,n_items=(400,500))
+            skeleton = generate_skeleton(schema, n_items=(400, 500))
 
             for e in effects:
                 parameters = {cause: 1.0 for cause in rcm.pa(e)}

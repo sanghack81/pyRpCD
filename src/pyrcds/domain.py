@@ -5,7 +5,7 @@ from collections import defaultdict
 from enum import Enum
 from functools import total_ordering
 from itertools import chain
-
+import numpy as np
 import networkx as nx
 from numpy.random.mtrand import random_sample, choice, randint
 
@@ -392,6 +392,61 @@ def generate_skeleton(schema: RSchema, n_items=(300, 500), maximum_degrees=None)
         n_items = {ic: randint(*n_items) for ic in schema.item_classes}
     if isinstance(maximum_degrees, int):
         maximum_degrees = {(r, e): maximum_degrees for r in schema.relationships for e in r.entities}
+
+    skeleton = RSkeleton(schema, strict=True)
+    counter = itertools.count(1)
+
+    # adjust number of entities if more relationships are 'requesting'
+    # if E in R with cardinality one, |\sigma(R)| <= |\sigma(E)|.
+    for R in schema.relationships:
+        for E in R.entities:
+            if not R.is_many(E) and n_items[R] > n_items[E]:
+                n_items[E] = n_items[R]
+
+    entities = {E: [SkItem("e" + str(next(counter)), E) for _ in range(n_items[E])] for E in schema.entities}
+    for vs in entities.values():
+        for v in vs:
+            skeleton.add_entity(v)
+
+    for R in schema.relationships:
+        selected = {E: choice(entities[E], n_items[R], replace=R.is_many(E)).tolist()
+                    for E in R.entities}
+        for i in range(n_items[R]):
+            ents = [selected[E][i] for E in R.entities]
+            skeleton.add_relationship(SkItem("r" + str(next(counter)), R), ents)
+
+    return skeleton
+
+
+def generate_skeleton2(schema: RSchema, n_items=(300, 500), maximum_degrees=None, approximate_sizes=None) -> RSkeleton:
+    if isinstance(n_items, int):
+        n_items = {ic: n_items for ic in schema.item_classes}
+    elif isinstance(n_items, tuple):
+        n_items = {ic: randint(*n_items) for ic in schema.item_classes}
+    if isinstance(maximum_degrees, int):
+        maximum_degrees = {(r, e): maximum_degrees for r in schema.relationships for e in r.entities}
+
+    entities = defaultdict(list)
+    relationships = defaultdict(list)
+    degrees = defaultdict(lambda: 0)  # (r,e)
+
+    def entity_generator(E):
+        c = counter()
+        while True:
+            yield SkItem('e' + str(next(c)), E)
+
+    def rel_generator(R):
+        c = counter()
+        while True:
+            yield SkItem('r' + str(next(c)), R)
+
+    expected_size = 300
+    min_size = 100
+    max_size = 1000
+
+    num_rels = np.random.poisson(expected_size, len(schema.relationships))
+    num_rels[num_rels < min_size] = min_size
+    num_rels[num_rels > max_size] = max_size
 
     skeleton = RSkeleton(schema, strict=True)
     counter = itertools.count(1)
