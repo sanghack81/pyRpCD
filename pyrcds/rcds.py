@@ -624,6 +624,7 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
                 #     continue
                 if (not eqint(PB, QA)) or (l_beta > 1 and l_beta == min(len(PB), len(QB))):
                     continue
+                assert eqint(PB, QA) or 1 < l_beta < min(len(PB), len(QB))
 
                 a_z, b_z = a_s + l_beta - 1, b_s - l_beta + 1
                 # the third characteristic anchor
