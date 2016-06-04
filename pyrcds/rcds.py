@@ -448,23 +448,40 @@ def joinable(p, *args):
 
 def restore_anchors(P, Q, a_r, b_r, a_s, b_s, a_t=None, b_t=None):
     """Given characteristic anchors, construct a fully specified a set of anchors."""
-    last_P, first_Q = len(P) - 1, 0  # for readability
+    try:
+        last_P, first_Q = len(P) - 1, 0  # for readability
+        assert a_s <= a_r
+        assert b_s <= b_r
+        if a_t is not None or b_t is not None:
+            assert a_t is not None and b_t is not None
+            assert a_s <= a_r <= a_t
+            assert b_t <= b_s <= b_r
 
-    # (...|P|-1, 0...)
-    # (a_r..., ...b_r) (...a_r, ...b_r)
-    # (a_s..., b_s...) (a_s..., ...b_s)
-    J = {(last_P - i, first_Q + i) for i in range(llrsp(P[::-1], Q))} | \
-        {(a_r + i, b_r - i) for i in range(llrsp(P[a_r:], Q[:b_r:-1]))} | \
-        {(a_r - i, b_r - i) for i in range(llrsp(P[:a_r:-1], Q[:b_r:-1]))} | \
-        {(a_s + i, b_s + i) for i in range(llrsp(P[a_s:], Q[b_s:]))} | \
-        {(a_s + i, b_s - i) for i in range(llrsp(P[a_s:], Q[:b_s:-1]))}
+        # (...|P|-1, 0...)
+        # (a_r..., ...b_r) (...a_r, ...b_r)
+        # (a_s..., b_s...) (a_s..., ...b_s)
+        J = {(last_P - i, first_Q + i) for i in range(llrsp(P[::-1], Q))} | \
+            {(a_r + i, b_r - i) for i in range(llrsp(P[a_r:], Q[:b_r:-1]))} | \
+            {(a_r - i, b_r - i) for i in range(llrsp(P[:a_r:-1], Q[:b_r:-1]))} | \
+            {(a_s + i, b_s + i) for i in range(llrsp(P[a_s:], Q[b_s:]))} | \
+            {(a_s + i, b_s - i) for i in range(llrsp(P[a_s:], Q[:b_s:-1]))}
 
-    if a_t is not None and b_t is not None:
-        # (a_t..., ...b_t) (...a_t, ...b_t)
-        J |= {(a_t + i, b_t - i) for i in range(llrsp(P[a_t:], Q[:b_t:-1]))} | \
-             {(a_t - i, b_t - i) for i in range(llrsp(P[:a_t:-1], Q[:b_t:-1]))}
+        assert len([a for a, b in J]) == len({a for a, b in J})
+        assert len([b for a, b in J]) == len({b for a, b in J})
 
-    return J
+        if a_t is not None and b_t is not None:
+            # (a_t..., ...b_t) (...a_t, ...b_t)
+            J |= {(a_t + i, b_t - i) for i in range(llrsp(P[a_t:], Q[:b_t:-1]))} | \
+                 {(a_t - i, b_t - i) for i in range(llrsp(P[:a_t:-1], Q[:b_t:-1]))}
+
+        assert len([a for a, b in J]) == len({a for a, b in J})
+        assert len([b for a, b in J]) == len({b for a, b in J})
+
+        return J
+    except AssertionError as e:
+        print(P, Q, a_r, b_r, a_s, b_s, a_t, b_t)
+        restore_anchors(P, Q, a_r, b_r, a_s, b_s, a_t, b_t)
+        raise e
 
 
 def anchors_to_skeleton(schema: RSchema, P: RPath, Q: RPath, J):
@@ -496,7 +513,7 @@ def anchors_to_skeleton(schema: RSchema, P: RPath, Q: RPath, J):
     for v in list(temp_g.nodes()):
         if isinstance(v.item_class, R_Class):
             missing = set(v.item_class.entities) - {ne.item_class for ne in temp_g.neighbors(v)}
-            auxs = [SkItem('aux' + str(next(cc)), ic) for ic in missing]
+            auxs = {SkItem('aux' + str(next(cc)), ic) for ic in missing}
             all_auxs |= auxs
             temp_g.add_nodes_from(auxs)
             for aux in auxs:
@@ -565,12 +582,13 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
         if not joinable(P[:a_r], Q[b_r:]):
             continue
         RrZ = RVar(P[:a_r] ** Q[b_r:], Z)
-        if RrZ in M.adj(Vx):
+        if RrZ in M.adj(Vx) or RrZ == Vx:
             continue
 
         l_alpha = LL(Q[b_x:b_r:-1], P[:a_r:-1])
         if l_alpha == 1:
             if eqint(P[a_r:a_x], Q[b_x:b_r:-1]):
+                assert Vx != RrZ
                 cut = (Vx, frozenset({Py, RVar(P[:a_r] ** Q[:b_r:-1], Y)}), RrZ)
                 if single:
                     if with_anchors:
@@ -602,10 +620,10 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
                     continue
 
                 l_beta = LL(PB, QB)
-                if (not eqint(PB, QA)) and l_beta == min(len(PB), len(QB)):
-                    continue
-                # if (not eqint(PB, QA)) or l_beta == min(len(PB), len(QB)):
+                # if (not eqint(PB, QA)) and l_beta == min(len(PB), len(QB)):
                 #     continue
+                if (not eqint(PB, QA)) or (l_beta > 1 and l_beta == min(len(PB), len(QB))):
+                    continue
 
                 a_z, b_z = a_s + l_beta - 1, b_s - l_beta + 1
                 # the third characteristic anchor
@@ -640,14 +658,18 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
 
                         if single:
                             if with_anchors:
+                                assert Vx != RrZ
                                 return (Vx, PP_Y, RrZ), restore_anchors(P, Q, a_r, b_r, a_s, b_s, a_t, b_t)
                             else:
+                                assert Vx != RrZ
                                 return Vx, PP_Y, RrZ
                         else:
                             if with_anchors:
                                 JJ = restore_anchors(P, Q, a_r, b_r, a_s, b_s, a_t, b_t)
                                 for R in {RrZ, RsZ, RtZ}:
+                                    assert Vx != R
                                     yield (Vx, PP_Y, R), JJ
                             else:
                                 for R in {RrZ, RsZ, RtZ}:
+                                    assert Vx != R
                                     yield Vx, PP_Y, R

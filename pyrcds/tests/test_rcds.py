@@ -9,7 +9,7 @@ from pyrcds.graphs import PDAG
 from pyrcds.model import generate_rcm, RPath, RVar, SymTriple, GroundGraph, terminal_set, RDep
 from pyrcds.rcds import canonical_unshielded_triples, enumerate_rpaths, enumerate_rvars, interner, extend, \
     enumerate_rdeps, intersectible, UnvisitedQueue, AbstractGroundGraph, sound_rules, completes, d_separated, \
-    co_intersectible
+    co_intersectible, anchors_to_skeleton
 from pyrcds.tests.testing_utils import company_rcm, company_schema, EPBDF
 from pyrcds.utils import group_by
 
@@ -285,9 +285,30 @@ class TestCUT(unittest.TestCase):
     def test_restore_anchors(self):
         pass
 
+    def test_evidence_completeness2(self):
+        # np.random.seed(0)
+        while True:
+            schema = generate_schema()
+            rcm = generate_rcm(schema, np.random.randint(1, 100), np.random.randint(1, 20), np.random.randint(0, 20))
+            for PyVx in sorted(rcm.full_dependencies):
+                for QzVy in sorted(rcm.full_dependencies):
+                    (P, Y), (_, X) = PyVx
+                    (Q, Z), (_, Y2) = QzVy
+                    if Y != Y2:
+                        continue
+                    for cut, J in sorted(canonical_unshielded_triples(rcm, PyVx, QzVy, False, True)):
+                        skeleton, _ = anchors_to_skeleton(schema, P, Q, J)
+                        gg = GroundGraph(rcm, skeleton)
+                        if not gg.unshielded_triples():
+                            print(PyVx)
+                            print(QzVy)
+                            print(cut)
+                            print(J)
+                            print(skeleton)
+
     def test_evidence_completeness(self):
-        np.random.seed(0)
-        for _ in range(10):
+        # np.random.seed(0)
+        while True:
             schema = generate_schema()
             print('generating RCM...')
             rcm = generate_rcm(schema, np.random.randint(1, 100), np.random.randint(1, 20), np.random.randint(0, 20))
@@ -297,7 +318,8 @@ class TestCUT(unittest.TestCase):
             print('generating Ground Graph...')
             gg = GroundGraph(rcm, skeleton)
             print('generating CUTs...')
-            all_cuts = set(canonical_unshielded_triples(rcm, single=False))
+            all_cuts = set(canonical_unshielded_triples(rcm, False))
+
             print('testing...')
             cut_by_xyz = dict(group_by(all_cuts, lambda cut: (cut[0].attr, next(iter(cut[1])).attr, cut[2].attr)))
             sorted1 = sorted(gg.unshielded_triples())
