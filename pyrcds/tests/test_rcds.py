@@ -248,46 +248,14 @@ class TestRpCD(unittest.TestCase):
             assert current == post
 
 
-def inner__(s):
-    np.random.seed(s)
-
-    schema = generate_schema()
-    rcm = generate_rcm(schema, np.random.randint(1, 100), np.random.randint(1, 20), np.random.randint(0, 20))
-    for d1 in rcm.directed_dependencies:
-        for d2 in rcm.directed_dependencies:
-            for PyVx in (d1, reversed(d1)):
-                for QzVy in (d2, reversed(d2)):
-                    if PyVx.cause.attr == QzVy.effect.attr:
-                        for CUT in canonical_unshielded_triples(rcm, PyVx, QzVy, single=False,
-                                                                with_anchors=False):
-                            pass
-                        for CUT, JJ in canonical_unshielded_triples(rcm, PyVx, QzVy, single=False,
-                                                                    with_anchors=True):
-                            pass
-                        for CUT in canonical_unshielded_triples(rcm, PyVx, QzVy, single=True,
-                                                                with_anchors=False):
-                            pass
-                        for CUT, JJ in canonical_unshielded_triples(rcm, PyVx, QzVy, single=True,
-                                                                    with_anchors=True):
-                            pass
-
 
 class TestCUT(unittest.TestCase):
-    @unittest.skip('not yet implemented')
-    def test_anchors_to_skeleton(self):
-        pass
 
-    @unittest.skip('not yet implemented')
-    def test_one_cut(self):
-        pass
-
-    @unittest.skip('not yet implemented')
-    def test_restore_anchors(self):
-        pass
 
     def test_evidence_completeness2(self):
         # np.random.seed(0)
         while True:
+            print('.')
             schema = generate_schema()
             rcm = generate_rcm(schema, np.random.randint(1, 100), np.random.randint(1, 20), np.random.randint(0, 20))
             for PyVx in sorted(rcm.full_dependencies):
@@ -299,35 +267,24 @@ class TestCUT(unittest.TestCase):
                     for cut, J in sorted(canonical_unshielded_triples(rcm, PyVx, QzVy, False, True)):
                         skeleton, _ = anchors_to_skeleton(schema, P, Q, J)
                         gg = GroundGraph(rcm, skeleton)
-                        if not gg.unshielded_triples():
-                            print(PyVx)
-                            print(QzVy)
-                            print(cut)
-                            print(J)
-                            print(skeleton)
+                        assert gg.unshielded_triples()
+
 
     def test_evidence_completeness(self):
         # np.random.seed(0)
         while True:
             schema = generate_schema()
-            print('generating RCM...')
             rcm = generate_rcm(schema, np.random.randint(1, 100), np.random.randint(1, 20), np.random.randint(0, 20))
             grouped = dict(group_by(rcm.full_dependencies, lambda d: d.attrfy()))
-            print('generating Skeleton...')
             skeleton = ImmutableRSkeleton(generate_skeleton(schema))
-            print('generating Ground Graph...')
             gg = GroundGraph(rcm, skeleton)
-            print('generating CUTs...')
-            all_cuts = set(canonical_unshielded_triples(rcm, False))
+            all_cuts = set(canonical_unshielded_triples(rcm, single= False))
 
-            print('testing...')
             cut_by_xyz = dict(group_by(all_cuts, lambda cut: (cut[0].attr, next(iter(cut[1])).attr, cut[2].attr)))
             sorted1 = sorted(gg.unshielded_triples())
             print('total {} unshielded triples'.format(len(sorted1)))
             # only first 100
             for ut in sorted1:
-                if str(ut) != "<(e208, A_Class('A3')), (e382, A_Class('A1')), (e765, A_Class('A4'))>":
-                    continue
                 (i, X), (j, Y), (k, Z) = ut
                 if (i, X) > (k, Z):
                     i, X, k, Z = k, Z, i, X
