@@ -55,6 +55,7 @@ class RPath:
                 raise AssertionError('not a valid path: {}'.format(item_classes))
         self.__item_classes = tuple(item_classes)
         self.__h = hash(self.__item_classes)
+        self.__getitem__ = functools.lru_cache(maxsize=10)(self.__getitem__)
 
     def __hash__(self):
         return self.__h
@@ -232,6 +233,7 @@ def canonical_rvars(schema: RSchema) -> typing.Set[RVar]:
                for attr in item_class.attrs)
 
 
+@functools.total_ordering
 class RDep:
     def __init__(self, cause: RVar, effect: RVar):
         assert effect.is_canonical
@@ -247,6 +249,9 @@ class RDep:
         return isinstance(other, RDep) and \
                self.cause == other.cause and \
                self.effect == other.effect
+
+    def __le__(self, other):
+        return (self.cause, self.effect) <= (other.cause, other.effect)
 
     def __len__(self):
         return len(self.cause.rpath)
@@ -281,6 +286,7 @@ class RDep:
         return str(self)
 
 
+@functools.total_ordering
 class SymTriple:
     def __init__(self, left, middle, right):
         self.left, self.middle, self.right = left, middle, right
@@ -305,6 +311,9 @@ class SymTriple:
 
     def __str__(self):
         return '<' + (', '.join(str(t) for t in (self.left, self.middle, self.right))) + '>'
+
+    def __lt__(self, other):
+        return sorted([*self]) < sorted([*other])
 
 
 class UndirectedRDep:
@@ -348,6 +357,15 @@ class PRCM:
         self.neighbors = defaultdict(set)
 
         self.add(dependencies)
+
+    @property
+    def valid_dependencies(self):
+        return self.directed_dependencies | {d for u in self.undirected_dependencies for d in u}
+
+    @property
+    def full_dependencies(self):
+        return {d_ for d in self.directed_dependencies for d_ in (d, (reversed(d)))} | \
+               {d for u in self.undirected_dependencies for d in u}
 
     @property
     def degree(self):
@@ -486,6 +504,12 @@ class ParamRCM(RCM):
 
 # TODO, speed up by employing a tree structure (memory efficient)
 def terminal_set(skeleton: RSkeleton, rpath: RPath, base_item: SkItem):
+    if isinstance(rpath, RDep):
+        rpath = rpath.cause.rpath
+    elif isinstance(rpath, RVar):
+        rpath = rpath.rpath
+    if not isinstance(rpath, RPath):
+        raise TypeError('{} is not RPath but {}'.format(rpath, type(rpath)))
     item_paths = [[base_item]]
     next_paths = []
 
@@ -559,8 +583,8 @@ class GroundGraph:
 
     def unshielded_triples(self):
         uts = set()
-        for middle in self.g:
-            for left, right in combinations(self.g.adj(middle), 2):
+        for middle in sorted(self.g):
+            for left, right in combinations(sorted(self.g.adj(middle)), 2):
                 if not self.g.is_adj(left, right):
                     uts.add(SymTriple(left, middle, right))
         return uts
@@ -569,7 +593,7 @@ class GroundGraph:
 def generate_rpath(schema: RSchema, base: I_Class = None, length=None):
     assert length is None or 1 <= length
     if base is None:
-        base = choice(list(schema.entities | schema.relationships))
+        base = choice(sorted(schema.entities | schema.relationships))
     assert base in schema
 
     rpath_inner = [base, ]
@@ -582,7 +606,7 @@ def generate_rpath(schema: RSchema, base: I_Class = None, length=None):
                 next_items.remove(prev_item)
         if not next_items:
             break
-        next_item = choice(list(next_items))
+        next_item = choice(sorted(next_items))
         rpath_inner.append(next_item)
 
         prev_item = curr_item
@@ -594,7 +618,7 @@ def generate_rpath(schema: RSchema, base: I_Class = None, length=None):
 def generate_rcm(schema: RSchema, num_dependencies=10, max_degree=5, max_hop=6):
     FAILED_LIMIT = len(schema.entities) + len(schema.relationships)
     # ordered attributes
-    attr_order = list(schema.attrs)
+    attr_order = sorted(schema.attrs)
     shuffle(attr_order)
 
     def causable(cause_attr_candidate):
@@ -617,7 +641,7 @@ def generate_rcm(schema: RSchema, num_dependencies=10, max_degree=5, max_hop=6):
                 failed_count += 1
                 continue
 
-            cause_attr = choice(cause_attr_candidates)
+            cause_attr = choice(sorted(cause_attr_candidates))
             cause = RVar(rpath, cause_attr)
             candidate = RDep(cause, effect)
             if candidate not in rcm.directed_dependencies:
@@ -627,7 +651,7 @@ def generate_rcm(schema: RSchema, num_dependencies=10, max_degree=5, max_hop=6):
                 failed_count += 1
 
     if len(rcm.directed_dependencies) > num_dependencies:
-        return RCM(schema, choice(list(rcm.directed_dependencies), num_dependencies).tolist())
+        return RCM(schema, choice(sorted(rcm.directed_dependencies), num_dependencies).tolist())
     return rcm
 
 

@@ -1,3 +1,4 @@
+import functools
 import itertools
 import sys
 import typing
@@ -148,6 +149,11 @@ class RSchema:
             for attr in item_class.attrs:
                 self.attr2item_class[attr] = item_class
 
+        self.elements = {e.name: e for e in self.entities | self.relationships | self.attrs}
+
+    def __getitem__(self, name):
+        return self.elements[name]
+
     def item_class_of(self, attr):
         return self.attr2item_class[attr]
 
@@ -189,6 +195,7 @@ class RSchema:
         return g
 
 
+@functools.total_ordering
 class SkItem:
     def __init__(self, name, item_class: I_Class, values: dict = None):
         assert hash(name)
@@ -196,12 +203,16 @@ class SkItem:
         self.name = name
         self.item_class = item_class
         self.__values = values.copy() if values is not None else dict()
+        self.__h = hash(self.name)
 
     def __eq__(self, other):
         return isinstance(other, SkItem) and self.name == other.name
 
     def __hash__(self):
-        return hash(self.name)
+        return self.__h
+
+    def __le__(self, other):
+        return self.name <= other.name
 
     def __contains__(self, k):
         return k in self.__values
@@ -233,10 +244,13 @@ class RSkeleton:
         item[attr] = value
 
     def __getitem__(self, key):
-        item, attr = key
-        if attr not in item:
-            return None
-        return item[attr]
+        if isinstance(key, str):
+            pass
+        else:
+            item, attr = key
+            if attr not in item:
+                return None
+            return item[attr]
 
     def add_entities(self, *args):
         for x in args:
@@ -392,7 +406,7 @@ def generate_skeleton(schema: RSchema, n_items=(300, 500), maximum_degrees=None)
     if isinstance(n_items, int):
         n_items = {ic: n_items for ic in schema.item_classes}
     elif isinstance(n_items, tuple):
-        n_items = {ic: randint(*n_items) for ic in schema.item_classes}
+        n_items = {ic: randint(*n_items) for ic in sorted(schema.item_classes)}
     if isinstance(maximum_degrees, int):
         maximum_degrees = {(r, e): maximum_degrees for r in schema.relationships for e in r.entities}
 
@@ -406,14 +420,14 @@ def generate_skeleton(schema: RSchema, n_items=(300, 500), maximum_degrees=None)
             if not R.is_many(E) and n_items[R] > n_items[E]:
                 n_items[E] = n_items[R]
 
-    entities = {E: [SkItem("e" + str(next(counter)), E) for _ in range(n_items[E])] for E in schema.entities}
+    entities = {E: [SkItem("e" + str(next(counter)), E) for _ in range(n_items[E])] for E in sorted(schema.entities)}
     for vs in entities.values():
         for v in vs:
             skeleton.add_entity(v)
 
-    for R in schema.relationships:
+    for R in sorted(schema.relationships):
         selected = {E: choice(entities[E], n_items[R], replace=R.is_many(E)).tolist()
-                    for E in R.entities}
+                    for E in sorted(R.entities)}
         for i in range(n_items[R]):
             ents = [selected[E][i] for E in R.entities]
             skeleton.add_relationship(SkItem("r" + str(next(counter)), R), ents)

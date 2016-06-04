@@ -514,8 +514,28 @@ def anchors_to_skeleton(schema: RSchema, P: RPath, Q: RPath, J):
 
 # written for readability
 # can be faster by employing view-class for RPath for slicing operator
-def canonical_unshielded_triples(M: PRCM, PyVx: RDep, QzVy: RDep, single=True, with_anchors=False):
+def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, single=True, with_anchors=False):
     """Returns a CUT or generate CUTs with/without anchors"""
+    if PyVx is None and QzVy is None:
+        all_ds = {dd for d in M.directed_dependencies for dd in (d, reversed(d))} | \
+                 {d for u in M.undirected_dependencies for d in u}
+        skip = set()
+        for PyVx in all_ds:
+            (_, Y), (_, X) = PyVx
+            for QzVy in all_ds:
+                (_, Z), (_, Y2) = QzVy
+                if Y == Y2:
+                    if single:  # single(s)
+                        if SymTriple(X, Y, Z) in skip:
+                            continue
+                        cut = canonical_unshielded_triples(M, PyVx, QzVy, single, with_anchors)
+                        skip.add(SymTriple(X, Y, Z))
+                        yield cut
+                    else:
+                        for cut in canonical_unshielded_triples(M, PyVx, QzVy, single, with_anchors):
+                            yield cut
+        return
+
     LL = llrsp
 
     Py, Vx = PyVx
@@ -582,8 +602,10 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep, QzVy: RDep, single=True, w
                     continue
 
                 l_beta = LL(PB, QB)
-                if (not eqint(PB, QA)) or l_beta == min(len(PB), len(QB)):
+                if (not eqint(PB, QA)) and l_beta == min(len(PB), len(QB)):
                     continue
+                # if (not eqint(PB, QA)) or l_beta == min(len(PB), len(QB)):
+                #     continue
 
                 a_z, b_z = a_s + l_beta - 1, b_s - l_beta + 1
                 # the third characteristic anchor

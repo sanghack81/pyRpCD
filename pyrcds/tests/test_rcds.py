@@ -4,13 +4,14 @@ from itertools import combinations
 import numpy as np
 from joblib import Parallel, delayed
 
-from pyrcds.domain import generate_schema, R_Class, E_Class, Cardinality
+from pyrcds.domain import generate_schema, R_Class, E_Class, Cardinality, generate_skeleton, ImmutableRSkeleton
 from pyrcds.graphs import PDAG
-from pyrcds.model import generate_rcm, RPath, RVar, SymTriple
+from pyrcds.model import generate_rcm, RPath, RVar, SymTriple, GroundGraph, terminal_set, RDep
 from pyrcds.rcds import canonical_unshielded_triples, enumerate_rpaths, enumerate_rvars, interner, extend, \
     enumerate_rdeps, intersectible, UnvisitedQueue, AbstractGroundGraph, sound_rules, completes, d_separated, \
     co_intersectible
 from pyrcds.tests.testing_utils import company_rcm, company_schema, EPBDF
+from pyrcds.utils import group_by
 
 
 class TestRCDs(unittest.TestCase):
@@ -283,6 +284,66 @@ class TestCUT(unittest.TestCase):
     @unittest.skip('not yet implemented')
     def test_restore_anchors(self):
         pass
+
+    def test_evidence_completeness(self):
+        np.random.seed(0)
+        for _ in range(10):
+            schema = generate_schema()
+            print('generating RCM...')
+            rcm = generate_rcm(schema, np.random.randint(1, 100), np.random.randint(1, 20), np.random.randint(0, 20))
+            grouped = dict(group_by(rcm.full_dependencies, lambda d: d.attrfy()))
+            print('generating Skeleton...')
+            skeleton = ImmutableRSkeleton(generate_skeleton(schema))
+            print('generating Ground Graph...')
+            gg = GroundGraph(rcm, skeleton)
+            print('generating CUTs...')
+            all_cuts = set(canonical_unshielded_triples(rcm, single=False))
+            print('testing...')
+            cut_by_xyz = dict(group_by(all_cuts, lambda cut: (cut[0].attr, next(iter(cut[1])).attr, cut[2].attr)))
+            sorted1 = sorted(gg.unshielded_triples())
+            print('total {} unshielded triples'.format(len(sorted1)))
+            # only first 100
+            for ut in sorted1:
+                if str(ut) != "<(e208, A_Class('A3')), (e382, A_Class('A1')), (e765, A_Class('A4'))>":
+                    continue
+                (i, X), (j, Y), (k, Z) = ut
+                if (i, X) > (k, Z):
+                    i, X, k, Z = k, Z, i, X
+                # i to j
+                PP = set()
+                for d in sorted(grouped[(Y, X)]):
+                    if j in terminal_set(skeleton, d, i):
+                        PP.add(d.cause.rpath)
+                assert PP, 'check gg code or terminal set'
+                QQ = set()
+                for d in grouped[(Z, Y)]:
+                    if k in terminal_set(skeleton, d.cause, j):
+                        QQ.add(d.cause)
+                assert QQ, 'check gg code or terminal set'
+                # i to k
+                if (Z, X) in grouped:
+                    for d in grouped[(Z, X)]:
+                        assert k not in terminal_set(skeleton, d, i), 'check gg code or terminal set'
+
+                assert cut_by_xyz[(X, Y, Z)]
+                for cut in cut_by_xyz[(X, Y, Z)]:
+                    Vx, PPy, Rz = cut
+                    if any(P in PP for P, _ in PPy):
+                        R, _ = Rz
+                        if Z != X:
+                            assert RDep(Rz, Vx) not in rcm.directed_dependencies
+                            assert reversed(RDep(Rz, Vx)) not in rcm.directed_dependencies
+                        # covered
+                        if k in terminal_set(skeleton, R, i):
+                            break
+                else:
+                    PyVx = RDep(RVar(next(iter(PP)), Y), RVar(RPath(schema.item_class_of(X)), X))
+                    QzVy = RDep(next(iter(QQ)), RVar(RPath(schema.item_class_of(Y)), Y))
+                    for cut, J in canonical_unshielded_triples(rcm, PyVx, QzVy, False, True):
+                        print(cut)
+                        print(J)
+                    print('no cut found for {}'.format(ut))
+                    assert False
 
     @unittest.skip('time consuming')
     def test_possible_cases(self):
