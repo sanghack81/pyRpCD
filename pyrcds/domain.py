@@ -1,6 +1,5 @@
 import functools
 import itertools
-import sys
 import typing
 from collections import defaultdict
 from enum import Enum
@@ -14,6 +13,7 @@ from pyrcds.utils import between_sampler
 
 
 class Cardinality(Enum):
+    """Define constants for how many relationships an entity can participate in"""
     one = 1
     many = 2
 
@@ -34,9 +34,13 @@ def _is_unique(ys) -> bool:
 
 @total_ordering
 class SchemaElement:
+    """An abstract class for item classes and attribute classes"""
+
     def __init__(self, name: str):
-        assert isinstance(name, str)
-        assert bool(name)
+        if not isinstance(name, str) or not name:
+            raise ValueError('A name must be a non-empty string')
+        # assert isinstance(name, str)
+        # assert bool(name)
         self.name = name
         self.__h = hash(self.name)
 
@@ -54,8 +58,9 @@ class SchemaElement:
 
 
 class I_Class(SchemaElement):
+    """An item class of a relational schema"""
+
     def __init__(self, name, attrs=()):
-        assert attrs is not None
         if isinstance(attrs, A_Class):
             attrs = {attrs, }
         elif isinstance(attrs, str):
@@ -69,11 +74,10 @@ class I_Class(SchemaElement):
 
 
 class E_Class(I_Class):
+    """An entity class of a relational schema"""
+
     def __init__(self, name, attrs=()):
         super().__init__(name, attrs)
-
-    def removed(self, attrs: set):
-        return E_Class(self.name, self.attrs - attrs)
 
     def __repr__(self):
         attr_part = ', '.join(str(a) for a in sorted(self.attrs)) if self.attrs else ''
@@ -81,30 +85,24 @@ class E_Class(I_Class):
 
 
 class R_Class(I_Class):
+    """A relationship class of a relational schema"""
+
     def __init__(self, name, attrs, cards: dict):
         super().__init__(name, attrs)
         self.__cards = cards.copy()
+        self.entities = frozenset(self.__cards.keys())
 
     # E in R
     def __contains__(self, item):
+        """Whether an entity class participates in this relationship class"""
         return item in self.__cards
 
     def __getitem__(self, item):
+        """Cardinality of a participating entity class"""
         return self.__cards[item]
 
     def is_many(self, entity):
         return self.__cards[entity] == Cardinality.many
-
-    @property
-    def entities(self):
-        return self.__cards.keys()
-
-    def removed(self, to_remove: set):
-        removed_attrs = self.attrs - to_remove
-        removed_cards = {e: self.__cards[e] for e in self.entities - to_remove}
-        if len(removed_cards) < 2:
-            print('relationship class with less than 2 entity classes: {}'.format(self.name), file=sys.stderr)
-        return R_Class(self.name, removed_attrs, removed_cards)
 
     def __repr__(self):
         attr_part = ', '.join(str(a) for a in sorted(self.attrs)) if self.attrs else '()'
@@ -124,7 +122,6 @@ class A_Class(SchemaElement):
 
 # Immutable
 class RSchema:
-    # TODO just item_classes, separate in the code.
     def __init__(self, entities, relationships):
         assert all(isinstance(e, E_Class) for e in entities)
         assert all(isinstance(r, R_Class) for r in relationships)
@@ -133,6 +130,7 @@ class RSchema:
 
         self.entities = frozenset(entities)
         self.relationships = frozenset(relationships)
+        self.item_classes = self.entities | self.relationships
         self.attrs = frozenset(chain(*[i.attrs for i in chain(entities, relationships)]))
 
         __i2i = defaultdict(set)
@@ -151,17 +149,16 @@ class RSchema:
 
         self.elements = {e.name: e for e in self.entities | self.relationships | self.attrs}
 
-    def __getitem__(self, name):
+    def __getitem__(self, name) -> SchemaElement:
+        """Returns a schema element given its name"""
         return self.elements[name]
 
-    def item_class_of(self, attr):
+    def item_class_of(self, attr) -> I_Class:
+        """Returns an item class which has the given attribute class"""
         return self.attr2item_class[attr]
 
-    @property
-    def item_classes(self):
-        return self.entities | self.relationships
-
     def __contains__(self, item):
+        """Whether the given schema element is in this relational schema"""
         return item in self.entities or \
                item in self.relationships or \
                item in self.attrs
@@ -173,33 +170,26 @@ class RSchema:
         return "RSchema(Entity classes: " + repr(sorted(self.entities)) + ", Relationship classes: " + repr(
             sorted(self.relationships)) + ")"
 
-    def relateds(self, item_class: I_Class):
-        assert isinstance(item_class, I_Class)
+    def relateds(self, item_class: I_Class) -> frozenset:
+        """Returns neighboring item classes"""
         return self.__i2i[item_class]
 
-    def removed(self, to_remove):
-        pass
-
-    def as_networkx_ug(self, with_attribute_classes=False):
+    def as_networkx_ug(self, with_attribute_classes=False) -> nx.Graph:
         g = nx.Graph()
         g.add_nodes_from(self.entities)
         g.add_nodes_from(self.relationships)
         for r in self.relationships:
             g.add_edges_from([(e, r) for e in r.entities])
-
         if with_attribute_classes:
             g.add_nodes_from(self.attrs)
             for attr in self.attrs:
                 g.add_edge(self.item_class_of(attr), attr)
-
         return g
 
 
 @functools.total_ordering
 class SkItem:
     def __init__(self, name, item_class: I_Class, values: dict = None):
-        assert hash(name)
-        assert isinstance(item_class, I_Class)
         self.name = name
         self.item_class = item_class
         self.__values = values.copy() if values is not None else dict()
@@ -215,12 +205,17 @@ class SkItem:
         return self.name <= other.name
 
     def __contains__(self, k):
+        """Whether the value of given attribute is set"""
         return k in self.__values
 
-    def __getitem__(self, item: A_Class):
+    def __getitem__(self, item):
+        """Get the value of the given attribute"""
+        if item not in self.__values:
+            return None
         return self.__values[item]
 
-    def __setitem__(self, item: A_Class, value):
+    def __setitem__(self, item, value):
+        """Set the value of the given attribute"""
         self.__values[item] = value
 
     def __str__(self):
@@ -231,7 +226,6 @@ class SkItem:
 
 
 class RSkeleton:
-    # TODO add schema
     def __init__(self, schema: RSchema, strict=False):
         self.schema = schema
         self._G = nx.Graph()
@@ -272,18 +266,20 @@ class RSkeleton:
                 assert len(self.neighbors(e, rel.item_class)) == 0
 
         if self.__strict:
-            set(rel.item_class.entities) == {e.item_class for e in entities}
+            assert set(rel.item_class.entities) == {e.item_class for e in entities}
 
         self._nodes_by_type[rel.item_class].add(rel)
         self._G.add_node(rel)
         self._G.add_edges_from((rel, e) for e in entities)
 
     def items(self, filter_type: I_Class = None) -> typing.FrozenSet[SkItem]:
+        """Returns items of the given type, if provided"""
         if filter_type is not None:
             return frozenset(self._nodes_by_type[filter_type])
         return frozenset(self._G)
 
     def neighbors(self, x, filter_type: I_Class = None):
+        """Returns x's neighboring items of the given type, if provided"""
         if filter_type is None:
             return frozenset(self._G[x])
         else:
@@ -292,7 +288,7 @@ class RSkeleton:
     def __str__(self):
         return str(self._G)
 
-    def as_networkx_ug(self):
+    def as_networkx_ug(self) -> nx.Graph:
         return self._G.copy()
 
     def __hash__(self):

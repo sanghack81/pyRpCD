@@ -291,5 +291,13 @@ def weisfeiler_lehman_vertex_kernel(skeleton: RSkeleton, h=4):
 
 
 def median_except_diag(D):
-    # assume symmetric.
-    return median(D[np.tri(len(D), k=-1, dtype=bool)])
+    if D.ndim != 2:
+        raise TypeError('not a matrix')
+    if D.shape[0] != D.shape[1]:
+        raise TypeError('not a square matrix')
+    if len(D) <= 1:
+        raise ValueError('No non-diagonal element')
+
+    arr1 = D[np.tri(len(D), k=-1, dtype=bool)]
+    arr2 = D.transpose()[np.tri(len(D), k=-1, dtype=bool)]
+    return median(np.concatenate((arr1, arr2)))

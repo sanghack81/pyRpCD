@@ -20,13 +20,16 @@
 import json
 from itertools import chain, count
 
-from pyrcds.domain import generate_schema, generate_skeleton, RSkeleton, E_Class
+from pyrcds.domain import generate_schema, generate_skeleton, RSkeleton, E_Class, RSchema
 from pyrcds.model import generate_rcm, GroundGraph
 from pyrcds.rcds import canonical_unshielded_triples, anchors_to_skeleton
 from pyrcds.utils import between_sampler
 
 _attrs = dict(id='id', source='source', target='target', key='key')
 
+entity_classes = []
+relationship_classes = []
+schema = RSchema(entity_classes, relationship_classes)
 
 # def json_for_schema(schema: RSchema, file=None):
 #     ug = schema.as_networkx_ug(True)

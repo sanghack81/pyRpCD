@@ -2,7 +2,6 @@ import unittest
 from itertools import combinations
 
 import numpy as np
-from joblib import Parallel, delayed
 
 from pyrcds.domain import generate_schema, R_Class, E_Class, Cardinality, generate_skeleton, ImmutableRSkeleton
 from pyrcds.graphs import PDAG
@@ -194,11 +193,10 @@ class TestRpCD(unittest.TestCase):
         sound_rules(g, nc)
         assert g.oriented() == {(1, 2), (2, 3)}
 
-    def test_together(self):
-        for _ in range(100):
+    @unittest.skip('infinite tester')
+    def test_evidence_together(self):
+        while True:
             g = PDAG()
-            # vs = np.arange(np.random.randint(20) + 1)
-            # np.random.shuffle(vs)
             vs = np.random.permutation(np.random.randint(20) + 1)
             for x, y in combinations(vs, 2):
                 if np.random.rand() < 0.2:
@@ -224,11 +222,10 @@ class TestRpCD(unittest.TestCase):
             post = g.oriented()
             assert current == post
 
-    def test_completes(self):
-        for _ in range(100):
+    @unittest.skip('infinite tester')
+    def test_evidence_completes(self):
+        while True:
             g = PDAG()
-            # vs = np.arange(np.random.randint(20) + 1)
-            # np.random.shuffle(vs)
             vs = np.random.permutation(np.random.randint(20) + 1)
             for x, y in combinations(vs, 2):
                 if np.random.rand() < 0.2:
@@ -247,11 +244,14 @@ class TestRpCD(unittest.TestCase):
             post = g.oriented()
             assert current == post
 
+    def test_evidence_completes_is_complete(self):
+        # TODO test with completes with shielded non-colliders
+        # Check with brute-force algorithm
+        pass
 
 
 class TestCUT(unittest.TestCase):
-
-
+    @unittest.skip('infinite tester')
     def test_evidence_completeness2(self):
         # np.random.seed(0)
         while True:
@@ -269,7 +269,7 @@ class TestCUT(unittest.TestCase):
                         gg = GroundGraph(rcm, skeleton)
                         assert gg.unshielded_triples()
 
-
+    @unittest.skip('infinite tester')
     def test_evidence_completeness(self):
         # np.random.seed(0)
         while True:
@@ -278,7 +278,7 @@ class TestCUT(unittest.TestCase):
             grouped = dict(group_by(rcm.full_dependencies, lambda d: d.attrfy()))
             skeleton = ImmutableRSkeleton(generate_skeleton(schema))
             gg = GroundGraph(rcm, skeleton)
-            all_cuts = set(canonical_unshielded_triples(rcm, single= False))
+            all_cuts = set(canonical_unshielded_triples(rcm, single=False))
 
             cut_by_xyz = dict(group_by(all_cuts, lambda cut: (cut[0].attr, next(iter(cut[1])).attr, cut[2].attr)))
             sorted1 = sorted(gg.unshielded_triples())
@@ -323,12 +323,6 @@ class TestCUT(unittest.TestCase):
                         print(J)
                     print('no cut found for {}'.format(ut))
                     assert False
-
-    @unittest.skip('time consuming')
-    def test_possible_cases(self):
-        n = 100
-        seeds = [np.random.randint(np.iinfo(np.int32).max) for _ in range(n)]
-        Parallel(-1)(delayed(inner__)(s) for s in seeds)
 
 
 if __name__ == '__main__':

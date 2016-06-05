@@ -32,7 +32,7 @@ class TestCI(unittest.TestCase):
         assert np.allclose(multiply(x), x)
         assert multiply() is None
 
-    @unittest.skip
+    @unittest.skip('time consuming, non-test')
     def test_ci_company_domain(self):
         schema, rcm = company_schema(), company_rcm()
         functions = dict()
