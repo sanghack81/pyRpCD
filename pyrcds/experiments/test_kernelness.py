@@ -1,12 +1,12 @@
 import itertools
 
 import numpy as np
-from numpy.linalg import eigh
 from numpy.random import poisson, randn
 
-from pyrcds.spaces import set_distance_matrix, median_except_diag, eq_size_max_matching_distance, triangle_fixing, \
+from pyrcds._spaces import set_distance_matrix, eq_size_max_matching_distance, triangle_fixing, \
     eq_size_hausdorff_distance, hausdorff_distance, eq_size_min_perm_distance, max_min_perm_distance, denoise, \
-    shift, flip, geomean
+    shift, flip, geomean, min_eigen_value
+from tests.test_spaces import rbf_D2K
 
 
 def random_set(avoid_empty=False):
@@ -38,18 +38,6 @@ def is_metric(D):
     return max_violation
 
 
-def min_eigen_value(K):
-    w, _ = eigh(K)
-    return min(w)
-
-
-def D2K(D):
-    mm = median_except_diag(D)
-    if mm == float('inf'):
-        mm = 1
-    return np.exp(-D / mm)
-
-
 if __name__ == '__main__':
     np.random.seed(0)
     dfuncs = [
@@ -75,7 +63,7 @@ if __name__ == '__main__':
             if before_fix < -epsilon:
                 print('{:.5f}, {:.5f}'.format(after_fixed, before_fix))
             assert after_fixed >= -epsilon
-            K = D2K(fixed_D)
+            K = rbf_D2K(fixed_D)
             if min_eigen_value(K) < -1.e-12:
                 print(dfunc.__name__)
                 print('min eigenvalue: {}'.format(min_eigen_value(K)))

@@ -2,64 +2,119 @@ import itertools
 import unittest
 
 import numpy as np
-from numpy.linalg import eigh
 from numpy.random import poisson
 from numpy.random import randn
 
-from spaces import hausdorff_distance, eq_size_hausdorff_distance, median_except_diag
+from _spaces import hausdorff_distance, eq_size_hausdorff_distance, median_except_diag, set_distance_matrix, \
+    list_set_distances, max_min_perm_distance, eq_size_min_perm_distance, eq_size_max_matching_distance, \
+    flip, triangle_fixing, denoise, shift, list_psd_converters, min_eigen_value
 
 
-def random_set(avoid_empty=False):
-    x = poisson(2.)
-    if avoid_empty and x == 0:
-        x = 1
-    return randn(x)
+def random_set(avoid_empty=False, size=None):
+    if size:
+        return np.array([random_set() for _ in range(size)])
+    else:
+        x = poisson(2.)
+        if avoid_empty and x == 0:
+            x = 1
+        return randn(x)
 
 
-def is_metric(D, n):
+def is_metric(D, tol=-1.0e-12, skip_inf=True):
     """Check reflexivity and symmetry. Returns a measure for violation of triangle inequiality."""
+    n = len(D)
     for i in range(n):
-        assert D[i, i] == 0
+        if D[i, i] != 0:
+            return False
 
     for i, j in itertools.combinations(range(n), 2):
-        assert D[i, j] == D[j, i]
+        if D[i, j] != D[j, i]:
+            return False
 
-    max_violation = 0
     for i, j, k in itertools.combinations(range(n), 3):
         summed = np.sum([D[i, j], D[j, k], D[i, k]])
         maxed = np.max([D[i, j], D[j, k], D[i, k]])
+
         if summed == float('inf') and maxed == float('inf'):
-            continue
+            if skip_inf:
+                continue
+            else:
+                return False
 
         v = summed - 2 * maxed
-        if v < 0 and v < max_violation:
-            max_violation = v
+        if v < tol:
+            return False
 
-    return max_violation
-
-
-def min_eigen_value(K):
-    w, _ = eigh(K)
-    return min(w)
+    return True
 
 
-def D2K(D):
+def rbf_D2K(D):
     mm = median_except_diag(D)
-    if mm == float('inf'):
-        mm = 1
-    return np.exp(-D / mm)
+    if mm != 0:
+        return np.exp(-(D * D) / mm)
+    else:
+        return np.exp(-(D * D))
 
 
 class TestSpaces(unittest.TestCase):
+    def test_metric(self):
+        candidates = list_set_distances()
+        non_metrics = list()
+        tries = 1000
+        for _ in range(tries):
+            for func in list(candidates):
+                n = 20
+                sets = random_set(True, n)
+                D = set_distance_matrix(sets, set_metric=func)
+                if not is_metric(D):
+                    non_metrics.append(func)
+                    candidates.remove(func)
+        for nm in non_metrics:
+            print('non_metric: {}'.format(nm.__name__))
+        for m in candidates:
+            print('seems metric: {}'.format(m.__name__))
+        assert hausdorff_distance in candidates
+        assert eq_size_hausdorff_distance in candidates
+        assert eq_size_min_perm_distance in candidates
+        assert max_min_perm_distance in candidates
+        assert eq_size_max_matching_distance in non_metrics
+
     def test_triangle_fixing(self):
         pass
 
     def test_fix_kernels(self):
-        # denoise
-        # shift
-        # diffusion
-        # flip
-        pass
+        tries = 2000
+        n = 20
+        for _ in range(tries):
+            sets = random_set(np.random.rand() < 0.5, n)
+            print('', flush=True)
+            for conv in list_psd_converters():
+                for setd in list_set_distances():
+                    D = set_distance_matrix(sets, set_metric=setd)
+                    K = rbf_D2K(D)
+                    if min_eigen_value(K) < 0:
+                        assert -1.0e-13 <= min_eigen_value(conv(K)), \
+                            'failed with {} on D with {}'.format(conv.__name__, setd.__name__)
+                        print(':', end='', flush=True)
+                    else:
+                        print('.', end='', flush=True)
+
+    def test_observe_D2K2D_stability(self):
+        tries = 2000
+        for _ in range(tries):
+            n = 20
+            sets = random_set(True, n)
+            D = set_distance_matrix(sets, set_metric=hausdorff_distance)
+            D = triangle_fixing(D)
+            K = rbf_D2K(D)
+            Kd = denoise(K)
+            Kf = flip(K)
+            Ks = shift(K)
+            gapd = np.max(np.abs(K - Kd))
+            gapf = np.max(np.abs(K - Kf))
+            gaps = np.max(np.abs(K - Ks))
+            if not (gapd <= gapf and gapd <= gaps):
+                print(gapd, gapf, gaps)
 
     def test_geomean(self):
         pass

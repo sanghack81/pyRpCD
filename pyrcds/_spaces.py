@@ -4,7 +4,7 @@ from itertools import groupby
 import numpy as np
 from numpy import diag, zeros, ix_, median
 from numpy.core.umath import sqrt
-from numpy.linalg import eigh, inv
+from numpy.linalg import eigh, inv, LinAlgError
 from scipy.sparse import dok_matrix
 
 from pygk.utils import repmat, as_column, Lookup
@@ -16,7 +16,7 @@ from pyrcds.domain import RSkeleton
 # K is for a Kernel matrix
 # D is for a distance matrix
 
-def triangle_fixing(D, epsilon=1.0e-6, n_jobs=1):
+def triangle_fixing(D, epsilon=1.0e-6):
     """triangle fixing for l2-norm
 
     References
@@ -64,14 +64,38 @@ def triangle_fixing(D, epsilon=1.0e-6, n_jobs=1):
     return D + e
 
 
+def list_psd_converters():
+    return [denoise, shift, diffusion, flip]
+
+
+def robust_eigh(K, level=1.0e-12):
+    if np.any(np.isnan(K)):
+        raise ValueError('NaN in the matrix.')
+    if not (-float('inf') < np.min(K) <= np.max(K) < float('inf')):
+        raise ValueError('Positive or negative infinity is in the matrix.')
+
+    try:
+        return eigh(K)
+    except LinAlgError as e:
+        print('LinAlgError: {}'.format(e))
+        print('robust eigh with {} level noise.'.format(level))
+        noise = np.random.randn(*K.shape)
+        return robust_eigh(K + level * noise, level * 2)
+
+
+def min_eigen_value(K):
+    w, _ = robust_eigh(K)
+    return min(w)
+
+
 def denoise(K):
-    w, v = eigh(K)
+    w, v = robust_eigh(K)
     w[w < 0] = 0
     return v @ diag(w) @ inv(v)
 
 
 def shift(K):
-    w, v = eigh(K)
+    w, v = robust_eigh(K)
     min_w = np.min(w)
     if min_w < 0:
         w -= min_w
@@ -79,13 +103,13 @@ def shift(K):
 
 
 def diffusion(K):
-    w, v = eigh(K)
+    w, v = robust_eigh(K)
     w = np.exp(w)
     return v @ diag(w) @ inv(v)
 
 
 def flip(K):
-    w, v = eigh(K)
+    w, v = robust_eigh(K)
     w = np.abs(w)
     return v @ diag(w) @ inv(v)
 
@@ -194,7 +218,8 @@ def max_match(xs, ys, similarity):
 
 
 # not distance!
-def eq_size_max_matching_distance(xs, ys, d=(lambda a, b: abs(a - b)), similarity=(lambda a, b: np.exp(-abs(a - b)))):
+def eq_size_max_matching_distance(xs, ys, d=(lambda a, b: abs(a - b)),
+                                  similarity=(lambda a, b: np.exp(-(a - b) * (a - b)))):
     if len(xs) == 0 and len(ys) == 0:
         return 0.0
     elif len(xs) != len(ys):
@@ -236,6 +261,14 @@ def max_min_perm_distance(xs, ys, d=(lambda a, b: abs(a - b))):
             xs, ys = ys, xs
         # xs is shorter or equal
         return max(eq_size_min_perm_distance(xs_comb, ys, d) for xs_comb in itertools.combinations(xs, len(xs)))
+
+
+def list_set_distances():
+    return [hausdorff_distance,
+            eq_size_hausdorff_distance,
+            eq_size_max_matching_distance,
+            eq_size_min_perm_distance,
+            max_min_perm_distance]
 
 
 def set_distance_matrix(data, set_metric=hausdorff_distance, metric=(lambda x, y: abs(x - y))):  # k_set = sum sum skf
@@ -290,7 +323,15 @@ def weisfeiler_lehman_vertex_kernel(skeleton: RSkeleton, h=4):
     return normalize_by_diag(K), nodes
 
 
-def median_except_diag(D):
+def median_except_diag(D, exclude_inf=True, default=1):
+    return stat_except_diag(D, exclude_inf, default, median)
+
+
+def mean_except_diag(D, exclude_inf=True, default=1):
+    return stat_except_diag(D, exclude_inf, default, np.mean)
+
+
+def stat_except_diag(D, exclude_inf=True, default=1, func=median):
     if D.ndim != 2:
         raise TypeError('not a matrix')
     if D.shape[0] != D.shape[1]:
@@ -298,6 +339,13 @@ def median_except_diag(D):
     if len(D) <= 1:
         raise ValueError('No non-diagonal element')
 
-    arr1 = D[np.tri(len(D), k=-1, dtype=bool)]
-    arr2 = D.transpose()[np.tri(len(D), k=-1, dtype=bool)]
-    return median(np.concatenate((arr1, arr2)))
+    lower = D[np.tri(len(D), k=-1, dtype=bool)]
+    upper = D.transpose()[np.tri(len(D), k=-1, dtype=bool)]
+    non_diagonal = np.concatenate((lower, upper))
+    if exclude_inf:
+        non_diagonal = non_diagonal[non_diagonal != float('inf')]
+
+    if len(non_diagonal):
+        return func(non_diagonal)
+    else:
+        return default

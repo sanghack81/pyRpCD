@@ -8,9 +8,9 @@ from sklearn.metrics.pairwise import pairwise_distances
 
 from pygk.utils import as_column
 from pykcipt.kcipt import KCIPT, KCIPTResult
+from pyrcds._spaces import set_distance_matrix, median_except_diag, triangle_fixing, denoise
 from pyrcds.domain import RSkeleton, ImmutableRSkeleton
 from pyrcds.model import RVar, flatten
-from pyrcds.spaces import set_distance_matrix, median_except_diag, triangle_fixing, denoise
 
 
 def multiply(*args):
@@ -68,7 +68,7 @@ class SetKernelRCITester(CITester):
             D = set_distance_matrix(data[:, i])
             if self.fix_triangle_inequality:
                 D = triangle_fixing(D, 1.0e-12)
-            K[i] = exp(-D / median_except_diag(D))
+            K[i] = exp(-(D*D) / median_except_diag(D))
             if self.use_denoise:
                 K[i] = denoise(K[i])
 

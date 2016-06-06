@@ -6,7 +6,7 @@ import numpy as np
 from pyrcds._rci import multiply, SetKernelRCITester
 from pyrcds.domain import generate_skeleton
 from pyrcds.model import generate_values_for_skeleton, ParamRCM, RPath, RVar
-from pyrcds.spaces import normalize_by_diag
+from pyrcds._spaces import normalize_by_diag
 from pyrcds.tests.testing_utils import company_rcm, company_schema
 from pyrcds.utils import linear_gaussian, average_agg, normal_sampler
 
