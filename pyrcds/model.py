@@ -316,10 +316,14 @@ class SymTriple:
         return sorted([*self]) < sorted([*other])
 
 
+@functools.total_ordering
 class UndirectedRDep:
     def __init__(self, rdep: RDep):
         assert isinstance(rdep, RDep)
         self.rdeps = frozenset({rdep, reversed(rdep)})
+
+    def __lt__(self, other):
+        return sorted(self.rdeps) < sorted(other.rdeps)
 
     def __eq__(self, other):
         return isinstance(other, UndirectedRDep) and self.rdeps == other.rdeps

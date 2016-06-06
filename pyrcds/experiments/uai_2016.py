@@ -31,6 +31,7 @@ entity_classes = []
 relationship_classes = []
 schema = RSchema(entity_classes, relationship_classes)
 
+
 # def json_for_schema(schema: RSchema, file=None):
 #     ug = schema.as_networkx_ug(True)
 #     ic_mapping = dict(zip(sorted(schema.item_classes), count()))

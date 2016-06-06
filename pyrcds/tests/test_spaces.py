@@ -52,7 +52,6 @@ def D2K(D):
 
 class TestSpaces(unittest.TestCase):
     def test_triangle_fixing(self):
-
         pass
 
     def test_fix_kernels(self):

@@ -214,5 +214,3 @@ def meek_rule_1(pdag: PDAG, x, y, z):
     elif pdag.is_oriented_as(z, y):
         return pdag.orient(y, x)
     return False
-
-# TODO pdag extensibility

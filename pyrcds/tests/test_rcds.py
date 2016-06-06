@@ -5,12 +5,30 @@ import numpy as np
 
 from pyrcds.domain import generate_schema, R_Class, E_Class, Cardinality, generate_skeleton, ImmutableRSkeleton
 from pyrcds.graphs import PDAG
-from pyrcds.model import generate_rcm, RPath, RVar, SymTriple, GroundGraph, terminal_set, RDep
+from pyrcds.model import generate_rcm, RPath, RVar, SymTriple, GroundGraph, terminal_set, RDep, UndirectedRDep, \
+    is_valid_rpath
 from pyrcds.rcds import canonical_unshielded_triples, enumerate_rpaths, enumerate_rvars, interner, extend, \
     enumerate_rdeps, intersectible, UnvisitedQueue, AbstractGroundGraph, sound_rules, completes, d_separated, \
-    co_intersectible, anchors_to_skeleton
+    co_intersectible, anchors_to_skeleton, RpCD
 from pyrcds.tests.testing_utils import company_rcm, company_schema, EPBDF
 from pyrcds.utils import group_by
+
+
+class TestLearning(unittest.TestCase):
+    def test_something(self):
+        schema = company_schema()
+        rcm = company_rcm()
+
+        rpaths = set(enumerate_rpaths(schema, 4))
+        assert len(rpaths) == 43
+        for rpath in enumerate_rpaths(schema, 4):
+            assert is_valid_rpath(list(rpath))
+
+        assert rcm.directed_dependencies <= set(enumerate_rdeps(schema, rcm.max_hop))
+        assert 22 == len(set(enumerate_rdeps(schema, 4)))
+        assert 162 == len(set(enumerate_rdeps(schema, 16)))
+        assert 22 == len(set(enumerate_rdeps(schema, 4)))
+        assert 162 == len(set(enumerate_rdeps(schema, 16)))
 
 
 class TestRCDs(unittest.TestCase):
@@ -180,76 +198,6 @@ class TestAGG(unittest.TestCase):
                 (iv, rvs[3])} == set(sub.edges())
 
 
-class TestRpCD(unittest.TestCase):
-    def test_sound_rules(self):
-        g = PDAG()
-        g.add_undirected_path([1, 2, 3, 4, 5])
-        sound_rules(g)
-        assert not g.oriented()
-        assert len(g.unoriented()) == 4
-
-        g.orient(1, 2)
-        nc = {SymTriple(1, 2, 3)}
-        sound_rules(g, nc)
-        assert g.oriented() == {(1, 2), (2, 3)}
-
-    @unittest.skip('infinite tester')
-    def test_evidence_together(self):
-        while True:
-            g = PDAG()
-            vs = np.random.permutation(np.random.randint(20) + 1)
-            for x, y in combinations(vs, 2):
-                if np.random.rand() < 0.2:
-                    g.add_edge(x, y)
-
-            # unshielded colliders
-            nc = set()
-            for y in vs:
-                for x, z in combinations(g.pa(y), 2):
-                    if not g.is_adj(x, z):
-                        nc.add(SymTriple(x, y, z))
-
-            flag = bool(np.random.randint(2))
-            if flag:
-                sound_rules(g, nc, bool(np.random.randint(2)))
-            else:
-                completes(g, nc)
-            current = g.oriented()
-            if not flag:
-                sound_rules(g, nc, bool(np.random.randint(2)))
-            else:
-                completes(g, nc)
-            post = g.oriented()
-            assert current == post
-
-    @unittest.skip('infinite tester')
-    def test_evidence_completes(self):
-        while True:
-            g = PDAG()
-            vs = np.random.permutation(np.random.randint(20) + 1)
-            for x, y in combinations(vs, 2):
-                if np.random.rand() < 0.2:
-                    g.add_edge(x, y)
-
-            # unshielded colliders
-            nc = set()
-            for y in vs:
-                for x, z in combinations(g.pa(y), 2):
-                    if not g.is_adj(x, z):
-                        nc.add(SymTriple(x, y, z))
-
-            completes(g, nc)
-            current = g.oriented()
-            sound_rules(g, nc, bool(np.random.randint(2)))
-            post = g.oriented()
-            assert current == post
-
-    def test_evidence_completes_is_complete(self):
-        # TODO test with completes with shielded non-colliders
-        # Check with brute-force algorithm
-        pass
-
-
 class TestCUT(unittest.TestCase):
     @unittest.skip('infinite tester')
     def test_evidence_completeness2(self):
@@ -323,6 +271,83 @@ class TestCUT(unittest.TestCase):
                         print(J)
                     print('no cut found for {}'.format(ut))
                     assert False
+
+
+class TestRpCD(unittest.TestCase):
+    def test_sound_rules(self):
+        g = PDAG()
+        g.add_undirected_path([1, 2, 3, 4, 5])
+        sound_rules(g)
+        assert not g.oriented()
+        assert len(g.unoriented()) == 4
+
+        g.orient(1, 2)
+        nc = {SymTriple(1, 2, 3)}
+        sound_rules(g, nc)
+        assert g.oriented() == {(1, 2), (2, 3)}
+
+    def test_evidence_together(self):
+        for _ in range(100):
+            g = PDAG()
+            vs = np.random.permutation(np.random.randint(20) + 1)
+            for x, y in combinations(vs, 2):
+                if np.random.rand() < 0.2:
+                    g.add_edge(x, y)
+
+            # unshielded colliders
+            nc = set()
+            for y in vs:
+                for x, z in combinations(g.pa(y), 2):
+                    if not g.is_adj(x, z):
+                        nc.add(SymTriple(x, y, z))
+
+            flag = bool(np.random.randint(2))
+            if flag:
+                sound_rules(g, nc, bool(np.random.randint(2)))
+            else:
+                completes(g, nc)
+            current = g.oriented()
+            if not flag:
+                sound_rules(g, nc, bool(np.random.randint(2)))
+            else:
+                completes(g, nc)
+            post = g.oriented()
+            assert current == post
+
+    def test_evidence_completes(self):
+        for _ in range(100):
+            g = PDAG()
+            vs = np.random.permutation(np.random.randint(20) + 1)
+            for x, y in combinations(vs, 2):
+                if np.random.rand() < 0.2:
+                    g.add_edge(x, y)
+
+            # unshielded colliders
+            nc = set()
+            for y in vs:
+                for x, z in combinations(g.pa(y), 2):
+                    if not g.is_adj(x, z):
+                        nc.add(SymTriple(x, y, z))
+
+            completes(g, nc)
+            current = g.oriented()
+            sound_rules(g, nc, bool(np.random.randint(2)))
+            post = g.oriented()
+            assert current == post
+
+    def test_evidence_completes_is_complete(self):
+        # TODO test with completes with shielded non-colliders
+        # Check with brute-force algorithm
+        pass
+
+    def test_company(self):
+        rcm = company_rcm()
+        agg = AbstractGroundGraph(rcm, rcm.max_hop * 2)
+        rpcd = RpCD(rcm.schema, rcm.max_hop, agg)
+        rpcd.phase_I()
+        assert rpcd.prcm.undirected_dependencies == {UndirectedRDep(d) for d in rcm.directed_dependencies}
+        rpcd.phase_II()
+        assert rpcd.prcm.directed_dependencies == rcm.directed_dependencies
 
 
 if __name__ == '__main__':

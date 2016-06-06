@@ -4,6 +4,7 @@ from numpy.random import randint, randn
 
 
 def group_by(xs, keyfunc):
+    """Returns a generator of a 2-tuple with key and list-ed group"""
     return ((k, list(g)) for k, g in groupby(sorted(xs, key=keyfunc), key=keyfunc))
 
 
@@ -14,7 +15,6 @@ def safe_iter(iterable):
             yield y
 
 
-#
 class between_sampler:
     def __init__(self, min_inclusive, max_inclusive):
         assert min_inclusive <= max_inclusive
@@ -28,8 +28,6 @@ class between_sampler:
             return randint(self.m, self.M + 1, size=size)
 
 
-#
-#
 class normal_sampler:
     def __init__(self, mu=0.0, sd=1.0):
         self.mu = mu
@@ -40,21 +38,19 @@ class normal_sampler:
 
 
 def average_agg(default=0.0):
+    """Returns a function that returns the average of a given input or default value if the given input is empty."""
+
     def func(items):
-        if len(items) > 0:
-            return sum(items) / len(items)
-        else:
-            return default
+        return sum(items) / len(items) if len(items) > 0 else default
 
     return func
 
 
 def max_agg(default=0.0):
+    """Returns a function that returns the maximum value of a given input or default value if the given input is empty."""
+
     def func(items):
-        if len(items) > 0:
-            return max(items)
-        else:
-            return default
+        return max(items) if len(items) > 0 else default
 
     return func
 
@@ -62,6 +58,7 @@ def max_agg(default=0.0):
 def linear_gaussian(parameters: dict, aggregator, error):
     """
     a linear model with an additive Gaussian noise
+
     :param parameters: parameters for linear model. parameter = parameters[cause_rvar]
     :param aggregator: a function that maps multiple values to a single value.
     :param error: additive noise distribution, err = error.sample()

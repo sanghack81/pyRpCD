@@ -1,3 +1,5 @@
+import functools
+import itertools
 import logging
 import typing
 from collections import deque, defaultdict
@@ -5,14 +7,18 @@ from itertools import takewhile, count, combinations, chain
 
 import networkx as nx
 
-from pyrcds.domain import RSkeleton, RSchema, SkItem, R_Class, E_Class
+from pyrcds.domain import RSkeleton, RSchema, SkItem, R_Class, E_Class, I_Class
 from pyrcds.graphs import PDAG
-from pyrcds.model import RDep, PRCM, llrsp, RVar, eqint, RPath, RCM, UndirectedRDep, canonical_rvars, SymTriple
+from pyrcds.model import RDep, PRCM, llrsp, RVar, eqint, RPath, RCM, UndirectedRDep, SymTriple
 from pyrcds.utils import group_by, safe_iter
 
 
 def enumerate_rpaths(schema, hop, base_item_class=None):
-    assert 0 <= hop
+    __validate_schema(schema)
+    __validate_hop(hop)
+    if base_item_class:
+        __validate_item_class(base_item_class, schema)
+
     Ps = deque()
     if base_item_class is not None:
         Ps.append(RPath(base_item_class))
@@ -26,7 +32,27 @@ def enumerate_rpaths(schema, hop, base_item_class=None):
             Ps.extend(filter(lambda x: x is not None, (P.appended_or_none(i) for i in schema.relateds(P.terminal))))
 
 
+def __validate_item_class(base_item_class, schema):
+    if not isinstance(base_item_class, I_Class):
+        raise TypeError('{} is not a valid item class.'.format(type(base_item_class)))
+    if base_item_class not in schema:
+        raise ValueError('{} is not in the relational schema.'.format(base_item_class))
+
+
+def __validate_hop(hop):
+    if 0 > hop:
+        raise ValueError('Hop must be a non-negative integer. Received {}'.format(hop))
+
+
+def __validate_schema(schema):
+    if not isinstance(schema, RSchema):
+        raise TypeError('{} is not a valid schema.'.format(type(schema)))
+
+
 def enumerate_rvars(schema: RSchema, hop):
+    __validate_schema(schema)
+    __validate_hop(hop)
+
     for base_item_class in schema.item_classes:
         for P in enumerate_rpaths(schema, hop, base_item_class):
             for attr in P.terminal.attrs:
@@ -40,6 +66,9 @@ class interner(dict):
 
 
 def enumerate_rdeps(schema: RSchema, hop):
+    __validate_schema(schema)
+    __validate_hop(hop)
+
     c = interner()
     for base_item_class in schema.item_classes:
         if not base_item_class.attrs:
@@ -51,8 +80,17 @@ def enumerate_rdeps(schema: RSchema, hop):
                         yield RDep(c[RVar(P, cause_attr)], c[RVar(base_item_class, effect_attr)])
 
 
+def __validate_rpath(Q):
+    if not isinstance(Q, RPath):
+        raise TypeError('RPath is expected. {} is given.'.format(type(Q)))
+
+
 def extend(P: RPath, Q: RPath):
-    assert P.terminal == Q.base
+    __validate_rpath(P)
+    __validate_rpath(Q)
+    if P.terminal != Q.base:
+        raise ValueError('The terminal of {} must be the same as the base of {}'.format(P, Q))
+
     m, n = len(P), len(Q)
     for pivot in takewhile(lambda piv: P[m - 1 - piv] == Q[piv], range(min(m, n))):
         if P[:m - 1 - pivot].joinable(Q[pivot:]):  # double?
@@ -61,21 +99,27 @@ def extend(P: RPath, Q: RPath):
 
 # See Lee and Honavar 2015
 def intersectible(P: RPath, Q: RPath):
+    __validate_rpath(P)
+    __validate_rpath(Q)
     if P == Q:
-        raise AssertionError('{} == {}'.format(P, Q))
+        raise ValueError('{} == {}'.format(P, Q))
+
     return P.base == Q.base and P.terminal == Q.terminal and llrsp(P, Q) + llrsp(reversed(P), reversed(Q)) <= min(
         len(P), len(Q))
 
 
 # See Lee and Honavar 2015
 def co_intersectible(Q: RPath, R: RPath, P: RPath, P_prime: RPath):
+    __validate_rpath(Q)
+    __validate_rpath(R)
+    __validate_rpath(P)
+    __validate_rpath(P_prime)
     check = Q.terminal == R.base and \
             Q.base == P.base == P_prime.base and \
             R.terminal == P.terminal == P_prime.terminal and \
             intersectible(P, P_prime)
-
     if not check:
-        raise AssertionError('not a valid arguments: {}'.format([Q, R, P, P_prime]))
+        raise ValueError('not a valid arguments: {}'.format([Q, R, P, P_prime]))
 
     ll = 1 + (len(Q) + len(R) - 1 - len(P)) // 2
     Qm, Rp = Q[:len(Q) - ll], R[ll - 1:]
@@ -132,7 +176,7 @@ def d_separated(dag: nx.DiGraph, x, y, zs=frozenset()):
 
 
 class AbstractGroundGraph:
-    def __init__(self, rcm: RCM, h: int, n_jobs=1):
+    def __init__(self, rcm: RCM, h: int):
         self.logger = logging.getLogger(self.__class__.__module__ + '.' + self.__class__.__name__)
         c1 = interner()  # memory-saver, takes time...
         c2 = interner()  # memory-saver, takes time...
@@ -144,12 +188,19 @@ class AbstractGroundGraph:
         self.IVEs = set()
         # IVs
         self.combined = defaultdict(set)
+        self.extend = defaultdict(set)
+        for rv in self.RVs:
+            self.extend[rv].add(rv)
         for _, rvs in group_by(self.RVs, lambda rv: (rv.rpath.base, rv.attr)):
             for rv1, rv2 in combinations(rvs, 2):
                 if intersectible(rv1.rpath, rv2.rpath):
-                    self.IVs.add(c2[frozenset((rv1, rv2))])
+                    iv = c2[frozenset((rv1, rv2))]
+                    self.IVs.add(iv)
                     self.combined[rv1.rpath].add(rv2.rpath)
                     self.combined[rv2.rpath].add(rv1.rpath)
+
+                    self.extend[rv1].add(iv)
+                    self.extend[rv2].add(iv)
 
                     if not (len(self.IVs) % 1000):
                         self.logger.info('creating {} of IVs.'.format(len(self.IVs)))
@@ -193,15 +244,17 @@ class AbstractGroundGraph:
         self.agg.add_edges_from(self.RVEs)
         self.agg.add_edges_from(self.IVEs)
 
+        self.ci_test = functools.lru_cache(maxsize=None)(self.ci_test)
+
     def ci_test(self, x: RVar, y: RVar, zs: typing.Set[RVar] = frozenset()):
         assert x != y
         assert x not in zs and y not in zs
         assert len({x.base, y.base} | {z.base for z in zs}) == 1
         assert y.is_canonical
 
-        x_bar = {x} | self.combined[x]
-        y_bar = {y} | self.combined[y]
-        zs_bar = set(chain(*[{z} | self.combined[z] for z in zs]))
+        x_bar = self.extend[x]  # {x} | self.combined[x]
+        y_bar = self.extend[y]  # {y} | self.combined[y]
+        zs_bar = set(chain(*[self.extend[z] for z in zs]))
 
         x_bar -= zs_bar
         y_bar -= zs_bar
@@ -221,8 +274,8 @@ class AbstractGroundGraph:
 
 
 class AbstractRCD:
-    def __init__(self, schema, h_max, ci_tester):
-        self.logger = logging.getLogger(self.__class__.__module__ + '.' + self.__class__.__name__)
+    def __init__(self, schema, h_max, ci_tester, verbose=False):
+        # self.logger = logging.getLogger(self.__class__.__module__ + '.' + self.__class__.__name__)
 
         self.schema = schema
         self.h_max = h_max
@@ -230,47 +283,53 @@ class AbstractRCD:
 
         self.sepset = defaultdict(lambda: None)
         self.prcm = PRCM(schema)
+        self.verbose = verbose
 
     def ci_test(self, cause: RVar, effect: RVar, conds: typing.Set[RVar], size: int):
         assert 0 <= size and effect.is_canonical
 
         for cond in combinations(conds, size):
-            self.logger.debug('ci testing: {} _||_ {} | {}'.format(cause, effect, cond))
+            if self.verbose:
+                print('ci testing: {} _||_ {} | {}'.format(cause, effect, cond))
             ci_result = self.ci_tester.ci_test(cause, effect, cond)
-            if ci_result.ci:
-                self.logger.info('{} _||_ {} | {}'.format(cause, effect, cond))
-                self.sepset[frozenset((cause, effect))] = cond
+            if ci_result:
+                if self.verbose:
+                    print('{} _||_ {} | {}'.format(cause, effect, cond))
+                self.sepset[frozenset((cause, effect))] = set(cond)
                 return True
         return False
 
     def phase_I(self):
         """Find adjacencies of the underlying RCM"""
-        self.logger.info('phase I: started.')
+        if self.verbose:
+            print('phase I: started.')
         prcm, schema, ci_tester = self.prcm, self.schema, self.ci_tester
 
         # Initialize an undirected RCM
         udeps_to_be_tested = set(UndirectedRDep(dep) for dep in enumerate_rdeps(self.schema, self.h_max))
         prcm.add(udeps_to_be_tested)
+        deps_to_be_tested = {dep for udep in udeps_to_be_tested for dep in udep}
 
         for d in count():
-            self.logger.info('phase I: checking depth: {}'.format(d))
+            if self.verbose:
+                print('phase I: checking depth: {}'.format(d))
             to_remove = set()
-            for udep in udeps_to_be_tested:  # TODO parallelize
-                for dep in udep:
-                    self.logger.info('phase I: checking: {}'.format(dep))
-                    cause, effect = dep
-                    if self.ci_test(cause, effect, prcm.ne(effect), d):
-                        to_remove.add(udep)
-                        break
+            for dep in deps_to_be_tested:
+                if self.verbose:
+                    print('phase I: checking: {}'.format(dep))
+                cause, effect = dep
+                if self.ci_test(cause, effect, prcm.ne(effect) - {cause}, d):
+                    to_remove.add(UndirectedRDep(dep))
 
             # post clean up
             prcm.remove(to_remove)
-            udeps_to_be_tested -= to_remove
-            udeps_to_be_tested -= set(filter(lambda rvar: len(prcm.ne(rvar)) <= d, canonical_rvars(schema)))
-            if not udeps_to_be_tested:
+            deps_to_be_tested -= {dep for udep in to_remove for dep in udep}
+            deps_to_be_tested = set(filter(lambda dep: len(prcm.ne(dep.effect)) - 1 >= d + 1, deps_to_be_tested))
+            if not deps_to_be_tested:
                 break
 
-        self.logger.info('phase I: finished.')
+        if self.verbose:
+            print('phase I: finished.')
         return self.prcm
 
     def find_sepset(self, Vx, Rz):
@@ -369,6 +428,7 @@ def ext(g: PDAG, NC):
             if not h.ch(y) and all(SymTriple(x, y, z) not in NC for x, z in combinations(h.adj(y), 2)):
                 for x in h.ne(y):
                     g.orient(x, y)
+                h.remove_vertex(y)
                 break
         else:
             return False
@@ -376,16 +436,17 @@ def ext(g: PDAG, NC):
 
 
 class RpCD(AbstractRCD):
-    def __init__(self, schema, h_max, ci_tester):
-        super().__init__(schema, h_max, ci_tester)
+    def __init__(self, schema, h_max, ci_tester, verbose=False):
+        super().__init__(schema, h_max, ci_tester, verbose)
 
     def enumerate_CUTs(self):
         """Enumerate CUTs whose attribute classes are distinct"""
         by_cause_attr = defaultdict(set)
         by_effect_attr = defaultdict(set)
-        for d in self.prcm.directed_dependencies:
-            by_cause_attr[d.cause.attr].add(d)
-            by_effect_attr[d.effect.attr].add(d)
+        for ud in self.prcm.undirected_dependencies:
+            for d in ud:
+                by_cause_attr[d.cause.attr].add(d)
+                by_effect_attr[d.effect.attr].add(d)
 
         done = set()
         for Y in self.schema.attrs:
@@ -396,12 +457,19 @@ class RpCD(AbstractRCD):
                     if (X, Y, Z) not in done:
                         cut = canonical_unshielded_triples(self.prcm, PyVx, QzVy)
                         if cut is not None:
+                            if not isinstance(cut, tuple):
+                                cut = list(cut)
+                                print(cut)
+
+                        if cut is not None:
                             yield cut
                             done.add((X, Y, Z))  # ordered triple
 
     def phase_II(self, background_knowledge=()):
         """Orient undirected dependencies"""
-        self.logger.info('phase II: started.')
+
+        if self.verbose:
+            print('phase II: started.')
         pcdg = self.prcm.class_dependency_graph
 
         if background_knowledge:
@@ -434,7 +502,8 @@ class RpCD(AbstractRCD):
         for x, y in pcdg.oriented():
             self.prcm.orient_with(x, y)
 
-        self.logger.info('phase II: finished.')
+        if self.verbose:
+            print('phase II: finished.')
         return self.prcm
 
 
@@ -532,10 +601,11 @@ def anchors_to_skeleton(schema: RSchema, P: RPath, Q: RPath, J):
 # written for readability
 # can be faster by employing view-class for RPath for slicing operator
 def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, single=True, with_anchors=False):
-    """Returns a CUT or generate CUTs with/without anchors"""
+    """Returns a CUT, if exists, or generate CUTs with/without anchors"""
     if PyVx is None and QzVy is None:
         all_ds = {dd for d in M.directed_dependencies for dd in (d, reversed(d))} | \
                  {d for u in M.undirected_dependencies for d in u}
+        to_chain = []
         skip = set()
         for PyVx in all_ds:
             (_, Y), (_, X) = PyVx
@@ -545,14 +615,25 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
                     if single:  # single(s)
                         if SymTriple(X, Y, Z) in skip:
                             continue
-                        cut = canonical_unshielded_triples(M, PyVx, QzVy, single, with_anchors)
+                        cut = next(inner_canonical_unshielded_triples(M, PyVx, QzVy, with_anchors))
                         skip.add(SymTriple(X, Y, Z))
-                        yield cut
+                        to_chain.append(cut)
                     else:
-                        for cut in canonical_unshielded_triples(M, PyVx, QzVy, single, with_anchors):
-                            yield cut
-        return
+                        to_chain.append(inner_canonical_unshielded_triples(M, PyVx, QzVy, with_anchors))
+        if single:
+            return to_chain
+        else:
+            return itertools.chain(*to_chain)
+    elif single:
+        # returns the first cut (will return None)
+        for cut in inner_canonical_unshielded_triples(M, PyVx, QzVy, with_anchors):
+            return cut
+    else:
+        # returns a generator
+        return inner_canonical_unshielded_triples(M, PyVx, QzVy, with_anchors)
 
+
+def inner_canonical_unshielded_triples(M: PRCM, PyVx: RDep, QzVy: RDep, with_anchors=False):
     LL = llrsp
 
     Py, Vx = PyVx
@@ -590,16 +671,10 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
             if eqint(P[a_r:a_x], Q[b_x:b_r:-1]):
                 assert Vx != RrZ
                 cut = (Vx, frozenset({Py, RVar(P[:a_r] ** Q[:b_r:-1], Y)}), RrZ)
-                if single:
-                    if with_anchors:
-                        return cut, restore_anchors(P, Q, a_r, b_r, a_r, b_r)
-                    else:
-                        return cut
+                if with_anchors:
+                    yield cut, restore_anchors(P, Q, a_r, b_r, a_r, b_r)
                 else:
-                    if with_anchors:
-                        yield cut, restore_anchors(P, Q, a_r, b_r, a_r, b_r)
-                    else:
-                        yield cut
+                    yield cut
 
         elif l_alpha < b_r - b_x + 1 and a_r < a_x and b_x < b_r:
             a_y, b_y = a_r - l_alpha + 1, b_r - l_alpha + 1
@@ -657,20 +732,12 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
 
                         PP_Y = frozenset({RVar(PP_i, Y) for PP_i in PP})
 
-                        if single:
-                            if with_anchors:
-                                assert Vx != RrZ
-                                return (Vx, PP_Y, RrZ), restore_anchors(P, Q, a_r, b_r, a_s, b_s, a_t, b_t)
-                            else:
-                                assert Vx != RrZ
-                                return Vx, PP_Y, RrZ
+                        if with_anchors:
+                            JJ = restore_anchors(P, Q, a_r, b_r, a_s, b_s, a_t, b_t)
+                            for R in {RrZ, RsZ, RtZ}:
+                                assert Vx != R
+                                yield (Vx, PP_Y, R), JJ
                         else:
-                            if with_anchors:
-                                JJ = restore_anchors(P, Q, a_r, b_r, a_s, b_s, a_t, b_t)
-                                for R in {RrZ, RsZ, RtZ}:
-                                    assert Vx != R
-                                    yield (Vx, PP_Y, R), JJ
-                            else:
-                                for R in {RrZ, RsZ, RtZ}:
-                                    assert Vx != R
-                                    yield Vx, PP_Y, R
+                            for R in {RrZ, RsZ, RtZ}:
+                                assert Vx != R
+                                yield Vx, PP_Y, R
