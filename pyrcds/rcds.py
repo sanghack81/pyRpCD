@@ -602,14 +602,14 @@ def anchors_to_skeleton(schema: RSchema, P: RPath, Q: RPath, J):
 # can be faster by employing view-class for RPath for slicing operator
 def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, single=True, with_anchors=False):
     """Returns a CUT, if exists, or generate CUTs with/without anchors"""
-    if PyVx is None and QzVy is None:
+    if PyVx is None or QzVy is None:
         all_ds = {dd for d in M.directed_dependencies for dd in (d, reversed(d))} | \
                  {d for u in M.undirected_dependencies for d in u}
         to_chain = []
         skip = set()
-        for PyVx in all_ds:
+        for PyVx in (all_ds if PyVx is None else [PyVx]):
             (_, Y), (_, X) = PyVx
-            for QzVy in all_ds:
+            for QzVy in (all_ds if QzVy is None else [QzVy]):
                 (_, Z), (_, Y2) = QzVy
                 if Y == Y2:
                     if single:  # single(s)
@@ -624,7 +624,8 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
             return to_chain
         else:
             return itertools.chain(*to_chain)
-    elif single:
+
+    if single:
         # returns the first cut (will return None)
         for cut in inner_canonical_unshielded_triples(M, PyVx, QzVy, with_anchors):
             return cut
@@ -643,7 +644,7 @@ def inner_canonical_unshielded_triples(M: PRCM, PyVx: RDep, QzVy: RDep, with_anc
     V, Y2 = Vy
 
     if Y != Y2:
-        raise AssertionError("{} and {} do not share the common attribute class.".format(PyVx, QzVy))
+        raise ValueError("{} and {} do not share the common attribute class.".format(PyVx, QzVy))
 
     m, n = len(P), len(Q)
     l = LL(reversed(P), Q)

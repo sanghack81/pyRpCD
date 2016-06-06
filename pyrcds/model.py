@@ -52,7 +52,7 @@ class RPath:
             item_classes = (item_classes,)
         if not backdoor:
             if not is_valid_rpath(item_classes):
-                raise AssertionError('not a valid path: {}'.format(item_classes))
+                raise ValueError('not a valid path: {}'.format(item_classes))
         self.__item_classes = tuple(item_classes)
         self.__h = hash(self.__item_classes)
         self.__getitem__ = functools.lru_cache(maxsize=10)(self.__getitem__)
@@ -90,7 +90,7 @@ class RPath:
                 return RPath(self.__item_classes[start:stop], True)
 
         else:
-            raise AssertionError('unknown {}'.format(item))
+            raise ValueError('unknown {}'.format(item))
 
     # path concatenation
     def __pow__(self, other):
@@ -408,9 +408,9 @@ class PRCM:
             if d in self.directed_dependencies:
                 return
             if UndirectedRDep(d) in self.undirected_dependencies:
-                raise AssertionError('undirected dependency exists for {}'.format(d))
+                raise ValueError('undirected dependency exists for {}'.format(d))
             if reversed(d) in self.directed_dependencies:
-                raise AssertionError('opposite-directed dependency exists for {}'.format(d))
+                raise ValueError('opposite-directed dependency exists for {}'.format(d))
             self.parents[effect].add(cause)
             dual_cause, dual_effect = d.dual
             self.children[dual_cause].add(dual_effect)
@@ -420,9 +420,9 @@ class PRCM:
             if d in self.undirected_dependencies:
                 return
             if d1 in self.directed_dependencies:
-                raise AssertionError('directed dependency {} exists'.format(d1))
+                raise ValueError('directed dependency {} exists'.format(d1))
             if d2 in self.directed_dependencies:
-                raise AssertionError('directed dependency {} exists'.format(d2))
+                raise ValueError('directed dependency {} exists'.format(d2))
             self.neighbors[d1.effect].add(d1.cause)
             self.neighbors[d2.effect].add(d2.cause)
             self.undirected_dependencies.add(d)
