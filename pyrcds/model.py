@@ -483,29 +483,6 @@ class ParamRCM(RCM):
         self.functions = functions
 
 
-# class CanonicalUnshieldedTriple:
-#     def __init__(self, l: RVar, ms, r: RVar):
-#         assert l.is_canonical
-#         self.left, self.middles, self.right = l, frozenset(ms), r
-#
-#     def __eq__(self, other):
-#         return isinstance(other, CanonicalUnshieldedTriple) and \
-#                (self.left, self.middles, self.right) == (other.left, other.middles, other.right)
-#
-#     def __hash__(self):
-#         return hash((self.left, self.middles, self.right))
-#
-#     @property
-#     def sides(self):
-#         return self.left, self.right
-#
-#     def __str__(self):
-#         pass
-#
-#     def attr_triple(self) -> AttrTriple:
-#         return AttrTriple(self.left.attr, next(iter(self.middles)).attr, self.right.attr)
-
-
 # TODO, speed up by employing a tree structure (memory efficient)
 def terminal_set(skeleton: RSkeleton, rpath: RPath, base_item: SkItem):
     if isinstance(rpath, RDep):

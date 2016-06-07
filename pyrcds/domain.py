@@ -1,7 +1,7 @@
 import functools
 import itertools
 import typing
-from collections import defaultdict
+from collections import defaultdict, Counter
 from enum import Enum
 from functools import total_ordering
 from itertools import chain
@@ -397,90 +397,61 @@ def generate_schema(num_ent_classes_distr=between_sampler(2, 5),
     return RSchema(ent_classes, rel_classes)
 
 
-def generate_skeleton(schema: RSchema, n_items=(300, 500), maximum_degrees=None) -> RSkeleton:
-    # TODO implement maximum
-    if isinstance(n_items, int):
-        n_items = {ic: n_items for ic in schema.item_classes}
-    elif isinstance(n_items, tuple):
-        n_items = {ic: randint(*n_items) for ic in sorted(schema.item_classes)}
-    if isinstance(maximum_degrees, int):
-        maximum_degrees = {(r, e): maximum_degrees for r in schema.relationships for e in r.entities}
+def generate_skeleton(schema: RSchema, min_items_per_class=300, max_degree=3) -> RSkeleton:
+    c = itertools.count()
 
-    skeleton = RSkeleton(schema, strict=True)
-    counter = itertools.count(1)
+    def entity_generator(E):
+        while True:
+            yield SkItem('e' + str(next(c)), E)
 
-    # adjust number of entities if more relationships are 'requesting'
-    # if E in R with cardinality one, |\sigma(R)| <= |\sigma(E)|.
+    def rel_generator(R):
+        while True:
+            yield SkItem('r' + str(next(c)), R)
+
+    gens = dict()
+    for E in schema.entities:
+        gens[E] = entity_generator(E)
     for R in schema.relationships:
-        for E in R.entities:
-            if not R.is_many(E) and n_items[R] > n_items[E]:
-                n_items[E] = n_items[R]
+        gens[R] = rel_generator(R)
 
-    entities = {E: [SkItem("e" + str(next(counter)), E) for _ in range(n_items[E])] for E in sorted(schema.entities)}
-    for vs in entities.values():
-        for v in vs:
-            skeleton.add_entity(v)
+    n_nodes = {i: randint(min_items_per_class, round(1.2 * min_items_per_class))
+               for i in sorted(schema.item_classes)}
+    for R in sorted(schema.relationships):
+        for E in sorted(R.entities):
+            if not R.is_many(E) and n_nodes[E] < n_nodes[R]:
+                n_nodes[E] = n_nodes[R] + randint(min_items_per_class // 5)
+    overage = min(n_nodes.values()) - min_items_per_class
+    n_nodes = {k: v - overage for k, v in n_nodes.items()}
+
+    nodes = defaultdict(list)
+    g = nx.Graph()
+    for I in schema.item_classes:
+        for _ in range(n_nodes[I]):
+            i = next(gens[I])
+            nodes[I].append(i)
+            g.add_node(i)
 
     for R in sorted(schema.relationships):
-        selected = {E: choice(entities[E], n_items[R], replace=R.is_many(E)).tolist()
-                    for E in sorted(R.entities)}
-        for i in range(n_items[R]):
-            ents = [selected[E][i] for E in R.entities]
-            skeleton.add_relationship(SkItem("r" + str(next(counter)), R), ents)
+        for E in sorted(R.entities):
+            g.add_edges_from(zip(nodes[R], choice(nodes[E], len(nodes[R]), replace=R.is_many(E))))
 
+    for E in sorted(schema.entities):
+        for e in nodes[E]:
+            counted = Counter([ne.item_class for ne in g.neighbors(e)])
+            for R, count in counted.most_common():
+                if count > max_degree:
+                    neighbors_of_R = list(filter(lambda ne: ne.item_class == R, sorted(g.neighbors(e))))
+                    to_remove = choice(neighbors_of_R, count - max_degree, replace=False)
+                    g.remove_nodes_from(to_remove)
+                    for r in to_remove:
+                        nodes[R].remove(r)
+                else:
+                    break
+    skeleton = RSkeleton(schema, strict=True)
+    for E in sorted(schema.entities):
+        for e in nodes[E]:
+            skeleton.add_entity(e)
+    for R in sorted(schema.relationships):
+        for r in nodes[R]:
+            skeleton.add_relationship(r, g.neighbors(r))
     return skeleton
-
-#
-# def generate_skeleton2(schema: RSchema, n_items=(300, 500), maximum_degrees=None, approximate_sizes=None) -> RSkeleton:
-#     if isinstance(n_items, int):
-#         n_items = {ic: n_items for ic in schema.item_classes}
-#     elif isinstance(n_items, tuple):
-#         n_items = {ic: randint(*n_items) for ic in schema.item_classes}
-#     if isinstance(maximum_degrees, int):
-#         maximum_degrees = {(r, e): maximum_degrees for r in schema.relationships for e in r.entities}
-#
-#     entities = defaultdict(list)
-#     relationships = defaultdict(list)
-#     degrees = defaultdict(lambda: 0)  # (r,e)
-#
-#     def entity_generator(E):
-#         c = counter()
-#         while True:
-#             yield SkItem('e' + str(next(c)), E)
-#
-#     def rel_generator(R):
-#         c = counter()
-#         while True:
-#             yield SkItem('r' + str(next(c)), R)
-#
-#     expected_size = 300
-#     min_size = 100
-#     max_size = 1000
-#
-#     num_rels = np.random.poisson(expected_size, len(schema.relationships))
-#     num_rels[num_rels < min_size] = min_size
-#     num_rels[num_rels > max_size] = max_size
-#
-#     skeleton = RSkeleton(schema, strict=True)
-#     counter = itertools.count(1)
-#
-#     # adjust number of entities if more relationships are 'requesting'
-#     # if E in R with cardinality one, |\sigma(R)| <= |\sigma(E)|.
-#     for R in schema.relationships:
-#         for E in R.entities:
-#             if not R.is_many(E) and n_items[R] > n_items[E]:
-#                 n_items[E] = n_items[R]
-#
-#     entities = {E: [SkItem("e" + str(next(counter)), E) for _ in range(n_items[E])] for E in schema.entities}
-#     for vs in entities.values():
-#         for v in vs:
-#             skeleton.add_entity(v)
-#
-#     for R in schema.relationships:
-#         selected = {E: choice(entities[E], n_items[R], replace=R.is_many(E)).tolist()
-#                     for E in R.entities}
-#         for i in range(n_items[R]):
-#             ents = [selected[E][i] for E in R.entities]
-#             skeleton.add_relationship(SkItem("r" + str(next(counter)), R), ents)
-#
-#     return skeleton
