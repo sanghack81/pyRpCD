@@ -51,7 +51,7 @@ class TestCI(unittest.TestCase):
 
             generate_values_for_skeleton(lg_rcm, skeleton)
 
-            tester = SetKernelRCITester(skeleton, alpha=0.05, n_jobs=-2, B=50, b=800, M=10000)
+            tester = SetKernelRCITester(skeleton, alpha=0.05, n_jobs=-1, B=50, b=800, M=10000)
             print('degree: {}'.format(lg_rcm.degree))
             for cond_size in range(lg_rcm.degree):
                 print('with cond size: {}'.format(cond_size))
@@ -86,7 +86,7 @@ class TestCI(unittest.TestCase):
 
             generate_values_for_skeleton(lg_rcm, skeleton)
 
-            tester = GraphKernelRCITester(skeleton, alpha=0.05, n_jobs=-1, B=16, b=800, M=10000)
+            tester = GraphKernelRCITester(skeleton, alpha=0.05, n_jobs=-1, B=50, b=800, M=10000)
             print('degree: {}'.format(lg_rcm.degree))
             for cond_size in range(lg_rcm.degree):
                 print('with cond size: {}'.format(cond_size))
