@@ -82,6 +82,18 @@ class TestSkeleton(unittest.TestCase):
     def test_skeleton(self):
         company_skeleton()
 
+    def test_skeleton_attribute(self):
+        schema = generate_schema()
+        skeleton = generate_skeleton(schema)
+        for item in skeleton.items():
+            skeleton[(item, 0)] = '1'
+        for item in skeleton.items():
+            for ne_item in skeleton.neighbors(item):
+                print(skeleton[(ne_item, 0)])
+                print(ne_item[0])
+
+
+
     def test_skeleton_gen(self):
         for i in range(30):
             schema = generate_schema()
