@@ -7,7 +7,8 @@ from numpy.random import randn
 
 from _spaces import hausdorff_distance, eq_size_hausdorff_distance, median_except_diag, set_distance_matrix, \
     list_set_distances, max_min_perm_distance, eq_size_min_perm_distance, eq_size_max_matching_distance, \
-    flip, triangle_fixing, denoise, shift, list_psd_converters, min_eigen_value
+    flip, triangle_fixing, denoise, shift, list_psd_converters, min_eigen_value, eq_size_max_matching_max_distance, \
+    eq_size_max_matching_min_distance
 
 
 def random_set(avoid_empty=False, size=None):
@@ -60,7 +61,7 @@ class TestSpaces(unittest.TestCase):
     def test_metric(self):
         candidates = list_set_distances()
         non_metrics = list()
-        tries = 1000
+        tries = 50
         for _ in range(tries):
             for func in list(candidates):
                 n = 20
@@ -78,6 +79,8 @@ class TestSpaces(unittest.TestCase):
         assert eq_size_min_perm_distance in candidates
         assert max_min_perm_distance in candidates
         assert eq_size_max_matching_distance in non_metrics
+        assert eq_size_max_matching_min_distance in non_metrics
+        assert eq_size_max_matching_max_distance in non_metrics
 
     def test_triangle_fixing(self):
         pass
@@ -154,11 +157,15 @@ class TestSpaces(unittest.TestCase):
         assert hausdorff_distance(xs, ys) == 0
         assert hausdorff_distance(ys, xs) == 0
 
-    def test_max_match(self):
-        pass
-
     def test_eq_size_max_matching_distance(self):
-        pass
+        x = np.array([0.1, 0.3, 0.5, 0.7], dtype=float)
+        y = x + 0.02
+        y[0] = y[0] + 0.01
+        for _ in range(10):
+            np.random.shuffle(y)
+            assert np.allclose(eq_size_max_matching_distance(x, y), 0.09)
+            assert np.allclose(eq_size_max_matching_min_distance(x, y), 0.02)
+            assert np.allclose(eq_size_max_matching_max_distance(x, y), 0.03)
 
     def test_eq_size_hausdorff_distance(self):
         xs = [1, 2, 3]

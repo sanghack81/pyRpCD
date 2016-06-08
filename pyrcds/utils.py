@@ -41,7 +41,7 @@ def average_agg(default=0.0):
     """Returns a function that returns the average of a given input or default value if the given input is empty."""
 
     def func(items):
-        return sum(items) / len(items) if len(items) > 0 else default
+        return (sum(items) / len(items)) if len(items) > 0 else default
 
     return func
 

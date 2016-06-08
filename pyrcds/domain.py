@@ -408,11 +408,7 @@ def generate_skeleton(schema: RSchema, min_items_per_class=300, max_degree=3) ->
         while True:
             yield SkItem('r' + str(next(c)), R)
 
-    gens = dict()
-    for E in schema.entities:
-        gens[E] = entity_generator(E)
-    for R in schema.relationships:
-        gens[R] = rel_generator(R)
+    gens = {**{E: entity_generator(E) for E in schema.entities}, **{R: rel_generator(R) for R in schema.relationships}}
 
     n_nodes = {i: randint(min_items_per_class, round(1.2 * min_items_per_class))
                for i in sorted(schema.item_classes)}
@@ -455,3 +451,20 @@ def generate_skeleton(schema: RSchema, min_items_per_class=300, max_degree=3) ->
         for r in nodes[R]:
             skeleton.add_relationship(r, g.neighbors(r))
     return skeleton
+
+
+def repeat_skeleton(skeleton: RSkeleton, times):
+    new_skeleton = RSkeleton(skeleton.schema, True)
+    for i in range(times):
+        @functools.lru_cache(maxsize=None)
+        def ify(item: SkItem):
+            return SkItem(str(i) + '_' + item.name, item.item_class)
+
+        for item in sorted(skeleton.items()):
+            if isinstance(item.item_class, E_Class):
+                new_skeleton.add_entity(ify(item))
+        for item in sorted(skeleton.items()):
+            if isinstance(item.item_class, R_Class):
+                new_skeleton.add_relationship(ify(item), [ify(ne) for ne in skeleton.neighbors(item)])
+
+    return new_skeleton

@@ -1,6 +1,7 @@
 import itertools
 from itertools import groupby
 
+import networkx as nx
 import numpy as np
 from numpy import diag, zeros, ix_, median
 from numpy.core.umath import sqrt
@@ -191,6 +192,11 @@ def hausdorff_distance(xs, ys, d=(lambda a, b: abs(a - b))):
 
 
 def max_match(xs, ys, similarity):
+    assert len(xs) == len(ys)
+    assert not isinstance(xs, set)
+    assert not isinstance(ys, set)
+    assert not isinstance(xs, frozenset)
+    assert not isinstance(ys, frozenset)
     if len(xs) == 1:
         return xs
     elif len(xs) == 2:
@@ -210,14 +216,25 @@ def max_match(xs, ys, similarity):
             if max_sim < sim:
                 max_perm, max_sim = (x, y, z), sim
         return max_perm
-    else:
+    elif len(xs) <= 6:
         perms = list(itertools.permutations(xs))
-        max_at = np.argmax(sum(similarity(x, y) for x, y in zip(p, ys))
-                           for p in perms)
+        max_at = np.argmax([sum(similarity(x, y) for x, y in zip(p, ys))
+                            for p in perms])
         return perms[max_at]
+    else:
+        # use maximum
+        g = nx.Graph()
+        g.add_nodes_from(range(len(xs) + len(ys)))
+        for i, x in enumerate(xs):
+            for j, y in enumerate(ys, start=len(xs)):
+                g.add_edge(i, j, weight=similarity(x, y))
+        mates = nx.max_weight_matching(g)
+        ijs = sorted(filter(lambda ij: ij[1] >= len(xs), mates.items()),
+                     key=lambda ij: ij[1])
+        order_of_x = [ij[0] for ij in ijs]
+        return (np.array(xs)[order_of_x]).tolist()
 
 
-# not distance!
 def eq_size_max_matching_distance(xs, ys, d=(lambda a, b: abs(a - b)),
                                   similarity=(lambda a, b: np.exp(-(a - b) * (a - b)))):
     if len(xs) == 0 and len(ys) == 0:
@@ -225,8 +242,33 @@ def eq_size_max_matching_distance(xs, ys, d=(lambda a, b: abs(a - b)),
     elif len(xs) != len(ys):
         return float('inf')
     else:
-        # xs, ys ordered
+        xs = tuple(xs)
+        ys = tuple(ys)
         return sum(d(x, y) for x, y in zip(max_match(xs, ys, similarity), ys))
+
+
+def eq_size_max_matching_min_distance(xs, ys, d=(lambda a, b: abs(a - b)),
+                                      similarity=(lambda a, b: np.exp(-(a - b) * (a - b)))):
+    if len(xs) == 0 and len(ys) == 0:
+        return 0.0
+    elif len(xs) != len(ys):
+        return float('inf')
+    else:
+        xs = tuple(xs)
+        ys = tuple(ys)
+        return min(d(x, y) for x, y in zip(max_match(xs, ys, similarity), ys))
+
+
+def eq_size_max_matching_max_distance(xs, ys, d=(lambda a, b: abs(a - b)),
+                                      similarity=(lambda a, b: np.exp(-(a - b) * (a - b)))):
+    if len(xs) == 0 and len(ys) == 0:
+        return 0.0
+    elif len(xs) != len(ys):
+        return float('inf')
+    else:
+        xs = tuple(xs)
+        ys = tuple(ys)
+        return max(d(x, y) for x, y in zip(max_match(xs, ys, similarity), ys))
 
 
 def eq_size_hausdorff_distance(xs, ys, d=(lambda a, b: abs(a - b))):
@@ -268,7 +310,10 @@ def list_set_distances():
             eq_size_hausdorff_distance,
             eq_size_max_matching_distance,
             eq_size_min_perm_distance,
-            max_min_perm_distance]
+            max_min_perm_distance,
+            eq_size_max_matching_min_distance,
+            eq_size_max_matching_max_distance
+            ]
 
 
 def set_distance_matrix(data, set_metric=hausdorff_distance, metric=(lambda x, y: abs(x - y))):  # k_set = sum sum skf
@@ -287,7 +332,7 @@ def __group_indices_by(labels):
 
 
 def weisfeiler_lehman_vertex_kernel(skeleton: RSkeleton, h=4):
-    nodes = list(skeleton.items())
+    nodes = np.array(sorted(skeleton.items()))
     node_num = Lookup(nodes)
 
     N = len(nodes)
@@ -295,9 +340,9 @@ def weisfeiler_lehman_vertex_kernel(skeleton: RSkeleton, h=4):
     # step 0
     # assignment
     lookup = Lookup()
-    labels = [lookup[v.item_class] for v in nodes]  # labels[i]
+    labels = np.array([lookup[v.item_class] for v in nodes])  # labels[i]
     # feature mapping
-    K = dok_matrix((N, N), dtype='float')
+    K = np.zeros((N, N))
     for ll, idxs in __group_indices_by(labels):
         K[ix_(idxs, idxs)] = 1
 
@@ -311,8 +356,8 @@ def weisfeiler_lehman_vertex_kernel(skeleton: RSkeleton, h=4):
     for step in range(1, h + 1):  # 1 <= step <= h
         # assignment
         lookup = Lookup()
-        new_labels = [lookup[long_label(labels, i, sorted(to_num(skeleton.neighbors(v))))]
-                      for i, v in enumerate(nodes)]
+        new_labels = np.array([lookup[long_label(labels, i, sorted(to_num(skeleton.neighbors(v))))]
+                               for i, v in enumerate(nodes)])
 
         for ll, idxs in __group_indices_by(new_labels):
             K[ix_(idxs, idxs)] += 1

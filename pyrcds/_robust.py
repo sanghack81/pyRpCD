@@ -6,18 +6,6 @@ from pyrcds.rcds import AbstractRCD
 from utils import group_by
 
 
-def sound_rules(pcdg_xyz):
-    pass
-
-
-# a set of compatible elements.
-# a maximal set of compatible elements.
-
-
-def checkcheck(m1, m2):
-    pass
-
-
 class PracticalLearner(AbstractRCD):
     def __init__(self, schema, h_max, ci_tester, verbose=False):
         super().__init__(schema, h_max, ci_tester, verbose)

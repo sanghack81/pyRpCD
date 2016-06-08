@@ -5,6 +5,7 @@ from itertools import cycle, product, combinations
 
 import networkx as nx
 import numpy as np
+from joblib import Parallel, delayed
 from numpy.random.mtrand import choice, shuffle, randint, randn
 
 from pyrcds.domain import E_Class, R_Class, I_Class, RSchema, A_Class, RSkeleton, SkItem
@@ -55,7 +56,7 @@ class RPath:
                 raise ValueError('not a valid path: {}'.format(item_classes))
         self.__item_classes = tuple(item_classes)
         self.__h = hash(self.__item_classes)
-        self.__getitem__ = functools.lru_cache(maxsize=10)(self.__getitem__)
+        # self.__getitem__ = functools.lru_cache(maxsize=10)(self.__getitem__)
 
     def __hash__(self):
         return self.__h
@@ -511,7 +512,7 @@ def terminal_set(skeleton: RSkeleton, rpath: RPath, base_item: SkItem):
     return {path[-1] for path in item_paths}
 
 
-def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False):
+def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False, n_jobs=1):
     rvars = list(rvars)
     assert len({rvar.base for rvar in rvars}) == 1
     base_class = rvars[0].base
@@ -521,15 +522,33 @@ def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False)
     if with_base_items:
         data[:, 0] = base_items
 
-    for i, base_item in enumerate(base_items):
-        for j, rvar in enumerate(rvars, start=1 if with_base_items else 0):
-            terminal = terminal_set(skeleton, rvar.rpath, base_item)
-            if value_only:
-                data[i, j] = tuple(item[rvar.attr] for item in terminal)
-            else:
-                data[i, j] = tuple((item, item[rvar.attr]) for item in terminal)
+    # TODO check performance ... skeleton is heavy!?!
+    inner_data = Parallel(n_jobs)(delayed(__inner_flatten)(skeleton, rvar, base_items, value_only)
+                                  for j, rvar in enumerate(rvars, start=1 if with_base_items else 0))
+
+    for j in range(len(rvars)):
+        data[:, j] = inner_data[j]
+
+    # for j, rvar in enumerate(rvars, start=1 if with_base_items else 0):
+    #     for i, base_item in enumerate(base_items):
+    #         terminal = terminal_set(skeleton, rvar.rpath, base_item)
+    #         if value_only:
+    #             data[i, j] = tuple(item[rvar.attr] for item in terminal)
+    #         else:
+    #             data[i, j] = tuple((item, item[rvar.attr]) for item in terminal)
 
     return data
+
+
+def __inner_flatten(skeleton, rvar, base_items, value_only):
+    inner_data = np.zeros((len(base_items),), dtype=object)
+    for i, base_item in enumerate(base_items):
+        terminal = terminal_set(skeleton, rvar.rpath, base_item)
+        if value_only:
+            inner_data[i] = tuple(item[rvar.attr] for item in terminal)
+        else:
+            inner_data[i] = tuple((item, item[rvar.attr]) for item in terminal)
+    return inner_data
 
 
 class GroundGraph:
