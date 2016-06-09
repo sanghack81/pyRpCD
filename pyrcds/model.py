@@ -516,7 +516,7 @@ def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False,
     rvars = list(rvars)
     assert len({rvar.base for rvar in rvars}) == 1
     base_class = rvars[0].base
-    base_items = list(skeleton.items(base_class))
+    base_items = sorted(skeleton.items(base_class))
 
     data = np.empty([len(base_items), (1 if with_base_items else 0) + len(rvars)], dtype=object)
     if with_base_items:
@@ -526,8 +526,14 @@ def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False,
     inner_data = Parallel(n_jobs)(delayed(__inner_flatten)(skeleton, rvar, base_items, value_only)
                                   for j, rvar in enumerate(rvars, start=1 if with_base_items else 0))
 
+<<<<<<< HEAD
     for j in range(len(rvars)):
         data[:, j] = inner_data[j]
+=======
+    shift = 1 if with_base_items else 0
+    for j in range(len(rvars)):
+        data[:, j + shift] = inner_data[j]
+>>>>>>> master
 
     # for j, rvar in enumerate(rvars, start=1 if with_base_items else 0):
     #     for i, base_item in enumerate(base_items):
