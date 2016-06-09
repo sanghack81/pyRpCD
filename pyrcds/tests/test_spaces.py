@@ -5,10 +5,11 @@ import numpy as np
 from numpy.random import poisson
 from numpy.random import randn
 
-from _spaces import hausdorff_distance, eq_size_hausdorff_distance, median_except_diag, set_distance_matrix, \
+from _spaces import hausdorff_distance, eq_size_hausdorff_distance, set_distance_matrix, \
     list_set_distances, max_min_perm_distance, eq_size_min_perm_distance, eq_size_max_matching_distance, \
     flip, triangle_fixing, denoise, shift, list_psd_converters, min_eigen_value, eq_size_max_matching_max_distance, \
     eq_size_max_matching_min_distance
+from utils import median_except_diag
 
 
 def random_set(avoid_empty=False, size=None):

@@ -2,21 +2,39 @@
 # Relational, Kernel Conditional Independence Permutation Test
 import typing
 
-from numpy import exp, array, zeros, sqrt
+from numpy import exp, array, sqrt
 from numpy.random import choice
 from sklearn.metrics.pairwise import pairwise_distances
 
 from pygk.utils import as_column
 from pykcipt.kcipt import KCIPT, KCIPTResult, KIPT
-from pyrcds._spaces import set_distance_matrix, median_except_diag, triangle_fixing, denoise, \
-    weisfeiler_lehman_vertex_kernel, eq_size_max_matching_distance
+from pyrcds._spaces import set_distance_matrix, weisfeiler_lehman_vertex_kernel, eq_size_max_matching_distance, \
+    euclidean, distance_matrix
 from pyrcds.domain import RSkeleton, ImmutableRSkeleton
 from pyrcds.model import RVar, flatten
+from pyrcds.utils import median_except_diag
 
 
-def multiply(*args):
-    if len(args) == 0:
-        return None
+def rbf_D2K(D):
+    mm = median_except_diag(D)
+    if mm != 0:
+        return exp(-(D * D) / mm)
+    else:
+        return exp(-(D * D))
+
+
+def sums(*args):
+    assert args
+    assert len(args) > 0
+    temp = 0
+    for arg in args:
+        temp += arg
+    return temp
+
+
+def multiplys(*args):
+    assert args
+    assert len(args) > 0
     temp = 1
     for arg in args:
         temp *= arg
@@ -53,9 +71,6 @@ class SetKernelRCITester(CITester):
             dist = pairwise_distances(as_column(dump_values(attr, skeleton)))
             self.median_dist[attr] = median_except_diag(dist)
 
-        self.use_denoise = False
-        self.fix_triangle_inequality = False
-
     def ci_test(self, x: RVar, y: RVar, zs: typing.Set[RVar] = frozenset()) -> KCIPTResult:
         assert x != y
         assert x not in zs and y not in zs
@@ -65,36 +80,59 @@ class SetKernelRCITester(CITester):
             data = data[choice(len(data), self.maxed, replace=False), :]
 
         K = [None] * (2 + len(zs))
+        Ds = [None] * (2 + len(zs))
         for i, rvar in enumerate((x, y, *zs)):
-            D = set_distance_matrix(data[:, i])
-            if self.fix_triangle_inequality:
-                D = triangle_fixing(D, 1.0e-12)
-            K[i] = exp(-(D * D) / median_except_diag(D))
-            if self.use_denoise:
-                K[i] = denoise(K[i])
+            Ds[i] = set_distance_matrix(data[:, i])
+            K[i] = rbf_D2K(Ds[i])
 
-        return KCIPT(K[0], K[1], multiply(*K[2:]), n_jobs=self.n_jobs, **self.options)
+        if zs:
+            return KCIPT(multiplys(K[0], *K[2:]), K[1],
+                         sqrt(sums(*[D ** 2 for D in Ds[2:]])),
+                         n_jobs=self.n_jobs, **self.options)
+        else:
+            return KIPT(K[0], K[1], n_jobs=self.n_jobs, **self.options)
 
     @property
     def is_p_value_available(self):
         return True
 
 
-def xxxx(Ds):
-    X = zeros(next(iter(Ds)).shape)
-    for D in Ds:
-        X = X + D * D
-    return sqrt(X)
-
-
 class GraphKernelRCITester(CITester):
-    def __init__(self, skeleton: RSkeleton, h=4, alpha=0.05, n_jobs=-1, **options):
+    def __init__(self, skeleton: RSkeleton,
+                 vertex_kernel=weisfeiler_lehman_vertex_kernel,
+                 attr_metrics=euclidean,
+                 alpha=0.05, n_jobs=-1, maxed=None,
+                 **options):
         self.skeleton = ImmutableRSkeleton(skeleton)
-        self.VK, self.ordered_items = weisfeiler_lehman_vertex_kernel(self.skeleton, h)
-        self.number_of = {v: i for i, v in enumerate(self.ordered_items)}
         self.alpha = alpha
         self.n_jobs = n_jobs
         self.options = options
+
+        self.VK, ordered_items = vertex_kernel(self.skeleton, **options)
+        self.index_of = {item: index for index, item in enumerate(ordered_items)}
+        self.maxed = maxed
+
+        attrs = self.skeleton.schema.attrs
+
+        if attr_metrics is None:
+            attr_metrics = euclidean
+
+        if not isinstance(attr_metrics, dict) and callable(attr_metrics):
+            attr_metrics = {attr: attr_metrics
+                            for attr in attrs}
+
+        ITEM, VALUE = 0, 1
+
+        def sim_func(iv1, iv2):
+            return self.VK[self.index_of[iv1[ITEM]], self.index_of[iv2[ITEM]]]
+
+        # squared maximum matching distance
+        def smd(ivs1, ivs2, dist_iv_pair):
+            return eq_size_max_matching_distance(ivs1, ivs2, dist_iv_pair, sim_func)
+
+        self.set_metrics = {a: (lambda ivs1, ivs2: smd(ivs1, ivs2,
+                                                       lambda iv1, iv2: attr_metrics[a](iv1[VALUE], iv2[VALUE])))
+                            for a in attrs}
 
     def ci_test(self, x: RVar, y: RVar, zs: typing.Set[RVar] = frozenset()):
         assert x != y
@@ -103,34 +141,26 @@ class GraphKernelRCITester(CITester):
         if x.is_canonical:
             x, y = y, x
 
-        item, value = 0, 1
+        # data is not made of values, it is made of (item, value) pairs.
         data = flatten(self.skeleton, (x, y, *zs), with_base_items=False, value_only=False, n_jobs=self.n_jobs)
-
-        def similarity(a, b):
-            return self.VK[self.number_of[a[item]], self.number_of[b[item]]]
-
-        def squared_matching_distance(xs, ys, d):
-            return eq_size_max_matching_distance(xs, ys, d, similarity=similarity)
+        if self.maxed is not None and len(data) > self.maxed:
+            data = data[choice(len(data), self.maxed, replace=False), :]
 
         K = [None] * (2 + len(zs))
         Ds = [None] * (2 + len(zs))
         for i, rvar in enumerate((x, y, *zs)):
-            D = set_distance_matrix(data[:, i], squared_matching_distance, lambda a, b: (a[value] - b[value]) ** 2)
-            # if self.fix_triangle_inequality:
-            #     D = triangle_fixing(D, 1.0e-12)
-            divider = median_except_diag(D, default=1.)
-            if divider == 0:
-                divider = 1.0
-            K[i] = exp(-(D * D) / divider)
-            Ds[i] = D
-            # if self.use_denoise:
-            #     K[i] = denoise(K[i])
+            Ds[i] = distance_matrix(data[:, i], metric=self.set_metrics[rvar.attr])
+            K[i] = rbf_D2K(Ds[i])
 
-        # return KCIPT(K[0], K[1], multiply(*K[2:]), n_jobs=self.n_jobs, **self.kwargs)
         if zs:
-            return KCIPT(K[0] * multiply(*K[2:]), K[1], xxxx(Ds[2:]), n_jobs=self.n_jobs, **self.options)
+            return KCIPT(multiplys(K[0], *K[2:]), K[1],
+                         sqrt(sums(*[D ** 2 for D in Ds[2:]])),
+                         n_jobs=self.n_jobs, **self.options)
         else:
-            return KIPT(K[0], K[1], n_jobs=self.n_jobs, **self.options)
+            return KIPT(K[0],
+                        K[1],
+                        n_jobs=self.n_jobs,
+                        **self.options)
 
     @property
     def is_p_value_available(self):

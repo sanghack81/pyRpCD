@@ -1,5 +1,7 @@
 from itertools import groupby
 
+import numpy as np
+from numpy import median
 from numpy.random import randint, randn
 
 
@@ -73,3 +75,31 @@ def linear_gaussian(parameters: dict, aggregator, error):
         return value + error.sample()
 
     return func
+
+
+def median_except_diag(D, exclude_inf=True, default=1):
+    return stat_except_diag(D, exclude_inf, default, median)
+
+
+def mean_except_diag(D, exclude_inf=True, default=1):
+    return stat_except_diag(D, exclude_inf, default, np.mean)
+
+
+def stat_except_diag(D, exclude_inf=True, default=1, func=median):
+    if D.ndim != 2:
+        raise TypeError('not a matrix')
+    if D.shape[0] != D.shape[1]:
+        raise TypeError('not a square matrix')
+    if len(D) <= 1:
+        raise ValueError('No non-diagonal element')
+
+    lower = D[np.tri(len(D), k=-1, dtype=bool)]
+    upper = D.transpose()[np.tri(len(D), k=-1, dtype=bool)]
+    non_diagonal = np.concatenate((lower, upper))
+    if exclude_inf:
+        non_diagonal = non_diagonal[non_diagonal != float('inf')]
+
+    if len(non_diagonal):
+        return func(non_diagonal)
+    else:
+        return default
