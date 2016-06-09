@@ -4,7 +4,7 @@ import networkx as nx
 import numpy as np
 from numpy import diag, zeros, ix_
 from numpy.core.umath import sqrt
-from numpy.linalg import inv, eigh
+from numpy.linalg import inv, eigh, LinAlgError
 from scipy.sparse import dok_matrix
 
 from pygk.utils import repmat, as_column, Lookup
@@ -73,19 +73,34 @@ def list_psd_converters():
     return [denoise, shift, diffusion, flip]
 
 
+def robust_eigh(K, level=1.0e-12):
+    if np.any(np.isnan(K)):
+        raise ValueError('NaN in the matrix.')
+    if not (-float('inf') < np.min(K) <= np.max(K) < float('inf')):
+        raise ValueError('Positive or negative infinity is in the matrix.')
+
+    try:
+        return eigh(K)
+    except LinAlgError as e:
+        print('LinAlgError: {}'.format(e))
+        print('robust eigh with {} level noise.'.format(level))
+        noise = np.random.randn(*K.shape)
+        return robust_eigh(K + level * noise, level * 2)
+
+
 def min_eigen_value(K):
-    w, _ = eigh(K)
+    w, _ = robust_eigh(K)
     return min(w)
 
 
 def denoise(K):
-    w, v = eigh(K)
+    w, v = robust_eigh(K)
     w[w < 0] = 0
     return v @ diag(w) @ inv(v)
 
 
 def shift(K):
-    w, v = eigh(K)
+    w, v = robust_eigh(K)
     min_w = np.min(w)
     if min_w < 0:
         w -= min_w
@@ -93,13 +108,13 @@ def shift(K):
 
 
 def diffusion(K):
-    w, v = eigh(K)
+    w, v = robust_eigh(K)
     w = np.exp(w)
     return v @ diag(w) @ inv(v)
 
 
 def flip(K):
-    w, v = eigh(K)
+    w, v = robust_eigh(K)
     w = np.abs(w)
     return v @ diag(w) @ inv(v)
 

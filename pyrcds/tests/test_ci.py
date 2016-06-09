@@ -30,12 +30,10 @@ class TestCI(unittest.TestCase):
         assert np.allclose(multiplys(x, y, z), x * y * z)
         assert np.allclose(multiplys(x, y), x * y)
         assert np.allclose(multiplys(x), x)
-        assert multiplys() is None
 
-    # @unittest.skip('time consuming, non-test')
     def test_ci_company_domain(self):
         np.random.seed(0)
-        options = {'n_jobs': -1, 'alpha': 0.05, 'B': 8, 'b': 800, 'M': 10000}
+        options = {'n_jobs': -1, 'alpha': 0.05, 'B': 32, 'b': 800, 'M': 10000}
         schema, rcm = company_schema(), company_rcm()
         functions = dict()
         effects = {RVar(RPath(rcm.schema.item_class_of(attr)), attr) for attr in rcm.schema.attrs}
