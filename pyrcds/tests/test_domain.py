@@ -92,8 +92,6 @@ class TestSkeleton(unittest.TestCase):
                 print(skeleton[(ne_item, 0)])
                 print(ne_item[0])
 
-
-
     def test_skeleton_gen(self):
         for i in range(30):
             schema = generate_schema()

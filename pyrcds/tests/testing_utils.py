@@ -29,12 +29,34 @@ def company_deps():
 
 @functools.lru_cache(1)
 def company_schema():
+    """A sample relational schema. See [1]
+
+    References
+    ----------
+    [1] Marc Maier (2014),
+        Causal Discovery for Relational Domains:
+        Representation, Reasoning, and Learning,
+        Ph.D. Dissertation, University of Massachusetts, Amherst
+
+    """
+
     E, P, B, D, F = EPBDF()
     return RSchema({E, P, B}, {D, F})
 
 
 @functools.lru_cache(1)
 def company_skeleton():
+    """A sample relational skeleton. See [1]
+
+    References
+    ----------
+    [1] Marc Maier (2014),
+        Causal Discovery for Relational Domains:
+        Representation, Reasoning, and Learning,
+        Ph.D. Dissertation, University of Massachusetts, Amherst
+
+    """
+
     E, P, B, D, F = EPBDF()
     entities = ['Paul', 'Roger', 'Quinn', 'Sally', 'Thomas',
                 'Case', 'Adapter', 'Laptop', 'Tablet', 'Smartphone',
@@ -43,7 +65,7 @@ def company_skeleton():
     entity_types = {'Paul': E, 'Roger': E, 'Quinn': E, 'Sally': E, 'Thomas': E,
                     'Case': P, 'Adapter': P, 'Laptop': P, 'Tablet': P, 'Smartphone': P,
                     'Accessories': B, 'Devices': B}
-    skeleton = RSkeleton(company_schema, True)
+    skeleton = RSkeleton(company_schema(), True)
     p, r, q, s, t, c, a, l, ta, sm, ac, d = ents = tuple([SkItem(e, entity_types[e]) for e in entities])
     skeleton.add_entities(*ents)
     for emp, prods in ((p, {c, }), (q, {c, a, l}), (s, {l, ta}), (t, {sm, ta}), (r, {l, })):
@@ -58,4 +80,14 @@ def company_skeleton():
 
 @functools.lru_cache(1)
 def company_rcm():
+    """A sample relational causal model. See [1]
+
+    References
+    ----------
+    [1] Marc Maier (2014),
+        Causal Discovery for Relational Domains:
+        Representation, Reasoning, and Learning,
+        Ph.D. Dissertation, University of Massachusetts, Amherst
+
+    """
     return PRCM(company_schema(), company_deps())

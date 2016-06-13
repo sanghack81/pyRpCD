@@ -14,6 +14,7 @@ from pyrcds.utils import group_by, safe_iter
 
 
 def enumerate_rpaths(schema, hop, base_item_class=None):
+    """Returns a generator that enumerates all valid relational paths up to the given hop."""
     __validate_schema(schema)
     __validate_hop(hop)
     if base_item_class:
@@ -50,6 +51,8 @@ def __validate_schema(schema):
 
 
 def enumerate_rvars(schema: RSchema, hop):
+    """Returns a generator that enumerates all valid relational variables up to the given hop."""
+
     __validate_schema(schema)
     __validate_hop(hop)
 
@@ -66,6 +69,7 @@ class interner(dict):
 
 
 def enumerate_rdeps(schema: RSchema, hop):
+    """Returns a generator that enumerates all valid relational dependencies up to the given hop."""
     __validate_schema(schema)
     __validate_hop(hop)
 
@@ -86,6 +90,13 @@ def __validate_rpath(Q):
 
 
 def extend(P: RPath, Q: RPath):
+    """See [1] for the description of extend
+
+    References
+    ----------
+    [1] Marc Maier, Causal Discovery for Relational Domains: Representation, Reasoning, and Learning
+        Ph.D. Dissertation, University of Massachusetts, Amherst
+    """
     __validate_rpath(P)
     __validate_rpath(Q)
     if P.terminal != Q.base:
@@ -97,8 +108,20 @@ def extend(P: RPath, Q: RPath):
             yield P[:m - 1 - pivot] ** Q[pivot:]
 
 
-# See Lee and Honavar 2015
 def intersectible(P: RPath, Q: RPath):
+    """See [1,2] for the description of intersectible
+
+    References
+    ----------
+    [1] Marc Maier (2014),
+        Causal Discovery for Relational Domains:
+        Representation, Reasoning, and Learning,
+        Ph.D. Dissertation, University of Massachusetts, Amherst
+    [2] Sanghack Lee and Vasant Honavar (2015),
+        Lifted Representation of Relational Causal Models Revisited:
+        Implications for Reasoning and Structure Learning,
+        UAI 2015 Workshop on Advances in Causal Inference
+    """
     __validate_rpath(P)
     __validate_rpath(Q)
     if P == Q:
@@ -108,8 +131,17 @@ def intersectible(P: RPath, Q: RPath):
         len(P), len(Q))
 
 
-# See Lee and Honavar 2015
 def co_intersectible(Q: RPath, R: RPath, P: RPath, P_prime: RPath):
+    """See [1] for the description of co-intersectible.
+
+    References
+    ----------
+    [1] Sanghack Lee and Vasant Honavar (2015),
+        Lifted Representation of Relational Causal Models Revisited:
+        Implications for Reasoning and Structure Learning,
+        UAI 2015 Workshop on Advances in Causal Inference
+    """
+
     __validate_rpath(Q)
     __validate_rpath(R)
     __validate_rpath(P)
@@ -128,6 +160,8 @@ def co_intersectible(Q: RPath, R: RPath, P: RPath, P_prime: RPath):
 
 
 class UnvisitedQueue:
+    """A queue that accept only previously un-queued items."""
+
     def __init__(self, iterable=()):
         self.visited = set(iterable)
         self.queue = deque(self.visited)
@@ -152,6 +186,7 @@ class UnvisitedQueue:
 
 
 def d_separated(dag: nx.DiGraph, x, y, zs=frozenset()):
+    """A simple implementation of d-separation. """
     assert x != y
     assert x not in zs and y not in zs
 
@@ -176,6 +211,21 @@ def d_separated(dag: nx.DiGraph, x, y, zs=frozenset()):
 
 
 class AbstractGroundGraph:
+    """Revised Abstract Ground Graph(s) taking intersectibility and co-intersectibility described in [1].
+
+
+    References
+    ----------
+    [1] Sanghack Lee and Vasant Honavar (2015),
+        Lifted Representation of Relational Causal Models Revisited:
+        Implications for Reasoning and Structure Learning,
+        UAI 2015 Workshop on Advances in Causal Inference
+
+    Notes
+    -----
+    AGGs does not correctly reason about the relational d-separation.
+    """
+
     def __init__(self, rcm: RCM, h: int):
         self.logger = logging.getLogger(self.__class__.__module__ + '.' + self.__class__.__name__)
         c1 = interner()  # memory-saver, takes time...
@@ -252,12 +302,9 @@ class AbstractGroundGraph:
         assert len({x.base, y.base} | {z.base for z in zs}) == 1
         assert y.is_canonical
 
-        x_bar = self.extend[x]  # {x} | self.combined[x]
-        y_bar = self.extend[y]  # {y} | self.combined[y]
         zs_bar = set(chain(*[self.extend[z] for z in zs]))
-
-        x_bar -= zs_bar
-        y_bar -= zs_bar
+        x_bar = self.extend[x] - zs_bar  # {x} | self.combined[x]
+        y_bar = self.extend[y] - zs_bar  # {y} | self.combined[y]
 
         if x_bar & y_bar:
             return False
@@ -274,6 +321,8 @@ class AbstractGroundGraph:
 
 
 class AbstractRCD:
+    """Abstract class for RCD-related causal discovery algorithm"""
+
     def __init__(self, schema, h_max, ci_tester, verbose=False):
         # self.logger = logging.getLogger(self.__class__.__module__ + '.' + self.__class__.__name__)
 
@@ -300,7 +349,7 @@ class AbstractRCD:
         return False
 
     def phase_I(self):
-        """Find adjacencies of the underlying RCM"""
+        """Find adjacencies of the underlying RCM."""
         if self.verbose:
             print('phase I: started.')
         prcm, schema, ci_tester = self.prcm, self.schema, self.ci_tester
@@ -386,8 +435,6 @@ def sound_rules(g: PDAG, non_colliders=(), purge=True):
                 for z in g.ch(y) & g.ne(x):
                     g.orient(x, z)
 
-        # TODO non-colliders making an undirected cycle
-
         if purge:
             for non_collider in list(non_colliders):
                 x, y, z = non_collider
@@ -399,7 +446,7 @@ def sound_rules(g: PDAG, non_colliders=(), purge=True):
 
 
 def completes(g: PDAG, non_colliders):
-    """Maximally orients edges in the given PDAG with (shielded or unshielded) non-collider constraints"""
+    """Maximally orients edges in the given PDAG with non-collider constraints"""
     U = set(chain(*[[(x, y), (y, x)] for x, y in g.unoriented()]))
 
     # filter out directions, which violates non-collider constraints.
@@ -421,7 +468,7 @@ def completes(g: PDAG, non_colliders):
 
 
 def ext(g: PDAG, NC):
-    """Extensibility where non-colliders can be either shielded or unshielded"""
+    """Extensibility where non-colliders are completely identified."""
     h = g.copy()
     while h:
         for y in h:
@@ -436,11 +483,20 @@ def ext(g: PDAG, NC):
 
 
 class RpCD(AbstractRCD):
+    """RpCD as in [1]
+
+    References
+    ----------
+    [1] Sanghack Lee, Vasant Honavar, (2016)
+        A Characterization of Markov Equivalence Classes of Relational Causal Model under Path Semantics
+        In Proceedings of the Thirty-Second Conference on Uncertainty in Artificial Intelligence.
+    """
+
     def __init__(self, schema, h_max, ci_tester, verbose=False):
         super().__init__(schema, h_max, ci_tester, verbose)
 
     def enumerate_CUTs(self):
-        """Enumerate CUTs whose attribute classes are distinct"""
+        """Enumerate CUTs whose attribute classes are distinct."""
         by_cause_attr = defaultdict(set)
         by_effect_attr = defaultdict(set)
         for ud in self.prcm.undirected_dependencies:
@@ -466,7 +522,7 @@ class RpCD(AbstractRCD):
                             done.add((X, Y, Z))  # ordered triple
 
     def phase_II(self, background_knowledge=()):
-        """Orient undirected dependencies"""
+        """Maximally-orient undirected dependencies"""
 
         if self.verbose:
             print('phase II: started.')
@@ -516,45 +572,34 @@ def joinable(p, *args):
 
 
 def restore_anchors(P, Q, a_r, b_r, a_s, b_s, a_t=None, b_t=None):
-    """Given characteristic anchors, construct a fully specified a set of anchors."""
-    try:
-        last_P, first_Q = len(P) - 1, 0  # for readability
-        assert a_s <= a_r
-        assert b_s <= b_r
-        if a_t is not None or b_t is not None:
-            assert a_t is not None and b_t is not None
-            assert a_s <= a_r <= a_t
-            assert b_t <= b_s <= b_r
+    """Given characteristic anchors, construct a fully-specified set of anchors."""
+    last_P, first_Q = len(P) - 1, 0  # for readability
+    assert a_s <= a_r
+    assert b_s <= b_r
+    if a_t is not None or b_t is not None:
+        assert a_t is not None and b_t is not None
+        assert a_s <= a_r <= a_t
+        assert b_t <= b_s <= b_r
 
-        # (...|P|-1, 0...)
-        # (a_r..., ...b_r) (...a_r, ...b_r)
-        # (a_s..., b_s...) (a_s..., ...b_s)
-        J = {(last_P - i, first_Q + i) for i in range(llrsp(P[::-1], Q))} | \
-            {(a_r + i, b_r - i) for i in range(llrsp(P[a_r:], Q[:b_r:-1]))} | \
-            {(a_r - i, b_r - i) for i in range(llrsp(P[:a_r:-1], Q[:b_r:-1]))} | \
-            {(a_s + i, b_s + i) for i in range(llrsp(P[a_s:], Q[b_s:]))} | \
-            {(a_s + i, b_s - i) for i in range(llrsp(P[a_s:], Q[:b_s:-1]))}
+    # (...|P|-1, 0...)
+    # (a_r..., ...b_r) (...a_r, ...b_r)
+    # (a_s..., b_s...) (a_s..., ...b_s)
+    J = {(last_P - i, first_Q + i) for i in range(llrsp(P[::-1], Q))} | \
+        {(a_r + i, b_r - i) for i in range(llrsp(P[a_r:], Q[:b_r:-1]))} | \
+        {(a_r - i, b_r - i) for i in range(llrsp(P[:a_r:-1], Q[:b_r:-1]))} | \
+        {(a_s + i, b_s + i) for i in range(llrsp(P[a_s:], Q[b_s:]))} | \
+        {(a_s + i, b_s - i) for i in range(llrsp(P[a_s:], Q[:b_s:-1]))}
 
-        assert len([a for a, b in J]) == len({a for a, b in J})
-        assert len([b for a, b in J]) == len({b for a, b in J})
+    if a_t is not None and b_t is not None:
+        # (a_t..., ...b_t) (...a_t, ...b_t)
+        J |= {(a_t + i, b_t - i) for i in range(llrsp(P[a_t:], Q[:b_t:-1]))} | \
+             {(a_t - i, b_t - i) for i in range(llrsp(P[:a_t:-1], Q[:b_t:-1]))}
 
-        if a_t is not None and b_t is not None:
-            # (a_t..., ...b_t) (...a_t, ...b_t)
-            J |= {(a_t + i, b_t - i) for i in range(llrsp(P[a_t:], Q[:b_t:-1]))} | \
-                 {(a_t - i, b_t - i) for i in range(llrsp(P[:a_t:-1], Q[:b_t:-1]))}
-
-        assert len([a for a, b in J]) == len({a for a, b in J})
-        assert len([b for a, b in J]) == len({b for a, b in J})
-
-        return J
-    except AssertionError as e:
-        print(P, Q, a_r, b_r, a_s, b_s, a_t, b_t)
-        restore_anchors(P, Q, a_r, b_r, a_s, b_s, a_t, b_t)
-        raise e
+    return J
 
 
 def anchors_to_skeleton(schema: RSchema, P: RPath, Q: RPath, J):
-    """Given anchors, construct a relational skeleton, which admits the anchors"""
+    """Given anchors, construct a relational skeleton, which admits the anchors."""
     temp_g = nx.Graph()
 
     # Both
@@ -599,25 +644,27 @@ def anchors_to_skeleton(schema: RSchema, P: RPath, Q: RPath, J):
 
 
 # written for readability
-# can be faster by employing view-class for RPath for slicing operator
+# can be faster by employing a view-class for RPath for the slicing operator
 def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, single=True, with_anchors=False):
     """Returns a CUT, if exists, or generate CUTs with/without anchors"""
     if PyVx is None or QzVy is None:
+        assert PyVx is None and QzVy is None
         all_ds = {dd for d in M.directed_dependencies for dd in (d, reversed(d))} | \
                  {d for u in M.undirected_dependencies for d in u}
         to_chain = []
         skip = set()
-        for PyVx in (all_ds if PyVx is None else [PyVx]):
+        for PyVx in all_ds:
             (_, Y), (_, X) = PyVx
-            for QzVy in (all_ds if QzVy is None else [QzVy]):
+            for QzVy in all_ds:
                 (_, Z), (_, Y2) = QzVy
                 if Y == Y2:
                     if single:  # single(s)
                         if SymTriple(X, Y, Z) in skip:
                             continue
-                        cut = next(inner_canonical_unshielded_triples(M, PyVx, QzVy, with_anchors))
-                        skip.add(SymTriple(X, Y, Z))
-                        to_chain.append(cut)
+                        for cut in inner_canonical_unshielded_triples(M, PyVx, QzVy, with_anchors):
+                            skip.add(SymTriple(X, Y, Z))
+                            to_chain.append(cut)
+                            break
                     else:
                         to_chain.append(inner_canonical_unshielded_triples(M, PyVx, QzVy, with_anchors))
         if single:
@@ -635,6 +682,7 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
 
 
 def inner_canonical_unshielded_triples(M: PRCM, PyVx: RDep, QzVy: RDep, with_anchors=False):
+    """Returns a generator that yields CUTs sufficient to identify a pattern of an RCM (under path semantics)"""
     LL = llrsp
 
     Py, Vx = PyVx
@@ -696,8 +744,6 @@ def inner_canonical_unshielded_triples(M: PRCM, PyVx: RDep, QzVy: RDep, with_anc
                     continue
 
                 l_beta = LL(PB, QB)
-                # if (not eqint(PB, QA)) and l_beta == min(len(PB), len(QB)):
-                #     continue
                 if (not eqint(PB, QA)) or (l_beta > 1 and l_beta == min(len(PB), len(QB))):
                     continue
                 assert eqint(PB, QA) or 1 < l_beta < min(len(PB), len(QB))
@@ -742,3 +788,51 @@ def inner_canonical_unshielded_triples(M: PRCM, PyVx: RDep, QzVy: RDep, with_anc
                             for R in {RrZ, RsZ, RtZ}:
                                 assert Vx != R
                                 yield Vx, PP_Y, R
+
+
+def markov_equivalence(model: RCM) -> PRCM:
+    """A unique representation for Markov Equivalence of RCM under path semantics [1]
+
+    References
+    ----------
+    [1] Sanghack Lee, Vasant Honavar, (2016)
+        A Characterization of Markov Equivalence Classes of Relational Causal Model under Path Semantics
+        In Proceedings of the Thirty-Second Conference on Uncertainty in Artificial Intelligence.
+    """
+
+    cdg = model.class_dependency_graph
+
+    # undirected
+    cprcm = PRCM(model.schema, {UndirectedRDep(d) for d in model.directed_dependencies})
+
+    # pattern of RCM
+    NC = set()
+    for cut in canonical_unshielded_triples(model):
+        Vx, PPy, Rz = cut
+        Py = next(iter(PPy))
+        (_, X), (_, Y), (_, Z) = Vx, Py, Rz
+
+        # canonical unshielded colliders
+        if cdg.is_oriented_as(X, Y) and cdg.is_oriented_as(Z, Y):
+            cprcm.orient_with(X, Y)
+            cprcm.orient_with(Z, Y)
+        elif X == Z:  # RBO
+            cprcm.orient_with(Y, X)
+        else:
+            # canonical unshielded non-colliders
+            NC.add(SymTriple(X, Y, Z))
+
+    # CPRCM
+    pcdg = cprcm.class_dependency_graph
+    sound_rules(pcdg, NC)
+    completes(pcdg, NC)
+
+    for x, y in pcdg.oriented():
+        cprcm.orient_with(x, y)
+
+    return cprcm
+
+
+def markov_equivalent(model1: RCM, model2: RCM):
+    """Two RCMs under path semantics are equivalent based on Markov condition."""
+    return markov_equivalence(model1) == markov_equivalence(model2)

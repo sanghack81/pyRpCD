@@ -47,6 +47,8 @@ def is_valid_rpath(path) -> bool:
 
 @functools.total_ordering
 class RPath:
+    """Relational path"""
+
     def __init__(self, item_classes, backdoor=False):
         assert item_classes is not None
         if isinstance(item_classes, I_Class):
@@ -75,12 +77,19 @@ class RPath:
     def __le__(self, other):
         return self.__item_classes <= other.__item_classes
 
-    # As in the paper
     def __getitem__(self, item):
+        """a subpath based on a slice.
+
+        Notes
+        -----
+        Unlike usual slicing operator,
+        Both start and stop are inclusive.
+        start <= stop.
+        step, if given, must be -1.
+        """
         if isinstance(item, int):
             return self.__item_classes[item]
         elif isinstance(item, slice):
-            # TODO slice to tuple, lru cache, a few ...
             start = 0 if item.start is None else item.start
             stop = len(self) if item.stop is None else item.stop + 1
             assert 0 <= start < stop <= len(self)
@@ -93,8 +102,8 @@ class RPath:
         else:
             raise ValueError('unknown {}'.format(item))
 
-    # path concatenation
     def __pow__(self, other):
+        """Concatenate two paths."""
         if self.joinable(other):
             return self.join(other, True)
         return None
@@ -158,9 +167,17 @@ class RPath:
         return str(self)
 
 
-# Longest Length of Required Shared Path
 @functools.lru_cache(3)
 def llrsp(p1: RPath, p2: RPath) -> int:
+    """Longest Length of Required Shared Path
+
+    References
+    ----------
+    [1] Sanghack Lee and Vasant Honavar (2015),
+        Lifted Representation of Relational Causal Models Revisited:
+        Implications for Reasoning and Structure Learning,
+        UAI 2015 Workshop on Advances in Causal Inference
+    """
     prev = None
     for i, (x, y) in enumerate(zip(p1, p2)):
         if x != y or (i > 0 and isinstance(x, R_Class) and x.is_many(prev)):
@@ -170,8 +187,8 @@ def llrsp(p1: RPath, p2: RPath) -> int:
     return min(len(p1), len(p2))
 
 
-# equal or intersectible
 def eqint(p1: RPath, p2: RPath):
+    """Equal or intersectible"""
     if (p1.base, p1.terminal) != (p2.base, p2.terminal):
         return False
     return p1 == p2 or llrsp(p1, p2) + llrsp(reversed(p1), reversed(p2)) <= min(len(p1), len(p2))
@@ -180,6 +197,8 @@ def eqint(p1: RPath, p2: RPath):
 # Immutable
 @functools.total_ordering
 class RVar:
+    """Relational variable"""
+
     def __init__(self, rpath, attr: typing.Union[str, A_Class]):
         if not isinstance(rpath, RPath):
             rpath = RPath(rpath)
@@ -236,6 +255,8 @@ def canonical_rvars(schema: RSchema) -> typing.Set[RVar]:
 
 @functools.total_ordering
 class RDep:
+    """Relational dependency"""
+
     def __init__(self, cause: RVar, effect: RVar):
         assert effect.is_canonical
         assert cause.attr != effect.attr
@@ -289,6 +310,8 @@ class RDep:
 
 @functools.total_ordering
 class SymTriple:
+    """Symmetric triple where (X,Y,Z) == (Z,Y,X)"""
+
     def __init__(self, left, middle, right):
         self.left, self.middle, self.right = left, middle, right
 
@@ -304,7 +327,7 @@ class SymTriple:
         return iter((self.left, self.middle, self.right))
 
     def sides(self):
-        return set(self.left, self.right)
+        return {self.left, self.right}
 
     @property
     def dual(self):
@@ -319,6 +342,8 @@ class SymTriple:
 
 @functools.total_ordering
 class UndirectedRDep:
+    """Undirected representation of relational dependency"""
+
     def __init__(self, rdep: RDep):
         assert isinstance(rdep, RDep)
         self.rdeps = frozenset({rdep, reversed(rdep)})
@@ -343,12 +368,17 @@ class UndirectedRDep:
         c, e = next(iter(self))
         return str(c) + " -- " + str(e)
 
+    def __repr__(self):
+        return str(self)
+
     def attrfy(self):
         dep = next(iter(self.rdeps))
         return frozenset({dep.cause.attr, dep.effect.attr})
 
 
 class PRCM:
+    """Partially-directed Relational Causal Model"""
+
     def __init__(self, schema, dependencies=None):
         if dependencies is None:
             dependencies = frozenset()
@@ -464,9 +494,12 @@ class PRCM:
                 for dep in udep:
                     if dep.attrfy() == (x, y):
                         self.orient_as(dep)
+                        break
 
 
 class RCM(PRCM):
+    """Relational Causal Model"""
+
     def __init__(self, schema: RSchema, dependencies=None):
         super().__init__(schema, dependencies)
 
@@ -475,10 +508,9 @@ class RCM(PRCM):
         super().add(d)
 
 
-# function takes values and cause item attributes
-# values[RVar]
-# cause_item_attr[RVar] = tuples of an item and an attribute
 class ParamRCM(RCM):
+    """Parametrized Relational Causal Model"""
+
     def __init__(self, schema: RSchema, dependencies, functions: dict):
         super().__init__(schema, dependencies)
         self.functions = functions
@@ -486,6 +518,7 @@ class ParamRCM(RCM):
 
 # TODO, speed up by employing a tree structure (memory efficient)
 def terminal_set(skeleton: RSkeleton, rpath: RPath, base_item: SkItem):
+    """A terminal set of given relational path from the base item on the given relational skeleton."""
     if isinstance(rpath, RDep):
         rpath = rpath.cause.rpath
     elif isinstance(rpath, RVar):
@@ -512,7 +545,7 @@ def terminal_set(skeleton: RSkeleton, rpath: RPath, base_item: SkItem):
     return {path[-1] for path in item_paths}
 
 
-def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False, n_jobs=1):
+def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False, n_jobs=1, verbose=False):
     rvars = list(rvars)
     assert len({rvar.base for rvar in rvars}) == 1
     base_class = rvars[0].base
@@ -522,26 +555,13 @@ def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False,
     if with_base_items:
         data[:, 0] = base_items
 
-    # TODO check performance ... skeleton is heavy!?!
-    inner_data = Parallel(n_jobs)(delayed(__inner_flatten)(skeleton, rvar, base_items, value_only)
-                                  for j, rvar in enumerate(rvars, start=1 if with_base_items else 0))
+    inner_data = Parallel(n_jobs, verbose=5 if verbose else 0) \
+        (delayed(__inner_flatten)(skeleton, rvar, base_items, value_only)
+         for j, rvar in enumerate(rvars, start=1 if with_base_items else 0))
 
-<<<<<<< HEAD
-    for j in range(len(rvars)):
-        data[:, j] = inner_data[j]
-=======
     shift = 1 if with_base_items else 0
     for j in range(len(rvars)):
         data[:, j + shift] = inner_data[j]
->>>>>>> master
-
-    # for j, rvar in enumerate(rvars, start=1 if with_base_items else 0):
-    #     for i, base_item in enumerate(base_items):
-    #         terminal = terminal_set(skeleton, rvar.rpath, base_item)
-    #         if value_only:
-    #             data[i, j] = tuple(item[rvar.attr] for item in terminal)
-    #         else:
-    #             data[i, j] = tuple((item, item[rvar.attr]) for item in terminal)
 
     return data
 
@@ -549,7 +569,7 @@ def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False,
 def __inner_flatten(skeleton, rvar, base_items, value_only):
     inner_data = np.zeros((len(base_items),), dtype=object)
     for i, base_item in enumerate(base_items):
-        terminal = terminal_set(skeleton, rvar.rpath, base_item)
+        terminal = sorted(terminal_set(skeleton, rvar.rpath, base_item))
         if value_only:
             inner_data[i] = tuple(item[rvar.attr] for item in terminal)
         else:
@@ -558,6 +578,8 @@ def __inner_flatten(skeleton, rvar, base_items, value_only):
 
 
 class GroundGraph:
+    """Ground graph"""
+
     def __init__(self, rcm: RCM, skeleton: RSkeleton):
         self.schema = skeleton.schema
         self.skeleton = skeleton
@@ -597,6 +619,12 @@ class GroundGraph:
 
 
 def generate_rpath(schema: RSchema, base: I_Class = None, length=None):
+    """Generate a random relational path from the given base, if provided.
+
+    Notes
+    -----
+    The length is the upper bound of the generated relational path.
+    """
     assert length is None or 1 <= length
     if base is None:
         base = choice(sorted(schema.entities | schema.relationships))
@@ -622,6 +650,8 @@ def generate_rpath(schema: RSchema, base: I_Class = None, length=None):
 
 
 def generate_rcm(schema: RSchema, num_dependencies=10, max_degree=5, max_hop=6):
+    """Generate a random relational causal model."""
+
     FAILED_LIMIT = len(schema.entities) + len(schema.relationships)
     # ordered attributes
     attr_order = sorted(schema.attrs)
@@ -668,6 +698,7 @@ def _item_attributes(items, attr: A_Class):
 def generate_values_for_skeleton(rcm: ParamRCM, skeleton: RSkeleton):
     """
     Generate values for the given skeleton based on functions specified in the parametrized RCM.
+
     :param rcm: a parameterized RCM, where its functions are used to generate values on skeleton.
     :param skeleton: a skeleton where values will be assigned to its item-attributes
     """
@@ -680,7 +711,7 @@ def generate_values_for_skeleton(rcm: ParamRCM, skeleton: RSkeleton):
         effect = RVar(RPath(base_item_class), attr)
         causes = rcm.pa(effect)
 
-        for base_item in skeleton.items(base_item_class):
+        for base_item in sorted(skeleton.items(base_item_class)):
             cause_item_attrs = {cause: _item_attributes(terminal_set(skeleton, cause.rpath, base_item), cause.attr)
                                 for cause in causes}
 
@@ -689,6 +720,7 @@ def generate_values_for_skeleton(rcm: ParamRCM, skeleton: RSkeleton):
 
 
 def linear_gaussians_rcm(rcm: RCM):
+    """Parameterized RCM as a linear model with Gaussian additive noise."""
     functions = dict()
     effects = {RVar(RPath(rcm.schema.item_class_of(attr)), attr) for attr in rcm.schema.attrs}
 

@@ -1,11 +1,8 @@
 import collections
 
 
-#  Partially Directed Acyclic Graph.
-
-
 class PDAG:
-    """Current implmenetation uses bidirected edge as undirected edge"""
+    """Partially-directed Acyclic Graph"""
 
     def __init__(self, edges=None):
         self.E = set()
@@ -23,12 +20,11 @@ class PDAG:
     def __iter__(self):
         return iter(self.vertices())
 
-    # TODO performance
     def __contains__(self, item):
         return item in self.E or item in self.vertices()
 
-    # Ancestors
     def an(self, x, at=None):
+        """Ancestors of x"""
         if at is None:
             at = set()
 
@@ -39,8 +35,8 @@ class PDAG:
 
         return at
 
-    # Descendants
     def de(self, x, at=None):
+        """Descendants of x"""
         if at is None:
             at = set()
 
@@ -51,8 +47,8 @@ class PDAG:
 
         return at
 
-    # get all oriented edges
     def oriented(self):
+        """all oriented edges"""
         ors = set()
         for x, y in self.E:
             if (y, x) not in self.E:
@@ -60,13 +56,13 @@ class PDAG:
         return ors
 
     def unoriented(self):
+        """all unoriented edges"""
         uors = set()
         for x, y in self.E:
             if (y, x) in self.E:
                 uors.add(frozenset({x, y}))
         return uors
 
-    # remove a vertex
     def remove_vertex(self, v):
         for x, y in list(self.E):
             if x == v or y == v:
@@ -102,7 +98,6 @@ class PDAG:
         for x, y in zip(iterable, iterable[1:]):
             self.add_undirected_edge(x, y)
 
-    # Adjacent
     def is_adj(self, x, y):
         return (x, y) in self.E or (y, x) in self.E
 
@@ -114,15 +109,25 @@ class PDAG:
         for x, y in xys:
             self.add_undirected_edge(x, y)
 
-    # if y-->x exists, adding x-->y makes x -- y.
     def add_edge(self, x, y):
+        """Add an edge
+
+        Notes
+        -----
+        if y-->x exists, adding x-->y makes x -- y (i.e., undirected edge).
+        """
         assert x != y
         self.E.add((x, y))
         self._Pa[y].add(x)
         self._Ch[x].add(y)
 
     def add_undirected_edge(self, x, y):
-        # will override any existing directed edge
+        """Add an edge
+
+        Notes
+        -----
+        This will override any existing directed edge.
+        """
         assert x != y
         self.add_edge(x, y)
         self.add_edge(y, x)
@@ -131,6 +136,12 @@ class PDAG:
         return any([self.orient(x, y) for x, y in xys])
 
     def orient(self, x, y):
+        """Orient an undirected edge to directed edge x-->y
+
+        Returns
+        -------
+        True if an undirected edge x--y is changed to x-->y
+        """
         if (x, y) in self.E:  # already oriented as x -> y?
             if (y, x) in self.E:  # bi-directed?
                 self.E.remove((y, x))
@@ -146,22 +157,25 @@ class PDAG:
         return (x, y) in self.E and (y, x) in self.E
 
     def is_oriented(self, x, y):
+        """Returns true if there exists a directed edge between x and y without orientation (i.e., x-->y or x<--y)."""
         return ((x, y) in self.E) ^ ((y, x) in self.E)
 
-    # get neighbors
     def ne(self, x):
+        """Neighbors -- connected through an undirected edge"""
         return self._Pa[x] & self._Ch[x]
 
-    # get adjacent vertices
     def adj(self, x):
+        """Adjacencies -- connected through an (un)directed edge"""
         return self._Pa[x] | self._Ch[x]
 
     # get parents
     def pa(self, x):
+        """Parents -- connected through a directed edge towards x"""
         return self._Pa[x] - self._Ch[x]
 
     # get children
     def ch(self, x):
+        """Children -- connected through a directed edge from x"""
         return self._Ch[x] - self._Pa[x]
 
     def as_networkx_dag(self):
@@ -177,40 +191,3 @@ class PDAG:
         ug = nx.Graph()
         ug.add_edges_from(self.unoriented())
         return ug
-
-
-# x--y--z must be a (shielded or unshielded) non-colider
-def meek_rule_3(pdag: PDAG, x, y, z):
-    # MR3 x-->w<--z, w--y
-    changed = False
-    for w in pdag.ch(x) & pdag.ch(z) & pdag.ne(y):
-        changed |= pdag.orient(y, w)
-    return changed
-
-
-def meek_rule_2(pdag: PDAG):
-    changed = False
-    for x, y in list(pdag.E):
-        if pdag.is_unoriented(x, y):  # will check y,x, too
-            if pdag.ch(x) & pdag.pa(y):  # x-->w-->y
-                changed |= pdag.orient(x, y)
-    return changed
-
-
-# x--y--z must be a (shielded or unshielded) non-colider
-def meek_rule_4(pdag: PDAG, x, y, z):
-    # MR4 z-->w-->x # y-->x
-    if pdag.ch(z) & pdag.pa(x):
-        return pdag.orient(y, x)
-    elif pdag.ch(x) & pdag.pa(z):  # z<--w<--x, z<--y
-        return pdag.orient(y, z)
-    return False
-
-
-# x--y--z must be a (shielded or unshielded) non-colider
-def meek_rule_1(pdag: PDAG, x, y, z):
-    if pdag.is_oriented_as(x, y):
-        return pdag.orient(y, z)
-    elif pdag.is_oriented_as(z, y):
-        return pdag.orient(y, x)
-    return False

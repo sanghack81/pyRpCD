@@ -154,7 +154,7 @@ class TestModel(unittest.TestCase):
 
         assert rcm.max_hop == 4
 
-        urcm = PRCM(company_schema, {UndirectedRDep(d) for d in deps})
+        urcm = PRCM(company_schema(), {UndirectedRDep(d) for d in deps})
         assert urcm.max_hop == 4
         ucdg = urcm.class_dependency_graph
         assert not ucdg.pa(A_Class('Salary'))
@@ -169,7 +169,7 @@ class TestModel(unittest.TestCase):
         assert cdg.pa(A_Class('Revenue')) == {A_Class('Success'), }
         assert cdg.ch(A_Class('Revenue')) == {A_Class('Budget'), }
 
-        rcm = RCM(company_schema, [])
+        rcm = RCM(company_schema(), [])
         assert rcm.max_hop == -1
 
     def test_crv(self):

@@ -39,8 +39,7 @@ class SchemaElement:
     def __init__(self, name: str):
         if not isinstance(name, str) or not name:
             raise ValueError('A name must be a non-empty string')
-        # assert isinstance(name, str)
-        # assert bool(name)
+
         self.name = name
         self.__h = hash(self.name)
 
@@ -92,7 +91,6 @@ class R_Class(I_Class):
         self.__cards = cards.copy()
         self.entities = frozenset(self.__cards.keys())
 
-    # E in R
     def __contains__(self, item):
         """Whether an entity class participates in this relationship class"""
         return item in self.__cards
@@ -113,6 +111,8 @@ class R_Class(I_Class):
 
 
 class A_Class(SchemaElement):
+    """Attribute class"""
+
     def __init__(self, name):
         super().__init__(name)
 
@@ -120,8 +120,9 @@ class A_Class(SchemaElement):
         return 'A_Class(' + repr(self.name) + ')'
 
 
-# Immutable
 class RSchema:
+    """Relational schema"""
+
     def __init__(self, entities, relationships):
         assert all(isinstance(e, E_Class) for e in entities)
         assert all(isinstance(r, R_Class) for r in relationships)
@@ -159,9 +160,7 @@ class RSchema:
 
     def __contains__(self, item):
         """Whether the given schema element is in this relational schema"""
-        return item in self.entities or \
-               item in self.relationships or \
-               item in self.attrs
+        return item in self.entities or item in self.relationships or item in self.attrs
 
     def __str__(self):
         return "RSchema(" + ', '.join(e.name for e in sorted(self.entities | self.relationships)) + ")"
@@ -189,6 +188,8 @@ class RSchema:
 
 @functools.total_ordering
 class SkItem:
+    """Item -- an instance (i.e., entity or relationship) in a relational skeleton"""
+
     def __init__(self, name, item_class: I_Class, values: dict = None):
         self.name = name
         self.item_class = item_class
@@ -226,6 +227,8 @@ class SkItem:
 
 
 class RSkeleton:
+    """Relational skeleton"""
+
     def __init__(self, schema: RSchema, strict=False):
         self.schema = schema
         self._G = nx.Graph()
@@ -253,6 +256,7 @@ class RSkeleton:
     def add_entity(self, item: SkItem):
         assert isinstance(item.item_class, E_Class)
         assert item not in self._G
+
         self._nodes_by_type[item.item_class].add(item)
         self._G.add_node(item)
 
@@ -261,6 +265,7 @@ class RSkeleton:
         assert all(isinstance(e.item_class, E_Class) for e in entities)
         assert rel not in self._G
         assert all(e in self._G for e in entities)
+
         for e in entities:
             if not rel.item_class.is_many(e.item_class):
                 assert len(self.neighbors(e, rel.item_class)) == 0
@@ -300,6 +305,7 @@ class RSkeleton:
 
 class ImmutableRSkeleton(RSkeleton):
     def __init__(self, skeleton: RSkeleton):
+        # TODO, super
         self.schema = skeleton.schema
         self._nodes = frozenset(skeleton._G.nodes_iter())
         self._nodes_of = defaultdict(frozenset)
@@ -368,7 +374,8 @@ def generate_schema(num_ent_classes_distr=between_sampler(2, 5),
                     num_attr_classes_per_ent_class_distr=between_sampler(2, 4),
                     num_attr_classes_per_rel_class_distr=between_sampler(0, 0),
                     cardinality_distr=cardinality_sampler(0.5)  # Cardinality sampler
-                    ):
+                    ) -> RSchema:
+    """Randomly generates a relational schema"""
     ent_classes = []
     rel_classes = []
     attr_count = itertools.count(1)
@@ -398,6 +405,7 @@ def generate_schema(num_ent_classes_distr=between_sampler(2, 5),
 
 
 def generate_skeleton(schema: RSchema, min_items_per_class=300, max_degree=3) -> RSkeleton:
+    """Randomly generates a relational skeleton"""
     c = itertools.count()
 
     def entity_generator(E):
@@ -409,9 +417,9 @@ def generate_skeleton(schema: RSchema, min_items_per_class=300, max_degree=3) ->
             yield SkItem('r' + str(next(c)), R)
 
     gens = {**{E: entity_generator(E) for E in schema.entities}, **{R: rel_generator(R) for R in schema.relationships}}
-
     n_nodes = {i: randint(min_items_per_class, round(1.2 * min_items_per_class))
                for i in sorted(schema.item_classes)}
+
     for R in sorted(schema.relationships):
         for E in sorted(R.entities):
             if not R.is_many(E) and n_nodes[E] < n_nodes[R]:
@@ -421,7 +429,7 @@ def generate_skeleton(schema: RSchema, min_items_per_class=300, max_degree=3) ->
 
     nodes = defaultdict(list)
     g = nx.Graph()
-    for I in schema.item_classes:
+    for I in sorted(schema.item_classes):
         for _ in range(n_nodes[I]):
             i = next(gens[I])
             nodes[I].append(i)
@@ -454,6 +462,7 @@ def generate_skeleton(schema: RSchema, min_items_per_class=300, max_degree=3) ->
 
 
 def repeat_skeleton(skeleton: RSkeleton, times):
+    """Creates a relational skeleton by repeating the given relational skeleton multiple times."""
     new_skeleton = RSkeleton(skeleton.schema, True)
     for i in range(times):
         @functools.lru_cache(maxsize=None)

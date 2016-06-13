@@ -9,7 +9,7 @@ from pyrcds.model import generate_rcm, RPath, RVar, SymTriple, GroundGraph, term
     is_valid_rpath
 from pyrcds.rcds import canonical_unshielded_triples, enumerate_rpaths, enumerate_rvars, interner, extend, \
     enumerate_rdeps, intersectible, UnvisitedQueue, AbstractGroundGraph, sound_rules, completes, d_separated, \
-    co_intersectible, anchors_to_skeleton, RpCD
+    co_intersectible, anchors_to_skeleton, RpCD, markov_equivalence
 from pyrcds.tests.testing_utils import company_rcm, company_schema, EPBDF
 from pyrcds.utils import group_by
 
@@ -201,6 +201,7 @@ class TestAGG(unittest.TestCase):
 class TestCUT(unittest.TestCase):
     @unittest.skip('infinite tester')
     def test_evidence_completeness2(self):
+        """Test whether given CUT correctly yields an unshielded triple"""
         # np.random.seed(0)
         while True:
             print('.')
@@ -219,6 +220,7 @@ class TestCUT(unittest.TestCase):
 
     @unittest.skip('infinite tester')
     def test_evidence_completeness(self):
+        """Test whether an unshielded triple is represented as a CUT"""
         # np.random.seed(0)
         while True:
             schema = generate_schema()
@@ -348,6 +350,22 @@ class TestRpCD(unittest.TestCase):
         assert rpcd.prcm.undirected_dependencies == {UndirectedRDep(d) for d in rcm.directed_dependencies}
         rpcd.phase_II()
         assert rpcd.prcm.directed_dependencies == rcm.directed_dependencies
+
+        assert markov_equivalence(rcm).directed_dependencies == rpcd.prcm.directed_dependencies
+
+    def test_rpcd_markov_equivalence(self):
+        np.random.seed(0)
+        for _ in range(100):
+            schema = generate_schema()
+            rcm = generate_rcm(schema, max_hop=2)
+            agg = AbstractGroundGraph(rcm, rcm.max_hop * 2)
+            rpcd = RpCD(rcm.schema, rcm.max_hop, agg)
+            rpcd.phase_I()
+            to_uds = {UndirectedRDep(d) for d in rcm.directed_dependencies}
+            phase_i_uds = rpcd.prcm.undirected_dependencies
+            assert phase_i_uds == to_uds
+            rpcd.phase_II()
+            assert markov_equivalence(rcm).directed_dependencies == rpcd.prcm.directed_dependencies
 
 
 if __name__ == '__main__':
