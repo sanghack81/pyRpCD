@@ -1,6 +1,5 @@
 import functools
 import itertools
-import typing
 from collections import defaultdict, Counter
 from enum import Enum
 from functools import total_ordering
@@ -60,6 +59,15 @@ class I_Class(SchemaElement):
     """An item class of a relational schema"""
 
     def __init__(self, name, attrs=()):
+        """
+
+        Parameters
+        ----------
+        name : str
+            The name of item class
+        attrs : A_Class or str or iterable of A_Class or str
+            Attribute classes of the item class
+        """
         if isinstance(attrs, A_Class):
             attrs = {attrs, }
         elif isinstance(attrs, str):
@@ -95,11 +103,12 @@ class R_Class(I_Class):
         """Whether an entity class participates in this relationship class"""
         return item in self.__cards
 
-    def __getitem__(self, item):
+    def __getitem__(self, entity):
         """Cardinality of a participating entity class"""
-        return self.__cards[item]
+        return self.__cards[entity]
 
     def is_many(self, entity):
+        """Whether the cardinality of a given participating entity class is many"""
         return self.__cards[entity] == Cardinality.many
 
     def __repr__(self):
@@ -124,6 +133,7 @@ class RSchema:
     """Relational schema"""
 
     def __init__(self, entities, relationships):
+        """Initialize a relational schema with given entity and relationship classes"""
         assert all(isinstance(e, E_Class) for e in entities)
         assert all(isinstance(r, R_Class) for r in relationships)
         assert _is_unique((*_names(entities), *_names(relationships),
@@ -155,7 +165,7 @@ class RSchema:
         return self.elements[name]
 
     def item_class_of(self, attr) -> I_Class:
-        """Returns an item class which has the given attribute class"""
+        """an item class of the given attribute class"""
         return self.attr2item_class[attr]
 
     def __contains__(self, item):
@@ -170,10 +180,11 @@ class RSchema:
             sorted(self.relationships)) + ")"
 
     def relateds(self, item_class: I_Class) -> frozenset:
-        """Returns neighboring item classes"""
+        """Neighboring item classes of the given item class"""
         return self.__i2i[item_class]
 
     def as_networkx_ug(self, with_attribute_classes=False) -> nx.Graph:
+        """An undirected graph representation (networkx.Graph) of the relational skeleton."""
         g = nx.Graph()
         g.add_nodes_from(self.entities)
         g.add_nodes_from(self.relationships)
@@ -210,13 +221,13 @@ class SkItem:
         return k in self.__values
 
     def __getitem__(self, item):
-        """Get the value of the given attribute"""
+        """The value of the given attribute"""
         if item not in self.__values:
             return None
         return self.__values[item]
 
     def __setitem__(self, item, value):
-        """Set the value of the given attribute"""
+        """Set a value for the given attribute"""
         self.__values[item] = value
 
     def __str__(self):
@@ -236,18 +247,17 @@ class RSkeleton:
         self.__strict = strict
 
     def __setitem__(self, key, value):
+        """Set the value for the item's attribute (`key`)"""
         item, attr = key
         assert isinstance(item, SkItem)
         item[attr] = value
 
     def __getitem__(self, key):
-        if isinstance(key, str):
-            pass
-        else:
-            item, attr = key
-            if attr not in item:
-                return None
-            return item[attr]
+        """The value for the item's attribute (`key`)"""
+        item, attr = key
+        if attr not in item:
+            return None
+        return item[attr]
 
     def add_entities(self, *args):
         for x in args:
@@ -261,6 +271,12 @@ class RSkeleton:
         self._G.add_node(item)
 
     def add_relationship(self, rel: SkItem, entities):
+        """Add a relationship item with specifying its participating entities.
+
+        Notes
+        -----
+        Currently, entities must be added before the relationship is added.
+        """
         assert isinstance(rel.item_class, R_Class)
         assert all(isinstance(e.item_class, E_Class) for e in entities)
         assert rel not in self._G
@@ -277,14 +293,14 @@ class RSkeleton:
         self._G.add_node(rel)
         self._G.add_edges_from((rel, e) for e in entities)
 
-    def items(self, filter_type: I_Class = None) -> typing.FrozenSet[SkItem]:
-        """Returns items of the given type, if provided"""
+    def items(self, filter_type: I_Class = None):
+        """Items of the given item class, if provided"""
         if filter_type is not None:
             return frozenset(self._nodes_by_type[filter_type])
         return frozenset(self._G)
 
     def neighbors(self, x, filter_type: I_Class = None):
-        """Returns x's neighboring items of the given type, if provided"""
+        """`x`'s neighboring items of the given item class, if provided"""
         if filter_type is None:
             return frozenset(self._G[x])
         else:
@@ -305,7 +321,7 @@ class RSkeleton:
 
 class ImmutableRSkeleton(RSkeleton):
     def __init__(self, skeleton: RSkeleton):
-        # TODO, super
+        # TODO does not inherit correctly
         self.schema = skeleton.schema
         self._nodes = frozenset(skeleton._G.nodes_iter())
         self._nodes_of = defaultdict(frozenset)
@@ -375,7 +391,12 @@ def generate_schema(num_ent_classes_distr=between_sampler(2, 5),
                     num_attr_classes_per_rel_class_distr=between_sampler(0, 0),
                     cardinality_distr=cardinality_sampler(0.5)  # Cardinality sampler
                     ) -> RSchema:
-    """Randomly generates a relational schema"""
+    """A random relational schema.
+
+    Notes
+    -----
+    Guarantees reproducibility
+    """
     ent_classes = []
     rel_classes = []
     attr_count = itertools.count(1)
@@ -405,7 +426,21 @@ def generate_schema(num_ent_classes_distr=between_sampler(2, 5),
 
 
 def generate_skeleton(schema: RSchema, min_items_per_class=300, max_degree=3) -> RSkeleton:
-    """Randomly generates a relational skeleton"""
+    """A random relational skeleton
+
+    Parameters
+    ----------
+    schema : RSchema
+        a base relational schema.
+    min_items_per_class : int
+        a minimum number of items per item class of the resulting relational skeleton.
+    max_degree : int
+        a maximum number of relationships of the same type for an entity in the resulting skeleton.
+
+    Notes
+    -----
+    Guarantees reproducibility
+    """
     c = itertools.count()
 
     def entity_generator(E):
@@ -461,8 +496,8 @@ def generate_skeleton(schema: RSchema, min_items_per_class=300, max_degree=3) ->
     return skeleton
 
 
-def repeat_skeleton(skeleton: RSkeleton, times):
-    """Creates a relational skeleton by repeating the given relational skeleton multiple times."""
+def repeat_skeleton(skeleton: RSkeleton, times) -> RSkeleton:
+    """A relational skeleton repeating the given relational skeleton given times."""
     new_skeleton = RSkeleton(skeleton.schema, True)
     for i in range(times):
         @functools.lru_cache(maxsize=None)

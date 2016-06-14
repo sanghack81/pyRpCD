@@ -1,5 +1,4 @@
 import functools
-import typing
 from collections import defaultdict
 from itertools import cycle, product, combinations
 
@@ -14,7 +13,12 @@ from pyrcds.utils import average_agg, normal_sampler, group_by, linear_gaussian
 
 
 def is_valid_rpath(path) -> bool:
-    """Checks whether the given array-like item classes is a valid relational path."""
+    """Whether the given array-like item classes can be a valid relational path.
+
+    Parameters
+    ----------
+    path : array_like of `I_Class`
+    """
     assert not isinstance(path, RPath)
     E, R = E_Class, R_Class
     assert path is not None and len(path) >= 1
@@ -50,6 +54,14 @@ class RPath:
     """Relational path"""
 
     def __init__(self, item_classes, backdoor=False):
+        """
+
+        Parameters
+        ----------
+        item_classes : I_Class or iterable of I_Class
+        backdoor : bool
+            whether to omit validity of given `item_classes`
+        """
         assert item_classes is not None
         if isinstance(item_classes, I_Class):
             item_classes = (item_classes,)
@@ -176,7 +188,7 @@ def llrsp(p1: RPath, p2: RPath) -> int:
     [1] Sanghack Lee and Vasant Honavar (2015),
         Lifted Representation of Relational Causal Models Revisited:
         Implications for Reasoning and Structure Learning,
-        UAI 2015 Workshop on Advances in Causal Inference
+        In Proceedings of Workshop on Advances in Causal Inference co-located with UAI 2015
     """
     prev = None
     for i, (x, y) in enumerate(zip(p1, p2)):
@@ -199,7 +211,7 @@ def eqint(p1: RPath, p2: RPath):
 class RVar:
     """Relational variable"""
 
-    def __init__(self, rpath, attr: typing.Union[str, A_Class]):
+    def __init__(self, rpath, attr):
         if not isinstance(rpath, RPath):
             rpath = RPath(rpath)
         if isinstance(attr, str):
@@ -246,7 +258,7 @@ class RVar:
         return str(self)
 
 
-def canonical_rvars(schema: RSchema) -> typing.Set[RVar]:
+def canonical_rvars(schema: RSchema):
     """Returns all canonical relational variables given schema"""
     return set(RVar(RPath(item_class), attr)
                for item_class in schema.item_classes
@@ -395,6 +407,7 @@ class PRCM:
 
     @property
     def valid_dependencies(self):
+        """A set of feasible relational dependencies"""
         return self.directed_dependencies | {d for u in self.undirected_dependencies for d in u}
 
     @property
@@ -404,6 +417,12 @@ class PRCM:
 
     @property
     def degree(self):
+        """The maximum number of causes (or causes to be) of a canonical relational variable in the PRCM.
+
+        Notes
+        -----
+        The number can be decreased as more relational dependencies are oriented.
+        """
         return max(len(self.adj(v)) for v in self.parents.keys() | self.neighbors.keys())
 
     def pa(self, rvar: RVar):
@@ -421,19 +440,26 @@ class PRCM:
     # -1 if there is no depedency
     @property
     def max_hop(self) -> int:
-        a = max(len(v) for k, vs in self.parents.items() for v in vs) if self.parents else 0
-        b = max(len(v) for k, vs in self.neighbors.items() for v in vs) if self.neighbors else 0
+        a = max(len(v) for k, vs in self.parents.items() for v in vs) if self.directed_dependencies else 0
+        b = max(len(v) for k, vs in self.neighbors.items() for v in vs) if self.undirected_dependencies else 0
         return -1 + max(a, b)
 
     @property
     def class_dependency_graph(self) -> PDAG:
-        # TODO Not a view, create new one every time?
+        """The class dependency graph reflecting the current status of PRCM.
+
+        Notes
+        -----
+        Not a view. A new instance is created every call.
+        """
+
         cdg = PDAG()
         cdg.add_edges((cause.attr, effect.attr) for effect, causes in self.parents.items() for cause in causes)
         cdg.add_undirected_edges((k.attr, v.attr) for k, vs in self.neighbors.items() for v in vs)
         return cdg
 
     def add(self, d):
+        """Add an (undirected) relational dependency"""
         if isinstance(d, RDep):
             cause, effect = d  # Px --> Vy
             if d in self.directed_dependencies:
@@ -489,12 +515,19 @@ class PRCM:
         return True
 
     def orient_with(self, x, y):
+        """Orient all undirected dependencies of P.X--Vy (or ~P.Y--Vx) to P.X-->Vy."""
+        # TODO check existing orientation
         for udep in list(self.undirected_dependencies):
             if udep.attrfy() == frozenset({x, y}):
                 for dep in udep:
                     if dep.attrfy() == (x, y):
                         self.orient_as(dep)
                         break
+
+    def __eq__(self, other):
+        return isinstance(other, PRCM) and \
+               self.directed_dependencies == other.directed_dependencies and \
+               self.undirected_dependencies == other.undirected_dependencies
 
 
 class RCM(PRCM):

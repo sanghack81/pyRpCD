@@ -230,7 +230,8 @@ class TestModel(unittest.TestCase):
                 assert is_valid_rpath([i for i in rpath])
 
     def test_data_gen(self):
-        n = 20
+        np.random.seed(0)
+        n = 10
         seeds = [np.random.randint(np.iinfo(np.int32).max) for _ in range(n)]
         Parallel(-1)(delayed(_test_gen_inner)(seeds[i]) for i in range(n))
 

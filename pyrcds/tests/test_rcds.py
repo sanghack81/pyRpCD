@@ -355,7 +355,7 @@ class TestRpCD(unittest.TestCase):
 
     def test_rpcd_markov_equivalence(self):
         np.random.seed(0)
-        for _ in range(100):
+        for _ in range(3):
             schema = generate_schema()
             rcm = generate_rcm(schema, max_hop=2)
             agg = AbstractGroundGraph(rcm, rcm.max_hop * 2)

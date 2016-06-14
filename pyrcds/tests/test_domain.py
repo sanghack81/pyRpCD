@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 
 from pyrcds.domain import SchemaElement, E_Class, A_Class, Cardinality, R_Class, RSchema, generate_schema, \
-    generate_skeleton, ImmutableRSkeleton
+    generate_skeleton, ImmutableRSkeleton, repeat_skeleton
 from pyrcds.tests.testing_utils import company_skeleton, EPBDF
 
 
@@ -72,7 +72,6 @@ class TestSchema(unittest.TestCase):
         # d3 = D.removed({A_Class('dummy1'), e2})
         # assert d2 == d3
 
-        assert isinstance(company_schema.relateds(B), frozenset)
         assert company_schema.relateds(B) == {F, }
         assert company_schema.relateds(P) == {D, F}
         assert company_schema.relateds(E) == {D, }
@@ -85,12 +84,13 @@ class TestSkeleton(unittest.TestCase):
     def test_skeleton_attribute(self):
         schema = generate_schema()
         skeleton = generate_skeleton(schema)
+        skeleton = repeat_skeleton(skeleton, 2)
         for item in skeleton.items():
             skeleton[(item, 0)] = '1'
         for item in skeleton.items():
             for ne_item in skeleton.neighbors(item):
-                print(skeleton[(ne_item, 0)])
-                print(ne_item[0])
+                assert skeleton[(ne_item, 0)] == '1'
+                assert ne_item[0] == '1'
 
     def test_skeleton_gen(self):
         for i in range(30):
@@ -98,7 +98,6 @@ class TestSkeleton(unittest.TestCase):
             skeleton = generate_skeleton(schema)
             iskeleton = ImmutableRSkeleton(skeleton)
             for R in schema.relationships:
-                assert isinstance(R, R_Class)
                 for E in R.entities:
                     if not R.is_many(E):
                         ents = skeleton.items(E)

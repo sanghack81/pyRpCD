@@ -1,7 +1,6 @@
 import functools
 import itertools
 import logging
-import typing
 from collections import deque, defaultdict
 from itertools import takewhile, count, combinations, chain
 
@@ -13,9 +12,8 @@ from pyrcds.model import RDep, PRCM, llrsp, RVar, eqint, RPath, RCM, UndirectedR
 from pyrcds.utils import group_by, safe_iter
 
 
-def enumerate_rpaths(schema, hop, base_item_class=None):
+def enumerate_rpaths(schema: RSchema, hop, base_item_class=None):
     """Returns a generator that enumerates all valid relational paths up to the given hop."""
-    __validate_schema(schema)
     __validate_hop(hop)
     if base_item_class:
         __validate_item_class(base_item_class, schema)
@@ -45,15 +43,9 @@ def __validate_hop(hop):
         raise ValueError('Hop must be a non-negative integer. Received {}'.format(hop))
 
 
-def __validate_schema(schema):
-    if not isinstance(schema, RSchema):
-        raise TypeError('{} is not a valid schema.'.format(type(schema)))
-
-
 def enumerate_rvars(schema: RSchema, hop):
     """Returns a generator that enumerates all valid relational variables up to the given hop."""
 
-    __validate_schema(schema)
     __validate_hop(hop)
 
     for base_item_class in schema.item_classes:
@@ -70,7 +62,6 @@ class interner(dict):
 
 def enumerate_rdeps(schema: RSchema, hop):
     """Returns a generator that enumerates all valid relational dependencies up to the given hop."""
-    __validate_schema(schema)
     __validate_hop(hop)
 
     c = interner()
@@ -97,8 +88,8 @@ def extend(P: RPath, Q: RPath):
     [1] Marc Maier, Causal Discovery for Relational Domains: Representation, Reasoning, and Learning
         Ph.D. Dissertation, University of Massachusetts, Amherst
     """
-    __validate_rpath(P)
-    __validate_rpath(Q)
+    # __validate_rpath(P)
+    # __validate_rpath(Q)
     if P.terminal != Q.base:
         raise ValueError('The terminal of {} must be the same as the base of {}'.format(P, Q))
 
@@ -120,7 +111,7 @@ def intersectible(P: RPath, Q: RPath):
     [2] Sanghack Lee and Vasant Honavar (2015),
         Lifted Representation of Relational Causal Models Revisited:
         Implications for Reasoning and Structure Learning,
-        UAI 2015 Workshop on Advances in Causal Inference
+        In Proceedings of Workshop on Advances in Causal Inference co-located with UAI 2015
     """
     __validate_rpath(P)
     __validate_rpath(Q)
@@ -139,7 +130,7 @@ def co_intersectible(Q: RPath, R: RPath, P: RPath, P_prime: RPath):
     [1] Sanghack Lee and Vasant Honavar (2015),
         Lifted Representation of Relational Causal Models Revisited:
         Implications for Reasoning and Structure Learning,
-        UAI 2015 Workshop on Advances in Causal Inference
+        In Proceedings of Workshop on Advances in Causal Inference co-located with UAI 2015
     """
 
     __validate_rpath(Q)
@@ -219,7 +210,7 @@ class AbstractGroundGraph:
     [1] Sanghack Lee and Vasant Honavar (2015),
         Lifted Representation of Relational Causal Models Revisited:
         Implications for Reasoning and Structure Learning,
-        UAI 2015 Workshop on Advances in Causal Inference
+        In Proceedings of Workshop on Advances in Causal Inference co-located with UAI 2015
 
     Notes
     -----
@@ -296,7 +287,7 @@ class AbstractGroundGraph:
 
         self.ci_test = functools.lru_cache(maxsize=None)(self.ci_test)
 
-    def ci_test(self, x: RVar, y: RVar, zs: typing.Set[RVar] = frozenset()):
+    def ci_test(self, x: RVar, y: RVar, zs=frozenset()):
         assert x != y
         assert x not in zs and y not in zs
         assert len({x.base, y.base} | {z.base for z in zs}) == 1
@@ -334,7 +325,7 @@ class AbstractRCD:
         self.prcm = PRCM(schema)
         self.verbose = verbose
 
-    def ci_test(self, cause: RVar, effect: RVar, conds: typing.Set[RVar], size: int):
+    def ci_test(self, cause: RVar, effect: RVar, conds, size: int):
         assert 0 <= size and effect.is_canonical
 
         for cond in combinations(conds, size):
@@ -513,11 +504,6 @@ class RpCD(AbstractRCD):
                     if (X, Y, Z) not in done:
                         cut = canonical_unshielded_triples(self.prcm, PyVx, QzVy)
                         if cut is not None:
-                            if not isinstance(cut, tuple):
-                                cut = list(cut)
-                                print(cut)
-
-                        if cut is not None:
                             yield cut
                             done.add((X, Y, Z))  # ordered triple
 
@@ -646,7 +632,19 @@ def anchors_to_skeleton(schema: RSchema, P: RPath, Q: RPath, J):
 # written for readability
 # can be faster by employing a view-class for RPath for the slicing operator
 def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, single=True, with_anchors=False):
-    """Returns a CUT, if exists, or generate CUTs with/without anchors"""
+    """Returns a CUT, if exists, or generate CUTs with/without anchors
+
+    Parameters
+    ----------
+    single : bool
+        whether only a CUT (if exists) is generated per a triple of attribute classes (e.g., (X,Y,Z))
+
+    Notes
+    -----
+    If `single` is set and relational dependencies are given, a CUT is given if exists else None.
+    If `single` is set and relational dependencies are not given, a list of CUTs is given, which can be empty.
+    If `single` is not set, a generator of CUTs (of given relational dependencies, if provided) will be given.
+    """
     if PyVx is None or QzVy is None:
         assert PyVx is None and QzVy is None
         all_ds = {dd for d in M.directed_dependencies for dd in (d, reversed(d))} | \
@@ -659,10 +657,10 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
                 (_, Z), (_, Y2) = QzVy
                 if Y == Y2:
                     if single:  # single(s)
-                        if SymTriple(X, Y, Z) in skip:
+                        if (X, Y, Z) in skip:
                             continue
                         for cut in inner_canonical_unshielded_triples(M, PyVx, QzVy, with_anchors):
-                            skip.add(SymTriple(X, Y, Z))
+                            skip.add((X, Y, Z))
                             to_chain.append(cut)
                             break
                     else:
@@ -673,7 +671,7 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
             return itertools.chain(*to_chain)
 
     if single:
-        # returns the first cut (will return None)
+        # returns the first cut (will return None if no such CUT exists)
         for cut in inner_canonical_unshielded_triples(M, PyVx, QzVy, with_anchors):
             return cut
     else:
@@ -682,7 +680,7 @@ def canonical_unshielded_triples(M: PRCM, PyVx: RDep = None, QzVy: RDep = None, 
 
 
 def inner_canonical_unshielded_triples(M: PRCM, PyVx: RDep, QzVy: RDep, with_anchors=False):
-    """Returns a generator that yields CUTs sufficient to identify a pattern of an RCM (under path semantics)"""
+    """A generator that yields CUTs sufficient to identify the pattern of an RCM under path semantics."""
     LL = llrsp
 
     Py, Vx = PyVx
