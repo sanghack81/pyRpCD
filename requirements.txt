@@ -1,3 +1,4 @@
-palettable
-pandas
+scipy
 networkx
+numpy
+joblib
