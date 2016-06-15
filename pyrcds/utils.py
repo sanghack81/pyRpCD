@@ -1,8 +1,16 @@
-from itertools import groupby
+import types
+from itertools import groupby, chain
 
 import numpy as np
 from numpy import median
 from numpy.random import randint, randn
+
+
+def unions(sets):
+    if isinstance(sets, types.GeneratorType):
+        return set(chain(*list(sets)))
+    else:
+        return set(chain(*sets))
 
 
 def group_by(xs, keyfunc):

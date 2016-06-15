@@ -1,6 +1,7 @@
 import unittest
 
-from pyrcds.utils import between_sampler, average_agg, max_agg, normal_sampler, linear_gaussian, group_by, safe_iter
+from pyrcds.utils import between_sampler, average_agg, max_agg, normal_sampler, linear_gaussian, group_by, safe_iter, \
+    unions
 
 
 class TestGenerators(unittest.TestCase):
@@ -24,6 +25,12 @@ class TestGenerators(unittest.TestCase):
         except StopIteration:
             return
         assert False
+
+    def test_unions(self):
+        xs = ({i, i + 1} for i in range(1, 10, 3))
+        assert unions(xs) == {1, 2, 4, 5, 7, 8}
+        xs = [{1, 2}, {4, 5, 6}, {1, 3, 5}]
+        assert unions(xs) == {1, 2, 3, 4, 5, 6}
 
     def test_sampler(self):
         sampler = between_sampler(10, 11)

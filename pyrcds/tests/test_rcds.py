@@ -214,9 +214,10 @@ class TestCUT(unittest.TestCase):
                     if Y != Y2:
                         continue
                     for cut, J in sorted(canonical_unshielded_triples(rcm, PyVx, QzVy, False, True)):
-                        skeleton, _ = anchors_to_skeleton(schema, P, Q, J)
+                        skeleton, pp, qq, _ = anchors_to_skeleton(schema, P, Q, J)
                         gg = GroundGraph(rcm, skeleton)
-                        assert gg.unshielded_triples()
+                        assert any({i for i, _ in ut.sides()} == {pp[0], qq[-1]} and ut.middle[0] == pp[-1] == qq[0]
+                                   for ut in gg.unshielded_triples())
 
     @unittest.skip('infinite tester')
     def test_evidence_completeness(self):

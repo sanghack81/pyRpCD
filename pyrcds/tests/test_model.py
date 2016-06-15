@@ -123,6 +123,21 @@ class TestModel(unittest.TestCase):
         assert terminal_set(skeleton, RPath([E, D, P, D, E]), r) == {q, s}
         assert terminal_set(skeleton, RPath([E, D, P, D, E, D, P]), r) == {c, a, ta}
 
+        assert terminal_set(skeleton, RPath([E, D, P, F, B]), p, 'bridge-burning') == {ac, }
+        assert terminal_set(skeleton, RPath([E, D, P, F, B]), q, 'bridge-burning') == {ac, d}
+        assert terminal_set(skeleton, RPath([E, D, P, D, E]), r, 'bridge-burning') == {q, s}
+        assert terminal_set(skeleton, RPath([E, D, P, D, E, D, P]), r, 'bridge-burning') == {c, a, ta}
+
+        assert terminal_set(skeleton, RPath([E, D, P, D, E]), q) == {p, r, s}
+        assert terminal_set(skeleton, RPath([E, D, P, D, E]), q, 'bridge-burning') == {p, r, s}
+        assert terminal_set(skeleton, RPath([E, D, P, D, E, D, P, D, E]), q) == {t}
+        assert terminal_set(skeleton, RPath([E, D, P, D, E, D, P, D, E]), q, 'bridge-burning') == {t}
+
+        assert terminal_set(skeleton, RPath([P, D, E, D, P]), l) == {c, a, ta}
+        assert terminal_set(skeleton, RPath([P, D, E, D, P]), l, 'bridge-burning') == {c, a, ta}
+        assert terminal_set(skeleton, RPath([P, D, E, D, P, F, B, F, P]), l) == {sm, c, a}
+        assert terminal_set(skeleton, RPath([P, D, E, D, P, F, B, F, P]), l, 'bridge-burning') == {sm}
+
     def test_sub(self):
         E, P, B, D, F = EPBDF()
         p = RPath([E, D, P, F, B])

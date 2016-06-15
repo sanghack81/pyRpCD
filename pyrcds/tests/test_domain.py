@@ -112,12 +112,8 @@ class TestSkeleton(unittest.TestCase):
                             skeleton[(e, 'key')] = v
                             assert 'key' in e
                             assert v == skeleton[(e, 'key')]
+                            assert v == iskeleton[(e, 'key')]
                             assert v == e['key']
-                            try:
-                                iskeleton[(e, 'key')] = 100
-                                assert False
-                            except AssertionError:
-                                pass
 
 
 if __name__ == '__main__':

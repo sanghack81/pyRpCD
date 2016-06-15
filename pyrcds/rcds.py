@@ -585,7 +585,12 @@ def restore_anchors(P, Q, a_r, b_r, a_s, b_s, a_t=None, b_t=None):
 
 
 def anchors_to_skeleton(schema: RSchema, P: RPath, Q: RPath, J):
-    """Given anchors, construct a relational skeleton, which admits the anchors."""
+    """Given anchors, construct a relational skeleton, which admits the anchors.
+
+    Notes
+    -----
+    The resulting name of items will be subject to change.
+    """
     temp_g = nx.Graph()
 
     # Both
@@ -626,7 +631,7 @@ def anchors_to_skeleton(schema: RSchema, P: RPath, Q: RPath, J):
     for r in relationships:
         skeleton.add_relationship(r, set(temp_g.neighbors(r)))
 
-    return skeleton, all_auxs
+    return skeleton, pp, qq, all_auxs
 
 
 # written for readability

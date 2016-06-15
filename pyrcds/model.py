@@ -9,7 +9,7 @@ from numpy.random.mtrand import choice, shuffle, randint, randn
 
 from pyrcds.domain import E_Class, R_Class, I_Class, RSchema, A_Class, RSkeleton, SkItem
 from pyrcds.graphs import PDAG
-from pyrcds.utils import average_agg, normal_sampler, group_by, linear_gaussian
+from pyrcds.utils import average_agg, normal_sampler, group_by, linear_gaussian, unions
 
 
 def is_valid_rpath(path) -> bool:
@@ -437,9 +437,15 @@ class PRCM:
     def adj(self, rvar: RVar):
         return self.neighbors[rvar] | self.parents[rvar] | self.children[rvar]
 
-    # -1 if there is no depedency
     @property
     def max_hop(self) -> int:
+        """The maximum hop length of either undirected and directed relational dependencies.
+
+        Returns
+        -------
+        int
+            -1 if there is no dependency
+        """
         a = max(len(v) for k, vs in self.parents.items() for v in vs) if self.directed_dependencies else 0
         b = max(len(v) for k, vs in self.neighbors.items() for v in vs) if self.undirected_dependencies else 0
         return -1 + max(a, b)
@@ -550,8 +556,17 @@ class ParamRCM(RCM):
 
 
 # TODO, speed up by employing a tree structure (memory efficient)
-def terminal_set(skeleton: RSkeleton, rpath: RPath, base_item: SkItem):
-    """A terminal set of given relational path from the base item on the given relational skeleton."""
+def terminal_set(skeleton: RSkeleton, rpath: RPath, base_item: SkItem, semantics='path'):
+    """A terminal set of given relational path from the base item on the given relational skeleton.
+
+    Parameters
+    ----------
+    semantics : {'path', 'bridge-burning'}
+    """
+    if semantics == 'bridge-burning':
+        return terminal_set_bbs(skeleton, rpath, base_item)
+
+    assert rpath[0] == base_item.item_class
     if isinstance(rpath, RDep):
         rpath = rpath.cause.rpath
     elif isinstance(rpath, RVar):
@@ -576,6 +591,22 @@ def terminal_set(skeleton: RSkeleton, rpath: RPath, base_item: SkItem):
 
     assert all(len(path) == len(rpath) for path in item_paths)
     return {path[-1] for path in item_paths}
+
+
+def terminal_set_bbs(skeleton: RSkeleton, rpath: RPath, base_item: SkItem):
+    if isinstance(rpath, RDep):
+        rpath = rpath.cause.rpath
+    elif isinstance(rpath, RVar):
+        rpath = rpath.rpath
+    if not isinstance(rpath, RPath):
+        raise TypeError('{} is not RPath but {}'.format(rpath, type(rpath)))
+    assert rpath[0] == base_item.item_class
+    Pi = {base_item}
+    previouses = set(Pi)
+    for i in range(1, len(rpath)):
+        Pi = unions(skeleton.neighbors(p, rpath[i]) for p in Pi) - previouses
+        previouses |= Pi
+    return Pi
 
 
 def flatten(skeleton: RSkeleton, rvars, with_base_items=False, value_only=False, n_jobs=1, verbose=False):
@@ -613,7 +644,15 @@ def __inner_flatten(skeleton, rvar, base_items, value_only):
 class GroundGraph:
     """Ground graph"""
 
-    def __init__(self, rcm: RCM, skeleton: RSkeleton):
+    def __init__(self, rcm: PRCM, skeleton: RSkeleton, semantics='path'):
+        """
+
+        Parameters
+        ----------
+        rcm
+        skeleton
+        semantics : {'path', 'bridge-burning'}
+        """
         self.schema = skeleton.schema
         self.skeleton = skeleton
         self.rcm = rcm
@@ -622,18 +661,22 @@ class GroundGraph:
         def k_fun(d):
             return d.effect.rpath.base
 
+        # TODO bridge burning
         # TODO refactoring
         # n.b. this is only valid with path semantics
         # With bridge burning semantics, a partially-directed ground graph is not well-defined.
+        if semantics == 'bridge-burning' and rcm.undirected_dependencies:
+            raise ValueError('Bridge-burning semantics cannot be used with undirected dependencies.')
+
         as_rdeps = {dep1 for dep1, _ in rcm.undirected_dependencies}
         for base_item_class, rdeps in group_by(as_rdeps, k_fun):
             for base_item, rdep in product(skeleton.items(base_item_class), rdeps):
-                for dest_item in terminal_set(skeleton, rdep.cause.rpath, base_item):
+                for dest_item in terminal_set(skeleton, rdep.cause.rpath, base_item, semantics):
                     self.g.add_undirected_edge((dest_item, rdep.cause.attr), (base_item, rdep.effect.attr))
 
         for base_item_class, rdeps in group_by(rcm.directed_dependencies, k_fun):
             for base_item, rdep in product(skeleton.items(base_item_class), rdeps):
-                for dest_item in terminal_set(skeleton, rdep.cause.rpath, base_item):
+                for dest_item in terminal_set(skeleton, rdep.cause.rpath, base_item, semantics):
                     self.g.add_edge((dest_item, rdep.cause.attr), (base_item, rdep.effect.attr))
 
     def __str__(self):
@@ -732,8 +775,12 @@ def generate_values_for_skeleton(rcm: ParamRCM, skeleton: RSkeleton):
     """
     Generate values for the given skeleton based on functions specified in the parametrized RCM.
 
-    :param rcm: a parameterized RCM, where its functions are used to generate values on skeleton.
-    :param skeleton: a skeleton where values will be assigned to its item-attributes
+    Parameters
+    ----------
+    rcm : ParamRCM
+        a parameterized RCM, where its functions are used to generate values on skeleton.
+    skeleton : RSkeleton
+        a skeleton where values will be assigned to its item-attributes
     """
     cdg = rcm.class_dependency_graph
     nx_cdg = cdg.as_networkx_dag()
